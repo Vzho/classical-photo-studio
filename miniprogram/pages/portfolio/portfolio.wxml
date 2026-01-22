@@ -1,0 +1,98 @@
+<!-- 作品集页面 -->
+<view class="portfolio-page">
+  <!-- Hero Banner Swiper -->
+  <view class="hero-banner">
+    <swiper 
+      class="banner-swiper" 
+      circular 
+      autoplay 
+      interval="5000" 
+      duration="800"
+      indicator-dots
+      indicator-color="rgba(255,255,255,0.4)"
+      indicator-active-color="#fff"
+    >
+      <swiper-item wx:for="{{bannerItems}}" wx:key="id" bindtap="onBannerTap" data-item="{{item}}">
+        <image class="banner-image" src="{{item.imageUrl}}" mode="aspectFill" />
+        <view class="banner-overlay">
+          <view class="banner-header">
+            <view class="logo">
+              <text class="logo-text">云裳 · 影像</text>
+            </view>
+          </view>
+          <view class="banner-content">
+            <view class="banner-tag">精选作品</view>
+            <text class="banner-season">{{item.category}}</text>
+            <view class="banner-title">{{item.title}}</view>
+            <view class="banner-desc">探索古典美学与现代光影的交织，记录每一个动人心魄的瞬间。</view>
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <!-- 分类筛选 -->
+  <scroll-view class="category-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="category-list">
+      <view 
+        wx:for="{{categories}}" 
+        wx:key="*this"
+        class="category-item {{activeCategory === item ? 'active' : ''}}"
+        bindtap="onCategoryTap"
+        data-category="{{item}}"
+      >
+        {{item}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="portfolio-grid">
+    <view 
+      wx:for="{{filteredItems}}" 
+      wx:key="id" 
+      class="portfolio-item"
+      bindtap="onItemTap"
+      data-item="{{item}}"
+    >
+      <view class="item-image-wrap">
+        <image 
+          class="item-image" 
+          src="{{item.imageUrl}}" 
+          mode="widthFix" 
+          lazy-load 
+          bindload="onImageLoad"
+          data-id="{{item.id}}"
+        />
+        <view class="item-overlay">
+          <text class="item-category-tag">{{item.category}}</text>
+        </view>
+        <!-- 系列标识 -->
+        <view wx:if="{{item.seriesId}}" class="series-badge">
+          <text class="series-icon">📷</text>
+          <text class="series-text">系列</text>
+        </view>
+      </view>
+      <view class="item-info">
+        <view class="item-title">{{item.title}}</view>
+        <view class="item-meta">
+          <text class="item-category">{{item.category}}</text>
+          <view class="item-likes">
+            <text class="like-icon">♥</text>
+            <text class="like-count">{{item.likes}}</text>
+          </view>
+        </view>
+        <!-- 系列照片数量 -->
+        <view wx:if="{{item.photoCount}}" class="photo-count">
+          <text class="count-icon">📷</text>
+          <text class="count-text">{{item.photoCount}}张</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 悬浮预约按钮 -->
+  <view class="floating-booking-btn {{showFloatingBtn ? 'show' : ''}}" bindtap="goBooking">
+    <text class="btn-icon">📅</text>
+    <text class="btn-text">立即预约</text>
+  </view>
+</view>

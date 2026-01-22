@@ -1,0 +1,88 @@
+<!-- 摄影师简介页面 -->
+<view class="about-page">
+  <!-- 头部背景 -->
+  <view class="profile-header">
+    <view class="header-bg"></view>
+    
+    <!-- 头像 -->
+    <view class="avatar-wrap">
+      <image class="avatar" src="{{avatarUrl}}" mode="aspectFill" />
+      <view class="verified-badge">✓</view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="profile-info">
+      <view class="name">{{photographer.name}}</view>
+      <view class="title">{{photographer.title}}</view>
+      <view class="location">
+        <text class="location-icon">📍</text>
+        <text>{{photographer.location}}</text>
+      </view>
+    </view>
+
+    <!-- 数据统计 -->
+    <view class="stats-row">
+      <view class="stat-item" wx:for="{{photographer.stats}}" wx:key="label">
+        <view class="stat-value">{{item.value}}</view>
+        <view class="stat-label">{{item.label}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 内容区域 -->
+  <view class="content-section">
+    <!-- 艺术见解 -->
+    <view class="card bio-card">
+      <view class="card-header">
+        <text class="card-icon">✨</text>
+        <text class="card-title">艺术见解</text>
+      </view>
+      <view class="bio-text">{{photographer.bio}}</view>
+    </view>
+
+    <!-- 专业技能 -->
+    <view class="skills-section">
+      <view class="section-title">专业技能</view>
+      <view class="skills-list">
+        <view class="skill-tag" wx:for="{{photographer.skills}}" wx:key="*this">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 联系方式 -->
+    <view class="contact-section">
+      <view class="section-title">联系我</view>
+      
+      <view class="contact-item" bindtap="copyWechat">
+        <view class="contact-icon-wrap">
+          <text class="contact-icon">💬</text>
+        </view>
+        <view class="contact-info">
+          <view class="contact-label">WeChat</view>
+          <view class="contact-value">{{photographer.contact.wechat}}</view>
+        </view>
+        <view class="copy-btn">复制</view>
+      </view>
+
+      <view class="contact-item" bindtap="copyEmail">
+        <view class="contact-icon-wrap">
+          <text class="contact-icon">📧</text>
+        </view>
+        <view class="contact-info">
+          <view class="contact-label">Email</view>
+          <view class="contact-value">{{photographer.contact.email}}</view>
+        </view>
+        <view class="copy-btn">复制</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部预约按钮 -->
+  <view class="bottom-action">
+    <button class="booking-btn" bindtap="goBooking">
+      <text class="btn-icon">📅</text>
+      <text>立即开启拍摄预约</text>
+    </button>
+  </view>
+</view>

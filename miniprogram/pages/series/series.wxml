@@ -1,0 +1,25 @@
+<!-- 系列详情页 -->
+<view class="series-page">
+  <!-- 头部信息 -->
+  <view class="series-header">
+    <view class="series-title">{{seriesTitle}}</view>
+    <view class="series-meta">
+      <text class="series-category">{{seriesCategory}}</text>
+      <text class="series-count">共 {{images.length}} 张</text>
+    </view>
+  </view>
+
+  <!-- 图片列表 -->
+  <view class="images-grid">
+    <view 
+      wx:for="{{images}}" 
+      wx:key="id" 
+      class="image-item"
+      bindtap="onImageTap"
+      data-index="{{index}}"
+    >
+      <image class="image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load />
+      <view class="image-number">{{index + 1}}/{{images.length}}</view>
+    </view>
+  </view>
+</view>

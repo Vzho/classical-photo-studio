@@ -1,0 +1,122 @@
+<!-- 预约拍摄页面 -->
+<view class="booking-page">
+  <!-- 顶部Banner -->
+  <view class="booking-banner" style="{{!bannerUrl ? 'background: #e7e5e4;' : ''}}">
+    <image wx:if="{{bannerUrl}}" class="banner-img" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
+    <view class="banner-overlay">
+      <view class="banner-tag">一站式全包服务</view>
+      <view class="banner-title">记录您的温婉时光</view>
+    </view>
+  </view>
+
+  <!-- 表单区域 -->
+  <view class="form-section">
+    <!-- 称呼 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">👤</text>
+        <text>您的称呼</text>
+      </view>
+      <input 
+        class="form-input" 
+        placeholder="怎么称呼您？" 
+        value="{{formData.name}}"
+        bindinput="onInputChange"
+        data-field="name"
+      />
+    </view>
+
+    <!-- 电话 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">📱</text>
+        <text>联系电话</text>
+      </view>
+      <input 
+        class="form-input" 
+        type="number"
+        placeholder="请输入您的手机号码" 
+        value="{{formData.phone}}"
+        bindinput="onInputChange"
+        data-field="phone"
+        maxlength="11"
+      />
+    </view>
+
+    <!-- 风格选择 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">🎨</text>
+        <text>心仪风格</text>
+      </view>
+      <view class="style-grid">
+        <view 
+          wx:for="{{styleOptions}}" 
+          wx:key="*this"
+          class="style-item {{formData.style === item ? 'active' : ''}}"
+          bindtap="onStyleSelect"
+          data-style="{{item}}"
+        >
+          {{item}}
+        </view>
+      </view>
+      <!-- 自定义风格输入框 -->
+      <view class="custom-style-input-wrap" wx:if="{{formData.style === '其他'}}">
+        <input 
+          class="form-input custom-style-input" 
+          placeholder="请输入您想要的风格（如：敦煌飞天、戏曲）" 
+          value="{{formData.customStyle}}"
+          bindinput="onInputChange"
+          data-field="customStyle"
+        />
+      </view>
+    </view>
+
+    <!-- 日期选择 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">📅</text>
+        <text>期望拍摄日期</text>
+      </view>
+      <picker mode="date" value="{{formData.date}}" start="{{minDate}}" bindchange="onDateChange">
+        <view class="form-input date-picker {{formData.date ? '' : 'placeholder'}}">
+          {{formData.date || '请选择日期'}}
+        </view>
+      </picker>
+    </view>
+
+    <!-- 备注 -->
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">📝</text>
+        <text>额外备注</text>
+      </view>
+      <textarea 
+        class="form-textarea" 
+        placeholder="如有特殊需求或喜欢的场景请告诉我们..."
+        value="{{formData.notes}}"
+        bindinput="onInputChange"
+        data-field="notes"
+        maxlength="500"
+      />
+    </view>
+  </view>
+
+  <!-- 底部提交 -->
+  <view class="submit-section {{showSubmitBtn ? 'show' : ''}}">
+    <view class="tips-row">
+      <view class="tip-item">
+        <text class="tip-icon">✓</text>
+        <text>拍摄前48小时免费改期</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-icon">⏰</text>
+        <text>24h内回复确认</text>
+      </view>
+    </view>
+    <button class="submit-btn" bindtap="onSubmit" loading="{{submitting}}">
+      <text>立即提交预约</text>
+      <text class="btn-arrow">→</text>
+    </button>
+  </view>
+</view>

@@ -1,0 +1,16 @@
+{
+  "name": "yunshang-photo-miniprogram",
+  "version": "1.0.0",
+  "description": "云裳·影像古风摄影小程序",
+  "main": "app.js",
+  "scripts": {
+    "compile": "tsc"
+  },
+  "keywords": ["miniprogram", "photography", "wechat"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "miniprogram-api-typings": "^3.12.2",
+    "typescript": "^5.3.3"
+  }
+}
