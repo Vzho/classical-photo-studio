@@ -1,0 +1,43 @@
+<!-- 预约成功页面 -->
+<view class="success-page">
+  <!-- 成功图标 -->
+  <view class="success-icon-wrap">
+    <view class="icon-pulse"></view>
+    <view class="success-icon">
+      <text class="check-mark">✓</text>
+    </view>
+  </view>
+
+  <!-- 成功信息 -->
+  <view class="success-info">
+    <view class="success-title">预约已收到</view>
+    <view class="success-desc">
+      感谢您对云裳影像的信任。摄影师将在 
+      <text class="highlight">24小时内</text> 
+      通过您预留的电话与您核实档期及细节。
+    </view>
+  </view>
+
+  <!-- 后续流程 -->
+  <view class="steps-card">
+    <view class="steps-header">
+      <text class="steps-icon">ℹ️</text>
+      <text class="steps-title">后续流程</text>
+    </view>
+    <view class="steps-list">
+      <view class="step-item" wx:for="{{steps}}" wx:key="title">
+        <view class="step-number">{{index + 1}}</view>
+        <view class="step-content">
+          <view class="step-title">{{item.title}}</view>
+          <view class="step-desc">{{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-actions">
+    <button class="btn-primary" bindtap="goHome">返回首页</button>
+    <button class="btn-secondary" bindtap="viewBooking">查看预约单</button>
+  </view>
+</view>

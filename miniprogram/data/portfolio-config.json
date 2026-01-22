@@ -1,0 +1,80 @@
+{
+  "themes": [
+    {
+      "id": "qingleng",
+      "name": "清冷风",
+      "series": [
+        {
+          "id": "zhuling_2020",
+          "title": "竹林",
+          "likes": 100,
+          "photos": [
+            "qingleng-zhuling_2020-1769002405846-0.jpg",
+            "qingleng-zhuling_2020-1769002440600-1.jpg",
+            "qingleng-zhuling_2020-1769002593005-0.jpg"
+          ]
+        },
+        {
+          "id": "guzhou",
+          "title": "孤舟",
+          "likes": 100,
+          "photos": [
+            "qingleng-guzhou-1769004840131-0.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mingzhi",
+      "name": "明制",
+      "series": []
+    },
+    {
+      "id": "wuxia",
+      "name": "武侠",
+      "series": []
+    },
+    {
+      "id": "youhua",
+      "name": "油画风",
+      "series": []
+    },
+    {
+      "id": "qinghan",
+      "name": "清汉女",
+      "series": []
+    }
+  ],
+  "photographer": {
+    "name": "摄影师oneone📷",
+    "title": "寻觅浮生一刹 · 资深古风旅拍师",
+    "location": "旅居苏州 / 定制全国",
+    "avatar": "avatar/photographer.jpg",
+    "stats": [
+      {
+        "value": "10+",
+        "label": "年摄影经验"
+      },
+      {
+        "value": "500+",
+        "label": "交付客片"
+      },
+      {
+        "value": "99%",
+        "label": "好评率"
+      }
+    ],
+    "bio": "十年前初见汉服，惊艳于罗裳之美。从业以来，始终坚持\"人景合一\"的创作理念。不满足于千篇一律的背景板，更倾向于通过叙事感的光影，挖掘每个人独特的古典气质。擅长捕捉那些不经意间流露的清冷与温柔。",
+    "skills": [
+      "电影质感",
+      "情绪人像",
+      "妆造指导",
+      "场景还原",
+      "精致后期"
+    ],
+    "contact": {
+      "wechat": "Qi1996w",
+      "email": "cyan.photo@outlook.com"
+    }
+  }
+}

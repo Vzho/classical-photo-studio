@@ -1,0 +1,299 @@
+/* 作品集页面样式 */
+.portfolio-page {
+  min-height: 100vh;
+  background: var(--bg-light);
+  padding-bottom: 180rpx;
+}
+
+/* Hero Banner */
+.hero-banner {
+  position: relative;
+  width: 100%;
+  height: 900rpx;
+}
+
+.banner-swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+}
+
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.banner-header {
+  padding: 100rpx 32rpx 32rpx;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: bold;
+  letter-spacing: 4rpx;
+}
+
+.banner-content {
+  padding: 48rpx 32rpx;
+  background: linear-gradient(to top, rgba(41,37,36,0.9), rgba(41,37,36,0.4), transparent);
+}
+
+.banner-tag {
+  display: inline-block;
+  background: var(--secondary);
+  color: #fff;
+  font-size: 20rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  margin-right: 16rpx;
+}
+
+.banner-season {
+  color: rgba(255,255,255,0.8);
+  font-size: 24rpx;
+}
+
+.banner-title {
+  font-size: 52rpx;
+  font-weight: bold;
+  color: #fff;
+  margin: 16rpx 0;
+}
+
+.banner-desc {
+  color: #e5e5e5;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+/* 分类筛选 */
+.category-scroll {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20rpx);
+  border-bottom: 1rpx solid rgba(0,0,0,0.05);
+  padding: 24rpx 0;
+}
+
+.category-list {
+  display: flex;
+  padding: 0 24rpx;
+  gap: 20rpx;
+}
+
+.category-item {
+  flex-shrink: 0;
+  padding: 16rpx 32rpx;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  background: #fff;
+  color: #78716c;
+  border: 1rpx solid #e7e5e4;
+}
+
+.category-item.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 8rpx 24rpx rgba(124,106,93,0.25);
+}
+
+/* 作品网格 - 瀑布流布局优化 */
+.portfolio-grid {
+  padding: 24rpx;
+  column-count: 2; /* 双列布局 */
+  column-gap: 24rpx; /* 列间距 */
+}
+
+.portfolio-item {
+  width: 100%;
+  break-inside: avoid; /* 防止元素被分割到两列 */
+  margin-bottom: 24rpx; /* 底部间距 */
+  background: #fff;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05); /* 添加阴影增加层次感 */
+}
+
+.item-image-wrap {
+  position: relative;
+  width: 100%;
+  /* 移除固定高度限制，实现真实瀑布流 */
+  min-height: auto; 
+  max-height: none;
+  border-radius: 0; /* 移除内圆角，由父容器控制 */
+  background: #f5f5f4;
+}
+
+.item-image {
+  width: 100%;
+  /* 高度自适应 */
+  height: auto;
+  display: block; /* 消除底部空隙 */
+}
+
+.item-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx;
+  background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.portfolio-item:active .item-overlay {
+  opacity: 1;
+}
+
+.item-category-tag {
+  color: #fff;
+  font-size: 22rpx;
+}
+
+.item-info {
+  padding: 16rpx 8rpx;
+}
+
+.item-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8rpx;
+}
+
+.item-category {
+  font-size: 22rpx;
+  color: var(--text-muted);
+}
+
+.item-likes {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  color: var(--text-muted);
+}
+
+.like-icon {
+  font-size: 24rpx;
+}
+
+.like-count {
+  font-size: 22rpx;
+}
+
+/* 系列标识 */
+.series-badge {
+  position: absolute;
+  top: 12rpx;
+  right: 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 8rpx 16rpx;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10rpx);
+  border-radius: 20rpx;
+  z-index: 10;
+}
+
+.series-icon {
+  font-size: 20rpx;
+}
+
+.series-text {
+  color: #fff;
+  font-size: 20rpx;
+  font-weight: bold;
+}
+
+/* 照片数量 */
+.photo-count {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  margin-top: 8rpx;
+  padding: 6rpx 12rpx;
+  background: rgba(124,106,93,0.08);
+  border-radius: 8rpx;
+  width: fit-content;
+}
+
+.count-icon {
+  font-size: 20rpx;
+}
+
+.count-text {
+  font-size: 22rpx;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+/* 悬浮预约按钮 */
+.floating-booking-btn {
+  position: fixed;
+  bottom: calc(120rpx + env(safe-area-inset-bottom) + 40rpx); /* 位于 TabBar 上方 */
+  right: 40rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 20rpx 32rpx;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(124,106,93,0.3);
+  z-index: 99;
+  opacity: 0;
+  transform: translateY(20rpx);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.floating-booking-btn.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.btn-icon {
+  font-size: 32rpx;
+}
+
+.btn-text {
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.floating-booking-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}

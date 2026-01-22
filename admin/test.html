@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理后台 - 测试页面</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    .success { color: #4ec9b0; }
+    .error { color: #f48771; }
+    .info { color: #9cdcfe; }
+    pre {
+      background: #252526;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #0e639c;
+      color: white;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #1177bb;
+    }
+    .log {
+      margin: 10px 0;
+      padding: 8px;
+      border-left: 3px solid #4ec9b0;
+      background: #252526;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔧 管理后台测试</h1>
+  
+  <div>
+    <button onclick="testConfigLoad()">测试配置加载</button>
+    <button onclick="testCOSConnection()">测试 COS 连接</button>
+    <button onclick="clearLogs()">清空日志</button>
+  </div>
+
+  <h2>📋 测试日志</h2>
+  <div id="logs"></div>
+
+  <h2>📊 配置数据</h2>
+  <pre id="configData">等待加载...</pre>
+
+  <script>
+    const CONFIG = {
+      cos: {
+        Bucket: 'phtoto-test-1302910967',
+        Region: 'ap-chongqing',
+        BaseUrl: 'https://phtoto-test-1302910967.cos.ap-chongqing.myqcloud.com'
+      },
+      configPath: '../miniprogram/data/portfolio-config.json'
+    }
+
+    function log(message, type = 'info') {
+      const logs = document.getElementById('logs')
+      const logEntry = document.createElement('div')
+      logEntry.className = `log ${type}`
+      logEntry.innerHTML = `<span class="${type}">[${new Date().toLocaleTimeString()}]</span> ${message}`
+      logs.appendChild(logEntry)
+      logs.scrollTop = logs.scrollHeight
+    }
+
+    function clearLogs() {
+      document.getElementById('logs').innerHTML = ''
+    }
+
+    async function testConfigLoad() {
+      log('开始测试配置文件加载...', 'info')
+      
+      try {
+        log(`请求路径: ${CONFIG.configPath}`, 'info')
+        const response = await fetch(CONFIG.configPath)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        
+        const data = await response.json()
+        log('✅ 配置文件加载成功', 'success')
+        log(`主题数量: ${data.themes.length}`, 'success')
+        
+        let totalSeries = 0
+        let totalPhotos = 0
+        data.themes.forEach(theme => {
+          totalSeries += theme.series.length
+          theme.series.forEach(series => {
+            totalPhotos += series.photos.length
+          })
+        })
+        
+        log(`系列数量: ${totalSeries}`, 'success')
+        log(`照片数量: ${totalPhotos}`, 'success')
+        
+        document.getElementById('configData').textContent = JSON.stringify(data, null, 2)
+        
+      } catch (error) {
+        log(`❌ 加载失败: ${error.message}`, 'error')
+        console.error(error)
+      }
+    }
+
+    async function testCOSConnection() {
+      log('开始测试 COS 连接...', 'info')
+      
+      try {
+        // 测试访问一个已知的图片
+        const testUrl = `${CONFIG.cos.BaseUrl}/avatar/photographer.jpg`
+        log(`测试 URL: ${testUrl}`, 'info')
+        
+        const response = await fetch(testUrl, { method: 'HEAD' })
+        
+        if (response.ok) {
+          log('✅ COS 连接正常', 'success')
+          log(`状态码: ${response.status}`, 'success')
+        } else {
+          log(`⚠️ COS 响应异常: ${response.status}`, 'error')
+        }
+        
+      } catch (error) {
+        log(`❌ COS 连接失败: ${error.message}`, 'error')
+        console.error(error)
+      }
+    }
+
+    // 页面加载时自动测试
+    window.addEventListener('DOMContentLoaded', () => {
+      log('🚀 测试页面已加载', 'success')
+      testConfigLoad()
+    })
+  </script>
+</body>
+</html>

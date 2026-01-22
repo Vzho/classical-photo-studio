@@ -1,0 +1,89 @@
+/* 瀑布流布局方案（可选） */
+
+/* 如果想使用瀑布流，将这个文件的内容复制到 portfolio.wxss 中 */
+
+.portfolio-grid {
+  padding: 24rpx;
+  column-count: 2;
+  column-gap: 24rpx;
+}
+
+.portfolio-item {
+  break-inside: avoid;
+  margin-bottom: 24rpx;
+  width: 100%;
+}
+
+.item-image-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 24rpx;
+  overflow: hidden;
+  background: #f5f5f4;
+}
+
+.item-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.item-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx;
+  background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.portfolio-item:active .item-overlay {
+  opacity: 1;
+}
+
+.item-category-tag {
+  color: #fff;
+  font-size: 22rpx;
+}
+
+.item-info {
+  padding: 16rpx 8rpx;
+}
+
+.item-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8rpx;
+}
+
+.item-category {
+  font-size: 22rpx;
+  color: var(--text-muted);
+}
+
+.item-likes {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  color: var(--text-muted);
+}
+
+.like-icon {
+  font-size: 24rpx;
+}
+
+.like-count {
+  font-size: 22rpx;
+}
