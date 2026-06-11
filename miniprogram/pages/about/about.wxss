@@ -23,10 +23,36 @@
   background: linear-gradient(135deg, rgba(124,106,93,0.15), rgba(166,124,82,0.1));
 }
 
+.header-bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400rpx;
+  width: 100%;
+  z-index: 0;
+}
+
+.header-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400rpx;
+  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(245,245,244,1) 90%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.header-bg-img::after {
+  display: none;
+}
+
 /* 头像 */
 .avatar-wrap {
   position: relative;
   z-index: 10;
+  margin-top: 100rpx;
 }
 
 .avatar {
@@ -181,6 +207,10 @@
   box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.04);
 }
 
+.studio-item {
+  align-items: flex-start;
+}
+
 .contact-icon-wrap {
   width: 72rpx;
   height: 72rpx;
@@ -211,6 +241,23 @@
   margin-top: 4rpx;
 }
 
+.studio-name {
+  margin-bottom: 8rpx;
+}
+
+.studio-address {
+  font-size: 24rpx;
+  color: #57534e;
+  line-height: 1.6;
+}
+
+.contact-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-left: 16rpx;
+}
+
 .copy-btn {
   padding: 12rpx 24rpx;
   background: #f5f5f4;
@@ -218,6 +265,11 @@
   font-size: 24rpx;
   font-weight: bold;
   color: var(--text-muted);
+}
+
+.nav-btn {
+  background: rgba(124,106,93,0.12);
+  color: var(--primary);
 }
 
 /* 底部预约按钮 */

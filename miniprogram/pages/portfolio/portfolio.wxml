@@ -13,18 +13,18 @@
       indicator-active-color="#fff"
     >
       <swiper-item wx:for="{{bannerItems}}" wx:key="id" bindtap="onBannerTap" data-item="{{item}}">
-        <image class="banner-image" src="{{item.imageUrl}}" mode="aspectFill" />
+        <image class="banner-image" src="{{item.imageUrl}}" mode="aspectFill" binderror="onBannerImageError" data-id="{{item.id}}" />
         <view class="banner-overlay">
           <view class="banner-header">
             <view class="logo">
-              <text class="logo-text">云裳 · 影像</text>
+              <text class="logo-text">{{homeBanner.logoText}}</text>
             </view>
           </view>
           <view class="banner-content">
-            <view class="banner-tag">精选作品</view>
+            <view class="banner-tag">{{homeBanner.tagText}}</view>
             <text class="banner-season">{{item.category}}</text>
             <view class="banner-title">{{item.title}}</view>
-            <view class="banner-desc">探索古典美学与现代光影的交织，记录每一个动人心魄的瞬间。</view>
+            <view class="banner-desc">{{item.bannerDescription || homeBanner.description}}</view>
           </view>
         </view>
       </swiper-item>
@@ -61,6 +61,7 @@
           mode="widthFix" 
           lazy-load 
           bindload="onImageLoad"
+          binderror="onItemImageError"
           data-id="{{item.id}}"
         />
         <view class="item-overlay">

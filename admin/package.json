@@ -1,7 +1,7 @@
 {
-  "name": "yunshang-admin",
+  "name": "photo-portfolio-admin",
   "version": "1.0.0",
-  "description": "云裳影像管理后台",
+  "description": "摄影作品小程序管理后台",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

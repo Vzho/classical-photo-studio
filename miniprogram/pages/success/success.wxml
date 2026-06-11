@@ -12,8 +12,8 @@
   <view class="success-info">
     <view class="success-title">预约已收到</view>
     <view class="success-desc">
-      感谢您对云裳影像的信任。摄影师将在 
-      <text class="highlight">24小时内</text> 
+      感谢您对摄影作品合集的信任。摄影师将在
+      <text class="highlight">24小时内</text>
       通过您预留的电话与您核实档期及细节。
     </view>
   </view>

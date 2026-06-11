@@ -1,50 +1,84 @@
-# 云裳·影像 微信小程序
+# 摄影作品合集 微信小程序
 
-古风摄影工作室小程序，支持作品展示、摄影师介绍、在线预约。
+这是摄影作品展示和预约咨询小程序源码。
 
-## 腾讯云COS配置
+## 配置项
 
-1. 登录 [腾讯云COS控制台](https://console.cloud.tencent.com/cos)
-2. 创建存储桶，记录 Bucket 名称和地域
-3. 修改 `app.ts` 中的配置：
+### AppID
 
-```typescript
-cos: {
-  bucket: 'your-bucket-name',
-  region: 'ap-guangzhou', // 你的地域
-  baseUrl: 'https://your-bucket-name.cos.ap-guangzhou.myqcloud.com'
+编辑 `project.config.json`：
+
+```json
+{
+  "appid": "客户小程序 AppID"
 }
 ```
 
-4. 在COS中创建以下目录结构并上传图片：
-```
-├── avatar/
-│   └── photographer.jpg
-├── banner/
-│   ├── main-banner.jpg
-│   └── booking-banner.jpg
-└── portfolio/
-    ├── qingleng-1.jpg
-    ├── qingleng-2.jpg
-    ├── wuxia-1.jpg
-    ├── mingzhi-1.jpg
-    ├── hantang-1.jpg
-    └── youhua-1.jpg
+### 小程序名称
+
+编辑 `app.json`：
+
+```json
+{
+  "window": {
+    "navigationBarTitleText": "客户小程序名称"
+  }
+}
 ```
 
-5. 在小程序后台添加COS域名到合法域名列表
+同步检查页面分享标题：
 
-## TabBar图标
+- `pages/portfolio/portfolio.ts`
+- `pages/about/about.ts`
+- `pages/booking/booking.ts`
+- `pages/series/series.ts`
 
-需要在 `images/` 目录下放置以下图标（建议81x81px）：
-- tab-portfolio.png / tab-portfolio-active.png
-- tab-about.png / tab-about-active.png  
-- tab-booking.png / tab-booking-active.png
+### COS
 
-## 上线步骤
+编辑 `app.ts`：
 
-1. 在微信公众平台注册小程序账号
-2. 获取AppID填入 `project.config.json`
-3. 配置COS域名为合法域名
-4. 使用微信开发者工具上传代码
-5. 提交审核
+```ts
+cos: {
+  bucket: '客户 COS Bucket',
+  region: '客户 COS Region',
+  baseUrl: 'https://客户 COS Bucket.cos.客户 COS Region.myqcloud.com'
+}
+```
+
+## 数据配置
+
+默认数据在：
+
+```text
+data/portfolio-config.json
+```
+
+小程序会优先请求 COS 上的：
+
+```text
+config/portfolio-config.json
+```
+
+请求失败时使用本地配置。
+
+## 图片目录
+
+建议上传到 COS：
+
+```text
+avatar/photographer.jpg
+banner/main-banner.jpg
+banner/booking-banner.jpg
+banner/about-banner.jpg
+portfolio/<图片文件名>
+config/portfolio-config.json
+```
+
+## 编译
+
+```bash
+npm install
+npm run compile
+```
+
+然后用微信开发者工具导入当前 `miniprogram` 目录。

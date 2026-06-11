@@ -18,7 +18,7 @@
       bindtap="onImageTap"
       data-index="{{index}}"
     >
-      <image class="image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load />
+      <image class="image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load binderror="onSeriesImageError" data-id="{{item.id}}" />
       <view class="image-number">{{index + 1}}/{{images.length}}</view>
     </view>
   </view>

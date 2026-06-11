@@ -27,7 +27,7 @@ Page({
 
   onImageTap(e: WechatMiniprogram.TouchEvent) {
     const index = e.currentTarget.dataset.index as number
-    const urls = this.data.images.map(img => img.imageUrl)
+    const urls = this.data.images.map(img => img.originalUrl || img.imageUrl)
     
     wx.previewImage({
       current: urls[index],
@@ -35,9 +35,24 @@ Page({
     })
   },
 
+  onSeriesImageError(e: WechatMiniprogram.CustomEvent) {
+    const id = e.currentTarget.dataset.id as string
+    const images = this.data.images.map(item => {
+      if (item.id === id && item.originalUrl && item.imageUrl !== item.originalUrl) {
+        return {
+          ...item,
+          imageUrl: item.originalUrl
+        }
+      }
+      return item
+    })
+
+    this.setData({ images })
+  },
+
   onShareAppMessage() {
     return {
-      title: `${this.data.seriesTitle} - 云裳·影像`,
+      title: `${this.data.seriesTitle} - 摄影作品合集`,
       path: `/pages/series/series?seriesId=${this.data.images[0]?.seriesId}`
     }
   }

@@ -1,5 +1,35 @@
 import { CATEGORIES, Category } from '../../utils/constants'
-import { getPortfolioImages, getCosUrl, PortfolioItem } from '../../utils/cos'
+import { getPortfolioPageData, getCosUrl, HomeBannerContent, PortfolioItem } from '../../utils/cos'
+
+const DEFAULT_HOME_BANNER: HomeBannerContent = {
+  logoText: '摄影作品合集',
+  tagText: '精选作品',
+  description: '展示摄影作品、服务风格和预约入口。'
+}
+
+function getNextRenderableCoverItem(item: PortfolioItem, width: number): PortfolioItem {
+  if (item.originalUrl && item.imageUrl !== item.originalUrl) {
+    return {
+      ...item,
+      imageUrl: item.originalUrl
+    }
+  }
+
+  const candidatePhotoNames = item.candidatePhotoNames || []
+  const candidateIndex = item.candidateIndex || 0
+  const nextPhotoName = candidatePhotoNames[candidateIndex + 1]
+
+  if (!nextPhotoName) {
+    return item
+  }
+
+  return {
+    ...item,
+    candidateIndex: candidateIndex + 1,
+    imageUrl: getCosUrl(`portfolio/${nextPhotoName}`, { width, format: 'webp' }),
+    originalUrl: getCosUrl(`portfolio/${nextPhotoName}`)
+  }
+}
 
 Page({
   data: {
@@ -8,6 +38,7 @@ Page({
     portfolioItems: [] as PortfolioItem[],
     filteredItems: [] as PortfolioItem[],
     bannerItems: [] as PortfolioItem[], // 轮播图数据
+    homeBanner: DEFAULT_HOME_BANNER,
     bannerUrl: '',
     showFloatingBtn: false // 控制悬浮按钮显示
   },
@@ -23,7 +54,7 @@ Page({
   },
   
   // 监听页面滚动
-  onPageScroll(e: WechatMiniprogram.PageScroll) {
+  onPageScroll() {
     // 获取页面高度信息，判断是否接近底部
     const query = wx.createSelectorQuery()
     query.select('.portfolio-page').boundingClientRect()
@@ -53,7 +84,9 @@ Page({
 
   async loadData() {
     const bannerUrl = getCosUrl('banner/main-banner.jpg')
-    const portfolioItems = await getPortfolioImages()
+    const { portfolioItems, homeBanner } = await getPortfolioPageData()
+    const categories = ['全部', ...Array.from(new Set(portfolioItems.map(item => item.category)))]
+    const activeCategory = categories.includes(this.data.activeCategory) ? this.data.activeCategory : '全部'
     
     // 筛选出系列作品作为轮播图候选（只要是系列封面的）
     const seriesItems = portfolioItems.filter(item => item.isSeriesCover && item.seriesId)
@@ -99,9 +132,17 @@ Page({
       })
 
     this.setData({
+      categories,
+      activeCategory,
       bannerUrl,
       portfolioItems,
-      filteredItems: portfolioItems,
+      homeBanner: {
+        ...DEFAULT_HOME_BANNER,
+        ...(homeBanner || {})
+      },
+      filteredItems: activeCategory === '全部'
+        ? portfolioItems
+        : portfolioItems.filter(item => item.category === activeCategory),
       bannerItems
     })
   },
@@ -121,6 +162,18 @@ Page({
     console.warn('Banner 加载失败，使用默认图')
     // 这里我们不做处理，让它显示空白或者默认背景色
     // 或者可以 setData 设置一个本地路径
+  },
+
+  onBannerImageError(e: WechatMiniprogram.CustomEvent) {
+    const id = e.currentTarget.dataset.id as string
+    const bannerItems = this.data.bannerItems.map(item => {
+      if (item.id === id) {
+        return getNextRenderableCoverItem(item, 800)
+      }
+      return item
+    })
+
+    this.setData({ bannerItems })
   },
 
   onCategoryTap(e: WechatMiniprogram.TouchEvent) {
@@ -172,9 +225,24 @@ Page({
     // 但小程序不支持动态设置单个元素样式，所以使用固定范围
   },
 
+  onItemImageError(e: WechatMiniprogram.CustomEvent) {
+    const id = e.currentTarget.dataset.id as string
+    const updateItem = (item: PortfolioItem) => {
+      if (item.id === id) {
+        return getNextRenderableCoverItem(item, 400)
+      }
+      return item
+    }
+
+    this.setData({
+      portfolioItems: this.data.portfolioItems.map(updateItem),
+      filteredItems: this.data.filteredItems.map(updateItem)
+    })
+  },
+
   onShareAppMessage() {
     return {
-      title: '云裳·影像 - 古风摄影作品集',
+      title: '摄影作品合集',
       path: '/pages/portfolio/portfolio',
       imageUrl: this.data.bannerUrl
     }

@@ -11,6 +11,11 @@ const COS = require('cos-nodejs-sdk-v5')
 
 const app = express()
 const PORT = process.env.PORT || 8080
+const UPLOAD_CONCURRENCY = 3
+const SLICE_SIZE = 5 * 1024 * 1024
+const CHUNK_SIZE = 2 * 1024 * 1024
+const MAX_UPLOAD_TASKS = 50
+const UPLOAD_TASK_TTL_MS = 15 * 60 * 1000
 
 // 配置
 const CONFIG = {
@@ -19,6 +24,7 @@ const CONFIG = {
   projectConfigPath: path.join(__dirname, '../miniprogram/project.config.json'),
   envPath: path.join(__dirname, '.env'),
   syncLogPath: path.join(__dirname, 'sync.log'),
+  bookingDataPath: path.join(__dirname, 'bookings.json'), // 预约数据文件
   uploadDir: path.join(__dirname, 'uploads'),
   cos: {
     SecretId: process.env.COS_SECRET_ID,
@@ -28,11 +34,13 @@ const CONFIG = {
   }
 }
 
-// 初始化 COS
-const cos = new COS({
+// 初始化 COS (使用 let 以便后续可以重新初始化)
+let cos = new COS({
   SecretId: CONFIG.cos.SecretId,
   SecretKey: CONFIG.cos.SecretKey
 })
+const uploadTasks = new Map()
+let configMutationQueue = Promise.resolve()
 
 // 中间件
 app.use(cors())
@@ -47,26 +55,358 @@ const upload = multer({ dest: CONFIG.uploadDir })
 // 获取配置
 app.get('/api/config', async (req, res) => {
   try {
-    const data = await fs.readFile(CONFIG.configPath, 'utf-8')
-    res.json(JSON.parse(data))
+    res.json(await readConfig())
   } catch (error) {
     console.error('读取配置失败:', error)
     res.status(500).json({ error: '读取配置失败' })
   }
 })
 
+async function readConfig() {
+  const data = await fs.readFile(CONFIG.configPath, 'utf-8')
+  return JSON.parse(data)
+}
+
+async function writeConfig(config) {
+  await fs.writeFile(CONFIG.configPath, JSON.stringify(config, null, 2), 'utf-8')
+}
+
+function collectReferencedPhotoNames(config) {
+  const referenced = new Set()
+
+  for (const theme of config.themes || []) {
+    for (const series of theme.series || []) {
+      for (const photo of series.photos || []) {
+        referenced.add(photo)
+      }
+    }
+  }
+
+  return referenced
+}
+
+async function listCosObjects(prefix) {
+  const contents = []
+  let marker
+
+  do {
+    const data = await new Promise((resolve, reject) => {
+      cos.getBucket({
+        Bucket: CONFIG.cos.Bucket,
+        Region: CONFIG.cos.Region,
+        Prefix: prefix,
+        Marker: marker,
+        MaxKeys: 1000
+      }, (err, result) => {
+        if (err) reject(err)
+        else resolve(result)
+      })
+    })
+
+    contents.push(...(data.Contents || []))
+    marker = (data.IsTruncated === 'true' || data.IsTruncated === true) ? data.NextMarker : null
+  } while (marker)
+
+  return contents
+}
+
+async function listPortfolioObjects() {
+  const prefix = 'portfolio/'
+  const contents = await listCosObjects(prefix)
+
+  return contents.map(item => ({
+    key: item.Key,
+    name: item.Key.replace(prefix, ''),
+    size: Number(item.Size || 0),
+    lastModified: item.LastModified
+  }))
+}
+
+async function findOrphanPortfolioPhotos() {
+  const config = await readConfig()
+  const referenced = collectReferencedPhotoNames(config)
+  const files = await listPortfolioObjects()
+
+  return files.filter(file => !file.name || !referenced.has(file.name))
+}
+
+async function deleteCosObjects(keys) {
+  if (!keys || keys.length === 0) return
+
+  const chunkSize = 1000
+  for (let i = 0; i < keys.length; i += chunkSize) {
+    const chunk = keys.slice(i, i + chunkSize)
+    const objects = chunk.map(Key => ({ Key }))
+
+    await new Promise((resolve, reject) => {
+      cos.deleteMultipleObject({
+        Bucket: CONFIG.cos.Bucket,
+        Region: CONFIG.cos.Region,
+        Objects: objects
+      }, (err, data) => {
+        if (err) reject(err)
+        else resolve(data)
+      })
+    })
+  }
+}
+
+async function mapWithConcurrency(items, concurrency, mapper) {
+  const results = new Array(items.length)
+  let index = 0
+
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+    while (true) {
+      const currentIndex = index++
+      if (currentIndex >= items.length) break
+      results[currentIndex] = await mapper(items[currentIndex], currentIndex)
+    }
+  })
+
+  await Promise.all(workers)
+  return results
+}
+
+function withConfigLock(task) {
+  const run = configMutationQueue.then(task, task)
+  configMutationQueue = run.catch(() => {})
+  return run
+}
+
+function createUploadTask({ themeId, themeName, seriesId, seriesTitle, files }) {
+  const taskId = `upload_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+  const normalizedFiles = files.map((file, index) => ({
+    id: `${taskId}_${index}`,
+    index,
+    originalName: file.originalname,
+    size: file.size || 0,
+    mimetype: file.mimetype,
+    tempPath: file.path,
+    status: 'queued',
+    uploadedBytes: 0,
+    cosFileName: null,
+    error: ''
+  }))
+
+  const task = {
+    id: taskId,
+    themeId,
+    themeName: themeName || themeId,
+    seriesId,
+    seriesTitle: seriesTitle || seriesId,
+    status: 'queued',
+    message: '等待上传',
+    error: '',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    totalFiles: normalizedFiles.length,
+    completedFiles: 0,
+    failedFiles: 0,
+    totalBytes: normalizedFiles.reduce((sum, file) => sum + file.size, 0),
+    uploadedBytes: 0,
+    progress: 0,
+    resultFiles: [],
+    files: normalizedFiles
+  }
+
+  uploadTasks.set(taskId, task)
+  pruneUploadTasks()
+  return task
+}
+
+function pruneUploadTasks() {
+  const now = Date.now()
+  const entries = Array.from(uploadTasks.values()).sort((a, b) => b.createdAt - a.createdAt)
+
+  for (const task of entries) {
+    const isFinal = task.status === 'completed' || task.status === 'failed'
+    if (uploadTasks.size > MAX_UPLOAD_TASKS || (isFinal && now - task.updatedAt > UPLOAD_TASK_TTL_MS)) {
+      uploadTasks.delete(task.id)
+    }
+  }
+}
+
+function clearFinishedUploadTasks() {
+  let clearedCount = 0
+
+  for (const [taskId, task] of uploadTasks.entries()) {
+    const isFinal = task.status === 'completed' || task.status === 'failed'
+    if (isFinal) {
+      uploadTasks.delete(taskId)
+      clearedCount++
+    }
+  }
+
+  return clearedCount
+}
+
+function updateUploadTaskStats(task) {
+  task.completedFiles = task.files.filter(file => file.status === 'completed').length
+  task.failedFiles = task.files.filter(file => file.status === 'failed').length
+  task.uploadedBytes = task.files.reduce((sum, file) => sum + Math.min(file.uploadedBytes || 0, file.size || 0), 0)
+  task.progress = task.totalBytes > 0
+    ? Math.min(100, Math.round((task.uploadedBytes / task.totalBytes) * 100))
+    : 0
+  task.updatedAt = Date.now()
+}
+
+function serializeUploadTask(task) {
+  return {
+    id: task.id,
+    themeId: task.themeId,
+    themeName: task.themeName,
+    seriesId: task.seriesId,
+    seriesTitle: task.seriesTitle,
+    status: task.status,
+    message: task.message,
+    error: task.error,
+    createdAt: task.createdAt,
+    updatedAt: task.updatedAt,
+    totalFiles: task.totalFiles,
+    completedFiles: task.completedFiles,
+    failedFiles: task.failedFiles,
+    totalBytes: task.totalBytes,
+    uploadedBytes: task.uploadedBytes,
+    progress: task.progress,
+    resultFiles: task.resultFiles,
+    files: task.files.map(file => ({
+      id: file.id,
+      originalName: file.originalName,
+      size: file.size,
+      status: file.status,
+      uploadedBytes: file.uploadedBytes,
+      cosFileName: file.cosFileName,
+      error: file.error
+    }))
+  }
+}
+
+async function cleanupTaskTempFiles(task) {
+  await Promise.all(task.files.map(file => fs.unlink(file.tempPath).catch(() => {})))
+}
+
+async function processUploadTask(taskId) {
+  const task = uploadTasks.get(taskId)
+  if (!task) return
+
+  let uploadedFiles = []
+  let configApplied = false
+
+  task.status = 'running'
+  task.message = '正在上传到 COS'
+  updateUploadTaskStats(task)
+
+  try {
+    const config = await readConfig()
+    const theme = (config.themes || []).find(item => item.id === task.themeId)
+    const series = theme?.series?.find(item => item.id === task.seriesId)
+
+    if (!theme || !series) {
+      throw new Error('主题或系列不存在，请刷新页面后重试')
+    }
+
+    task.themeName = theme.name || task.themeName
+    task.seriesTitle = series.title || task.seriesTitle
+
+    uploadedFiles = await mapWithConcurrency(task.files, UPLOAD_CONCURRENCY, async (taskFile, i) => {
+      const ext = path.extname(taskFile.originalName)
+      const fileName = `${task.themeId}-${task.seriesId}-${Date.now()}-${i}${ext}`
+      const key = `portfolio/${fileName}`
+
+      taskFile.status = 'uploading'
+      taskFile.cosFileName = fileName
+      taskFile.error = ''
+      updateUploadTaskStats(task)
+
+      try {
+        await uploadFileWithRetry(CONFIG.cos.Bucket, CONFIG.cos.Region, key, taskFile.tempPath, {
+          contentType: taskFile.mimetype,
+          onProgress: (progressData = {}) => {
+            const loaded = typeof progressData.loaded === 'number'
+              ? progressData.loaded
+              : Math.round((progressData.percent || 0) * taskFile.size)
+            taskFile.uploadedBytes = Math.min(loaded, taskFile.size)
+            updateUploadTaskStats(task)
+          }
+        })
+
+        taskFile.uploadedBytes = taskFile.size
+        taskFile.status = 'completed'
+        updateUploadTaskStats(task)
+        return fileName
+      } catch (error) {
+        taskFile.status = 'failed'
+        taskFile.error = error.message
+        updateUploadTaskStats(task)
+        throw error
+      } finally {
+        await fs.unlink(taskFile.tempPath).catch(() => {})
+      }
+    })
+
+    await withConfigLock(async () => {
+      const latestConfig = await readConfig()
+      const latestTheme = (latestConfig.themes || []).find(item => item.id === task.themeId)
+      const latestSeries = latestTheme?.series?.find(item => item.id === task.seriesId)
+
+      if (!latestTheme || !latestSeries) {
+        throw new Error('上传完成，但目标系列已不存在，无法写入配置')
+      }
+
+      const existingFiles = new Set(latestSeries.photos || [])
+      for (const fileName of uploadedFiles) {
+        if (!existingFiles.has(fileName)) {
+          latestSeries.photos.push(fileName)
+        }
+      }
+
+      await writeConfig(latestConfig)
+
+      task.message = '正在同步配置到 COS'
+      updateUploadTaskStats(task)
+
+      const configSynced = await uploadConfigToCos(latestConfig)
+      if (!configSynced) {
+        latestSeries.photos = latestSeries.photos.filter(name => !uploadedFiles.includes(name))
+        await writeConfig(latestConfig)
+        throw new Error('照片已上传，但配置同步到 COS 失败')
+      }
+
+      configApplied = true
+    })
+
+    task.status = 'completed'
+    task.message = `已完成，成功上传 ${uploadedFiles.length} 张照片`
+    task.resultFiles = uploadedFiles
+    updateUploadTaskStats(task)
+  } catch (error) {
+    if (!configApplied && uploadedFiles.length > 0) {
+      await deleteCosObjects(uploadedFiles.map(fileName => `portfolio/${fileName}`)).catch(cleanupError => {
+        console.error('回滚已上传照片失败:', cleanupError)
+      })
+    }
+
+    await cleanupTaskTempFiles(task)
+    task.status = 'failed'
+    task.error = error.message
+    task.message = `上传失败: ${error.message}`
+    updateUploadTaskStats(task)
+    console.error('后台上传任务失败:', error)
+  }
+}
+
 // 辅助函数：上传配置文件到 COS
 async function uploadConfigToCos(configData) {
   try {
     const key = 'config/portfolio-config.json'
-    
+
     // 如果 configData 是对象，转换为 JSON 字符串
     const body = typeof configData === 'string' ? configData : JSON.stringify(configData, null, 2)
-    
+
     await new Promise((resolve, reject) => {
       // 增加重试逻辑
       let retries = 3
-      
+
       const doUpload = () => {
         cos.putObject({
           Bucket: CONFIG.cos.Bucket,
@@ -89,7 +429,7 @@ async function uploadConfigToCos(configData) {
           }
         })
       }
-      
+
       doUpload()
     })
     console.log('✅ 配置文件已同步到 COS')
@@ -101,16 +441,22 @@ async function uploadConfigToCos(configData) {
 }
 
 // 辅助函数：带重试的文件上传
-async function uploadFileWithRetry(bucket, region, key, filePath) {
+async function uploadFileWithRetry(bucket, region, key, filePath, options = {}) {
+  const { contentType, onProgress } = options
+
   return new Promise((resolve, reject) => {
     let retries = 3
-    
+
     const doUpload = () => {
-      cos.putObject({
+      cos.uploadFile({
         Bucket: bucket,
         Region: region,
         Key: key,
-        Body: require('fs').createReadStream(filePath)
+        FilePath: filePath,
+        SliceSize: SLICE_SIZE,
+        ChunkSize: CHUNK_SIZE,
+        ContentType: contentType,
+        onProgress
       }, (err, data) => {
         if (err) {
           console.error(`上传失败: ${err.message}`)
@@ -126,7 +472,7 @@ async function uploadFileWithRetry(bucket, region, key, filePath) {
         }
       })
     }
-    
+
     doUpload()
   })
 }
@@ -134,13 +480,16 @@ async function uploadFileWithRetry(bucket, region, key, filePath) {
 // 保存配置
 app.post('/api/config', async (req, res) => {
   try {
-    const data = JSON.stringify(req.body, null, 2)
-    await fs.writeFile(CONFIG.configPath, data, 'utf-8')
-    console.log('✅ 配置已保存到本地')
-    
-    // 同步到 COS
-    await uploadConfigToCos(req.body)
-    
+    await withConfigLock(async () => {
+      await writeConfig(req.body)
+      console.log('✅ 配置已保存到本地')
+
+      const syncSuccess = await uploadConfigToCos(req.body)
+      if (!syncSuccess) {
+        throw new Error('配置同步到 COS 失败')
+      }
+    })
+
     res.json({ success: true, message: '配置已保存并同步到 COS' })
   } catch (error) {
     console.error('保存配置失败:', error)
@@ -153,33 +502,80 @@ app.post('/api/upload', upload.array('photos'), async (req, res) => {
   try {
     const { themeId, seriesId } = req.body
     const files = req.files
-    
+
     if (!files || files.length === 0) {
       return res.status(400).json({ error: '没有文件上传' })
     }
-    
-    const uploadedFiles = []
-    
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      const ext = path.extname(file.originalname)
-      const fileName = `${themeId}-${seriesId}-${Date.now()}-${i}${ext}`
-      const key = `portfolio/${fileName}`
-      
-      // 上传到 COS
-      await uploadFileWithRetry(CONFIG.cos.Bucket, CONFIG.cos.Region, key, file.path)
-      
-      // 删除临时文件
-      await fs.unlink(file.path)
-      
-      uploadedFiles.push(fileName)
-      console.log(`✅ 上传成功: ${fileName}`)
+
+    const config = await readConfig()
+    const theme = (config.themes || []).find(item => item.id === themeId)
+    const series = theme?.series?.find(item => item.id === seriesId)
+
+    if (!theme || !series) {
+      await Promise.all((files || []).map(file => fs.unlink(file.path).catch(() => {})))
+      return res.status(400).json({ error: '主题或系列不存在，请刷新后重试' })
     }
-    
-    res.json({ success: true, files: uploadedFiles })
+
+    const task = createUploadTask({
+      themeId,
+      themeName: theme.name,
+      seriesId,
+      seriesTitle: series.title,
+      files
+    })
+
+    setImmediate(() => {
+      processUploadTask(task.id).catch(error => {
+        console.error('处理后台上传任务失败:', error)
+      })
+    })
+
+    res.status(202).json({
+      success: true,
+      task: serializeUploadTask(task)
+    })
   } catch (error) {
+    await Promise.all((req.files || []).map(file => fs.unlink(file.path).catch(() => {})))
     console.error('上传失败:', error)
     res.status(500).json({ error: '上传失败: ' + error.message })
+  }
+})
+
+app.get('/api/uploads', async (req, res) => {
+  try {
+    pruneUploadTasks()
+    const tasks = Array.from(uploadTasks.values())
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .map(serializeUploadTask)
+
+    res.json({ success: true, tasks })
+  } catch (error) {
+    console.error('获取上传任务失败:', error)
+    res.status(500).json({ error: '获取上传任务失败: ' + error.message })
+  }
+})
+
+app.delete('/api/uploads/finished', async (req, res) => {
+  try {
+    const clearedCount = clearFinishedUploadTasks()
+    res.json({ success: true, clearedCount })
+  } catch (error) {
+    console.error('清理上传任务失败:', error)
+    res.status(500).json({ error: '清理上传任务失败: ' + error.message })
+  }
+})
+
+app.get('/api/uploads/:taskId', async (req, res) => {
+  try {
+    const task = uploadTasks.get(req.params.taskId)
+    if (!task) {
+      return res.status(404).json({ error: '上传任务不存在' })
+    }
+
+    res.json({ success: true, task: serializeUploadTask(task) })
+  } catch (error) {
+    console.error('获取上传任务详情失败:', error)
+    res.status(500).json({ error: '获取上传任务详情失败: ' + error.message })
   }
 })
 
@@ -188,20 +584,22 @@ app.post('/api/upload/banner', upload.single('banner'), async (req, res) => {
   try {
     const file = req.file
     const { type } = req.body // main-banner 或 booking-banner
-    
+
     if (!file) {
       return res.status(400).json({ error: '没有文件上传' })
     }
-    
+
     const fileName = `${type}.jpg` // 固定文件名，覆盖旧图
     const key = `banner/${fileName}`
-    
+
     // 上传到 COS
-    await uploadFileWithRetry(CONFIG.cos.Bucket, CONFIG.cos.Region, key, file.path)
-    
+    await uploadFileWithRetry(CONFIG.cos.Bucket, CONFIG.cos.Region, key, file.path, {
+      contentType: file.mimetype
+    })
+
     // 删除临时文件
     await fs.unlink(file.path)
-    
+
     console.log(`✅ Banner 上传成功: ${fileName}`)
     res.json({ success: true, fileName })
   } catch (error) {
@@ -214,19 +612,8 @@ app.post('/api/upload/banner', upload.single('banner'), async (req, res) => {
 app.delete('/api/photo/:fileName', async (req, res) => {
   try {
     const { fileName } = req.params
-    const key = `portfolio/${fileName}`
-    
-    await new Promise((resolve, reject) => {
-      cos.deleteObject({
-        Bucket: CONFIG.cos.Bucket,
-        Region: CONFIG.cos.Region,
-        Key: key
-      }, (err, data) => {
-        if (err) reject(err)
-        else resolve(data)
-      })
-    })
-    
+    await deleteCosObjects([`portfolio/${fileName}`])
+
     console.log(`✅ 删除成功: ${fileName}`)
     res.json({ success: true, message: '删除成功' })
   } catch (error) {
@@ -239,24 +626,13 @@ app.delete('/api/photo/:fileName', async (req, res) => {
 app.post('/api/photos/delete', async (req, res) => {
   try {
     const { fileNames } = req.body
-    
+
     if (!fileNames || fileNames.length === 0) {
       return res.status(400).json({ error: '没有指定文件' })
     }
-    
-    const objects = fileNames.map(name => ({ Key: `portfolio/${name}` }))
-    
-    await new Promise((resolve, reject) => {
-      cos.deleteMultipleObject({
-        Bucket: CONFIG.cos.Bucket,
-        Region: CONFIG.cos.Region,
-        Objects: objects
-      }, (err, data) => {
-        if (err) reject(err)
-        else resolve(data)
-      })
-    })
-    
+
+    await deleteCosObjects(fileNames.map(name => `portfolio/${name}`))
+
     console.log(`✅ 批量删除成功: ${fileNames.length} 个文件`)
     res.json({ success: true, message: `删除了 ${fileNames.length} 个文件` })
   } catch (error) {
@@ -276,39 +652,29 @@ app.post('/api/sync/cos', async (req, res) => {
 
   try {
     addLog('开始从 COS 同步...')
-    
-    // 1. 获取 COS 所有文件
-    const data = await new Promise((resolve, reject) => {
-      cos.getBucket({
-        Bucket: CONFIG.cos.Bucket,
-        Region: CONFIG.cos.Region,
-        Prefix: 'portfolio/'
-      }, (err, data) => {
-        if (err) reject(err)
-        else resolve(data)
-      })
-    })
 
-    const cosFiles = (data.Contents || []).map(item => item.Key.replace('portfolio/', ''))
+    // 1. 获取 COS 所有文件
+    const cosFiles = (await listPortfolioObjects())
+      .map(item => item.name)
+      .filter(Boolean)
     addLog(`🔍 COS 中发现 ${cosFiles.length} 个文件`)
 
     // 2. 读取当前配置
-    const configData = await fs.readFile(CONFIG.configPath, 'utf-8')
-    const config = JSON.parse(configData)
-    
+    const config = await readConfig()
+
     let updatedCount = 0
-    
+
     // 3. 遍历 COS 文件并尝试匹配系列
     cosFiles.forEach(fileName => {
       // 假设命名规则: themeId-seriesId-timestamp-index.ext
       // 或者简单规则: themeId-seriesId-xxx.ext
-      
+
       // 尝试解析文件名
       // 我们需要一种策略来匹配。如果文件名不规范，可能很难匹配。
       // 但我们可以尝试遍历所有主题和系列，看文件名是否以它们开头。
-      
+
       let matched = false
-      
+
       // 检查文件是否已经在配置中
       for (const theme of config.themes) {
         for (const series of theme.series) {
@@ -319,12 +685,12 @@ app.post('/api/sync/cos', async (req, res) => {
         }
         if (matched) break
       }
-      
+
       if (!matched) {
         // 如果文件不在配置中，尝试找到它所属的系列
         // 策略：检查文件名是否包含 themeId 和 seriesId
         // 格式通常是: themeId-seriesId-...
-        
+
         for (const theme of config.themes) {
           for (const series of theme.series) {
             // 构造前缀
@@ -339,7 +705,7 @@ app.post('/api/sync/cos', async (req, res) => {
           }
           if (matched) break
         }
-        
+
         if (!matched) {
           addLog(`⚠️ 无法匹配照片: ${fileName} (跳过)`, 'warn')
         }
@@ -348,9 +714,9 @@ app.post('/api/sync/cos', async (req, res) => {
 
     if (updatedCount > 0) {
       // 保存配置
-      await fs.writeFile(CONFIG.configPath, JSON.stringify(config, null, 2), 'utf-8')
+      await withConfigLock(() => writeConfig(config))
       addLog(`✅ 同步完成，恢复了 ${updatedCount} 张照片`)
-      
+
       // 同步到 COS
       addLog('正在上传最新配置到 COS...')
       const uploadSuccess = await uploadConfigToCos(config)
@@ -383,27 +749,102 @@ app.post('/api/sync/cos', async (req, res) => {
 // 列出 COS 文件
 app.get('/api/photos', async (req, res) => {
   try {
-    const data = await new Promise((resolve, reject) => {
-      cos.getBucket({
-        Bucket: CONFIG.cos.Bucket,
-        Region: CONFIG.cos.Region,
-        Prefix: 'portfolio/'
-      }, (err, data) => {
-        if (err) reject(err)
-        else resolve(data)
-      })
-    })
-    
-    const files = (data.Contents || []).map(item => ({
-      name: item.Key.replace('portfolio/', ''),
-      size: item.Size,
-      lastModified: item.LastModified
-    }))
-    
+    const files = (await listPortfolioObjects()).filter(item => item.name)
+
     res.json({ success: true, files })
   } catch (error) {
     console.error('列出文件失败:', error)
     res.status(500).json({ error: '列出文件失败: ' + error.message })
+  }
+})
+
+app.get('/api/photos/orphans', async (req, res) => {
+  try {
+    const files = await findOrphanPortfolioPhotos()
+    res.json({ success: true, count: files.length, files })
+  } catch (error) {
+    console.error('扫描无效照片失败:', error)
+    res.status(500).json({ error: '扫描无效照片失败: ' + error.message })
+  }
+})
+
+app.post('/api/photos/cleanup-orphans', async (req, res) => {
+  try {
+    const files = await findOrphanPortfolioPhotos()
+
+    if (files.length === 0) {
+      return res.json({ success: true, deletedCount: 0, files: [] })
+    }
+
+    await deleteCosObjects(files.map(file => file.key))
+    console.log(`✅ 已清理无效照片: ${files.length} 个文件`)
+
+    res.json({
+      success: true,
+      deletedCount: files.length,
+      files
+    })
+  } catch (error) {
+    console.error('清理无效照片失败:', error)
+    res.status(500).json({ error: '清理无效照片失败: ' + error.message })
+  }
+})
+
+// ==================== 预约管理 API ====================
+
+// 提交预约
+app.post('/api/booking', async (req, res) => {
+  try {
+    const booking = req.body
+    if (!booking.name || !booking.phone) {
+      return res.status(400).json({ error: '姓名和电话不能为空' })
+    }
+
+    // 读取现有预约
+    let bookings = []
+    try {
+      const data = await fs.readFile(CONFIG.bookingDataPath, 'utf-8')
+      bookings = JSON.parse(data)
+    } catch (e) {
+      // 文件不存在则初始化空数组
+    }
+
+    // 添加新预约
+    const newBooking = {
+      id: Date.now().toString(),
+      createTime: new Date().toISOString(),
+      status: 'pending', // pending, confirmed, completed, cancelled
+      ...booking
+    }
+
+    bookings.unshift(newBooking) // 最新预约排前面
+
+    // 保存到文件
+    await fs.writeFile(CONFIG.bookingDataPath, JSON.stringify(bookings, null, 2), 'utf-8')
+
+    console.log(`📝 收到新预约: ${newBooking.name} (${newBooking.phone})`)
+
+    res.json({ success: true, message: '预约提交成功' })
+  } catch (error) {
+    console.error('提交预约失败:', error)
+    res.status(500).json({ error: '提交预约失败' })
+  }
+})
+
+// 获取预约列表 (Admin用)
+app.get('/api/bookings', async (req, res) => {
+  try {
+    let bookings = []
+    try {
+      const data = await fs.readFile(CONFIG.bookingDataPath, 'utf-8')
+      bookings = JSON.parse(data)
+    } catch (e) {
+      // 文件不存在则返回空数组
+    }
+    res.json({ success: true, data: bookings })
+  } catch (error) {
+    console.error('获取预约列表失败:', error)
+    res.status(500).json({ error: '获取预约列表失败' })
   }
 })
 
@@ -456,7 +897,7 @@ app.post('/api/settings', async (req, res) => {
 
   try {
     const { SecretId, SecretKey, Bucket, Region, AppID } = req.body
-    
+
     addLog('开始配置同步流程...')
 
     // 1. 更新 .env 文件 (Admin 配置)
@@ -468,7 +909,7 @@ app.post('/api/settings', async (req, res) => {
       COS_REGION: Region,
       PORT: process.env.PORT || 8080
     }
-    
+
     // 如果没有传 Key 且原值也不存在，报错
     if (!newEnv.COS_SECRET_KEY) {
       throw new Error('SecretKey 不能为空')
@@ -478,7 +919,7 @@ app.post('/api/settings', async (req, res) => {
     for (const [key, value] of Object.entries(newEnv)) {
       newEnvContent += `${key}=${value}\n`
     }
-    
+
     await fs.writeFile(CONFIG.envPath, newEnvContent)
     addLog('✅ Admin环境配置(.env) 已更新')
 
@@ -487,13 +928,13 @@ app.post('/api/settings', async (req, res) => {
     process.env.COS_SECRET_KEY = newEnv.COS_SECRET_KEY
     process.env.COS_BUCKET = newEnv.COS_BUCKET
     process.env.COS_REGION = newEnv.COS_REGION
-    
+
     // 更新全局 CONFIG 对象
     CONFIG.cos.SecretId = newEnv.COS_SECRET_ID
     CONFIG.cos.SecretKey = newEnv.COS_SECRET_KEY
     CONFIG.cos.Bucket = newEnv.COS_BUCKET
     CONFIG.cos.Region = newEnv.COS_REGION
-    
+
     // 重新初始化全局 cos 实例
     // 注意：server.js 开头的 cos 实例是 const 定义的，无法重新赋值。
     // 但我们可以修改它的 options (如果 SDK 支持) 或者后续都使用临时实例。
@@ -517,6 +958,13 @@ app.post('/api/settings', async (req, res) => {
     })
     addLog('✅ COS API 调用验证通过 (headBucket)')
 
+    // 重新初始化全局 cos 实例（修复 bug：使用新密钥）
+    cos = new COS({
+      SecretId: newEnv.COS_SECRET_ID,
+      SecretKey: newEnv.COS_SECRET_KEY
+    })
+    addLog('✅ 全局 COS 实例已重新初始化')
+
     // 3. 同步到小程序配置 (miniprogram/app.ts)
     let appTsContent = await fs.readFile(CONFIG.appTsPath, 'utf-8')
     // 使用正则替换 globalData 中的 cos 配置
@@ -527,7 +975,7 @@ app.post('/api/settings', async (req, res) => {
       region: '${newEnv.COS_REGION}',
       baseUrl: 'https://${newEnv.COS_BUCKET}.cos.${newEnv.COS_REGION}.myqcloud.com'
     }`
-    
+
     if (cosConfigRegex.test(appTsContent)) {
       appTsContent = appTsContent.replace(cosConfigRegex, newCosConfigStr)
       await fs.writeFile(CONFIG.appTsPath, appTsContent)
@@ -549,20 +997,20 @@ app.post('/api/settings', async (req, res) => {
     }
 
     addLog('🎉 所有配置同步完成！')
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       logs,
-      message: '配置已保存并同步' 
+      message: '配置已保存并同步'
     })
 
   } catch (error) {
     addLog(`❌ 同步失败: ${error.message}`, 'error')
     console.error('配置同步失败:', error)
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: error.message,
-      logs 
+      logs
     })
   }
 })
@@ -570,7 +1018,15 @@ app.post('/api/settings', async (req, res) => {
 // ==================== 启动服务器 ====================
 
 // 确保上传目录存在
-fs.mkdir(CONFIG.uploadDir, { recursive: true }).catch(console.error)
+fs.mkdir(CONFIG.uploadDir, { recursive: true })
+  .then(async () => {
+    const tempFiles = await fs.readdir(CONFIG.uploadDir).catch(() => [])
+    if (tempFiles.length > 0) {
+      await Promise.all(tempFiles.map(file => fs.unlink(path.join(CONFIG.uploadDir, file)).catch(() => {})))
+      console.log(`🧹 已清理 ${tempFiles.length} 个残留临时文件`)
+    }
+  })
+  .catch(console.error)
 
 app.listen(PORT, () => {
   console.log(`
@@ -581,7 +1037,7 @@ app.listen(PORT, () => {
 ║   🌐 管理后台: http://localhost:${PORT}   ║
 ║                                        ║
 ║   📁 配置文件: ${path.basename(CONFIG.configPath)}     ║
-║   ☁️  COS Bucket: ${CONFIG.cos.Bucket.substring(0, 20)}... ║
+║   ☁️  COS Bucket: ${String(CONFIG.cos.Bucket || '未配置').substring(0, 20)}... ║
 ╚════════════════════════════════════════╝
   `)
 })

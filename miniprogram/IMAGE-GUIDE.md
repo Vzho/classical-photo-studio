@@ -26,7 +26,7 @@ photo-2.jpg              # 作品2
 
 ### 2. 上传到 COS
 1. 登录 https://console.cloud.tencent.com/cos
-2. 进入存储桶 `phtoto-test-1302910967`
+2. 进入客户自己的 COS 存储桶
 3. 创建文件夹并上传：
 
 **avatar 文件夹：**
@@ -105,9 +105,9 @@ photo-2.jpg              # 作品2
 ## ✅ 验证图片
 上传后，在浏览器访问测试：
 ```
-https://phtoto-test-1302910967.cos.ap-chongqing.myqcloud.com/avatar/photographer.jpg
-https://phtoto-test-1302910967.cos.ap-chongqing.myqcloud.com/banner/main-banner.jpg
-https://phtoto-test-1302910967.cos.ap-chongqing.myqcloud.com/portfolio/photo-1.jpg
+https://YOUR_COS_BUCKET.cos.YOUR_COS_REGION.myqcloud.com/avatar/photographer.jpg
+https://YOUR_COS_BUCKET.cos.YOUR_COS_REGION.myqcloud.com/banner/main-banner.jpg
+https://YOUR_COS_BUCKET.cos.YOUR_COS_REGION.myqcloud.com/portfolio/photo-1.jpg
 ```
 
 如果能正常访问，说明上传成功！

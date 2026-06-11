@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>云裳影像 - 作品管理后台</title>
+  <title>摄影作品管理后台</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
   <style>
     * {
@@ -65,6 +65,115 @@
       gap: 20px;
     }
 
+    .upload-queue-panel {
+      display: none;
+      background: white;
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .upload-queue-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .upload-queue-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #7c6a5d;
+    }
+
+    .upload-queue-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .upload-task-card {
+      border: 1px solid #e7e5e4;
+      border-radius: 10px;
+      padding: 12px;
+      background: #fafaf9;
+    }
+
+    .upload-task-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .upload-task-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #292524;
+    }
+
+    .upload-task-meta {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #78716c;
+    }
+
+    .upload-task-badge {
+      flex-shrink: 0;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .upload-task-badge.info {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .upload-task-badge.success {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .upload-task-badge.error {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .upload-progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e7e5e4;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .upload-progress-bar {
+      height: 100%;
+      border-radius: inherit;
+      transition: width 0.2s ease;
+    }
+
+    .upload-progress-bar.info {
+      background: linear-gradient(90deg, #60a5fa, #2563eb);
+    }
+
+    .upload-progress-bar.success {
+      background: linear-gradient(90deg, #4ade80, #16a34a);
+    }
+
+    .upload-progress-bar.error {
+      background: linear-gradient(90deg, #fca5a5, #dc2626);
+    }
+
+    .upload-task-message {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #57534e;
+    }
+
     .sidebar {
       background: white;
       border-radius: 12px;
@@ -94,7 +203,7 @@
       align-items: center;
       position: relative;
     }
-    
+
     .theme-item .edit-icon {
       opacity: 0;
       transition: opacity 0.2s;
@@ -106,12 +215,12 @@
       opacity: 1;
       background: rgba(0,0,0,0.05);
     }
-    
+
     .theme-item.active .edit-icon {
       color: white;
       opacity: 1;
     }
-    
+
     .theme-item.active .edit-icon:hover {
       background: rgba(255,255,255,0.2);
     }
@@ -195,6 +304,8 @@
       border-radius: 12px;
       padding: 15px;
       transition: all 0.2s;
+      content-visibility: auto;
+      contain-intrinsic-size: 260px;
     }
 
     .series-card:hover {
@@ -243,6 +354,7 @@
       flex-wrap: wrap;
       gap: 8px;
       margin-top: 10px;
+      align-items: center;
     }
 
     .photo-item {
@@ -259,6 +371,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
 
     .photo-item .delete-photo {
@@ -298,6 +411,28 @@
     .add-photo-btn:hover {
       border-color: #7c6a5d;
       color: #7c6a5d;
+    }
+
+    .photo-toggle {
+      margin-top: 12px;
+      border: none;
+      background: #f5f5f4;
+      color: #57534e;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .photo-toggle:hover {
+      background: #e7e5e4;
+      color: #292524;
     }
 
     .modal {
@@ -412,6 +547,12 @@
       margin-top: 15px;
     }
 
+    .upload-summary {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #78716c;
+    }
+
     .preview-item {
       position: relative;
       width: 80px;
@@ -424,6 +565,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
 
     .preview-item .remove-preview {
@@ -494,15 +636,20 @@
     .toast.error {
       border-left: 4px solid #ef4444;
     }
+
+    .toast.info {
+      border-left: 4px solid #3b82f6;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <!-- 头部 -->
     <div class="header">
-      <h1>📷 云裳影像 - 作品管理后台</h1>
+      <h1>📷 摄影作品管理后台</h1>
       <div style="display: flex; align-items: center; gap: 20px;">
         <button class="btn btn-secondary" onclick="openProfileModal()" style="padding: 8px 16px; font-size: 14px;">👤 编辑资料</button>
+        <button class="btn btn-secondary" onclick="openHomeBannerModal()" style="padding: 8px 16px; font-size: 14px;">📝 首页文案</button>
         <button class="btn btn-secondary" onclick="openSettingsModal()" style="padding: 8px 16px; font-size: 14px;">⚙️ 系统设置</button>
         <button class="btn btn-secondary" onclick="refreshData()" style="padding: 8px 16px; font-size: 14px;">🔄 刷新</button>
         <div class="stats">
@@ -520,6 +667,17 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="upload-queue-panel" id="uploadQueuePanel">
+      <div class="upload-queue-header">
+        <div class="upload-queue-title">后台上传队列</div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary" onclick="clearFinishedUploads()" id="clearFinishedUploadsBtn" style="padding: 6px 12px; font-size: 12px;">清空已结束</button>
+          <button class="btn btn-secondary" onclick="syncUploadTasks({ silent: false })" style="padding: 6px 12px; font-size: 12px;">刷新进度</button>
+        </div>
+      </div>
+      <div class="upload-queue-list" id="uploadQueueList"></div>
     </div>
 
     <!-- 主内容 -->
@@ -558,7 +716,7 @@
         <h3>👤 编辑个人资料</h3>
         <button class="close-btn" onclick="closeModal('profileModal')">×</button>
       </div>
-      
+
       <div class="form-group">
         <label>姓名</label>
         <input type="text" id="profileName">
@@ -579,12 +737,12 @@
         <label>个人简介</label>
         <textarea id="profileBio" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
       </div>
-      
+
       <div class="form-group">
         <label>专业技能 (用逗号分隔)</label>
         <input type="text" id="profileSkills" placeholder="电影质感, 情绪人像, ...">
       </div>
-      
+
       <div style="display: flex; gap: 10px;">
         <div class="form-group" style="flex: 1;">
           <label>微信号</label>
@@ -595,10 +753,65 @@
           <input type="text" id="profileEmail">
         </div>
       </div>
-      
+
+      <div class="form-group">
+        <label>店铺名称</label>
+        <input type="text" id="profileStudioName" placeholder="例如：某某摄影工作室">
+      </div>
+      <div class="form-group">
+        <label>店铺地址</label>
+        <textarea id="profileStudioAddress" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="请输入完整门店地址"></textarea>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <div class="form-group" style="flex: 1;">
+          <label>纬度 Latitude</label>
+          <input type="text" id="profileStudioLatitude" placeholder="例如：31.29834">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label>经度 Longitude</label>
+          <input type="text" id="profileStudioLongitude" placeholder="例如：120.58532">
+        </div>
+      </div>
+      <div style="margin-top: -6px; margin-bottom: 16px; font-size: 12px; color: #78716c;">
+        经纬度用于小程序地图导航；只填地址不填经纬度时，前端仍会展示并支持复制，但无法直接导航。
+      </div>
+
       <div class="form-actions">
         <button class="btn btn-secondary" onclick="closeModal('profileModal')">取消</button>
         <button class="btn btn-primary" onclick="saveProfile()">保存并同步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑首页轮播文案模态框 -->
+  <div class="modal" id="homeBannerModal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>📝 编辑首页轮播文案</h3>
+        <button class="close-btn" onclick="closeModal('homeBannerModal')">×</button>
+      </div>
+
+      <div style="background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 12px; color: #78716c;">
+        这里编辑的是轮播图上的固定文案。
+        “分类”和“标题”仍然来自主题名与系列标题。
+      </div>
+
+      <div class="form-group">
+        <label>顶部 Logo 文案</label>
+        <input type="text" id="homeBannerLogoText" placeholder="例如：摄影作品合集">
+      </div>
+      <div class="form-group">
+        <label>角标文案</label>
+        <input type="text" id="homeBannerTagText" placeholder="例如：精选作品">
+      </div>
+      <div class="form-group">
+        <label>描述文案</label>
+        <textarea id="homeBannerDescription" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="例如：探索古典美学与现代光影的交织，记录每一个动人心魄的瞬间。"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="closeModal('homeBannerModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveHomeBanner()">保存并同步</button>
       </div>
     </div>
   </div>
@@ -610,52 +823,112 @@
         <h3>⚙️ 系统设置与同步</h3>
         <button class="close-btn" onclick="closeModal('settingsModal')">×</button>
       </div>
-      
+
       <div class="settings-tabs" style="display: flex; gap: 20px; border-bottom: 2px solid #f5f5f4; margin-bottom: 20px;">
-        <div class="tab-item active" style="padding-bottom: 10px; border-bottom: 2px solid #7c6a5d; cursor: pointer; font-weight: bold;">COS 配置</div>
+        <div class="tab-item active" onclick="switchSettingsTab('cos')" id="tab-cos" style="padding-bottom: 10px; border-bottom: 2px solid #7c6a5d; cursor: pointer; font-weight: bold;">COS 配置</div>
+        <div class="tab-item" onclick="switchSettingsTab('banner')" id="tab-banner" style="padding-bottom: 10px; border-bottom: 2px solid transparent; cursor: pointer; color: #78716c;">Banner 管理</div>
       </div>
 
-      <div class="form-group">
-        <label>SecretId</label>
-        <input type="text" id="settingSecretId" placeholder="AKID...">
-      </div>
-      <div class="form-group">
-        <label>SecretKey</label>
-        <input type="password" id="settingSecretKey" placeholder="******">
-      </div>
-      <div class="form-group">
-        <label>Bucket (存储桶名称)</label>
-        <input type="text" id="settingBucket" placeholder="example-1250000000">
-      </div>
-      <div class="form-group">
-        <label>Region (地域)</label>
-        <input type="text" id="settingRegion" placeholder="ap-guangzhou">
-      </div>
-      
-      <div style="margin: 20px 0; border-top: 1px dashed #e7e5e4; padding-top: 20px;">
-        <label style="font-weight: bold; display: block; margin-bottom: 10px;">小程序配置</label>
+      <!-- COS 配置面板 -->
+      <div id="panel-cos" class="settings-panel">
         <div class="form-group">
-          <label>AppID</label>
-          <input type="text" id="settingAppID" placeholder="wx...">
+          <label>SecretId</label>
+          <input type="text" id="settingSecretId" placeholder="AKID...">
+        </div>
+        <div class="form-group">
+          <label>SecretKey</label>
+          <input type="password" id="settingSecretKey" placeholder="******">
+        </div>
+        <div class="form-group">
+          <label>Bucket (存储桶名称)</label>
+          <input type="text" id="settingBucket" placeholder="example-1250000000">
+        </div>
+        <div class="form-group">
+          <label>Region (地域)</label>
+          <input type="text" id="settingRegion" placeholder="ap-guangzhou">
+        </div>
+
+        <div style="margin: 20px 0; border-top: 1px dashed #e7e5e4; padding-top: 20px;">
+          <label style="font-weight: bold; display: block; margin-bottom: 10px;">小程序配置</label>
+          <div class="form-group">
+            <label>AppID</label>
+            <input type="text" id="settingAppID" placeholder="wx...">
+          </div>
+        </div>
+
+        <div style="margin: 20px 0; border-top: 1px dashed #e7e5e4; padding-top: 20px;">
+          <label style="font-weight: bold; display: block; margin-bottom: 10px;">高级操作</label>
+          <div style="background: #fffbeb; padding: 15px; border-radius: 8px; border: 1px solid #fcd34d;">
+            <h4 style="margin-bottom: 8px; color: #92400e; font-size: 14px;">📡 从 COS 同步照片</h4>
+            <p style="font-size: 12px; color: #b45309; margin-bottom: 12px;">如果 COS 上有照片但在后台看不到，可以使用此功能扫描 COS 文件并自动恢复关联。</p>
+            <button class="btn btn-secondary" onclick="syncFromCos()" id="syncCosBtn" style="width: 100%; border-color: #fcd34d; color: #92400e;">开始扫描并同步</button>
+          </div>
+          <div style="background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca; margin-top: 12px;">
+            <h4 style="margin-bottom: 8px; color: #991b1b; font-size: 14px;">🧹 清理无效照片</h4>
+            <p style="font-size: 12px; color: #b91c1c; margin-bottom: 12px;">删除 COS 中未被当前配置引用的作品图，适合清理历史残留和误传文件。</p>
+            <button class="btn btn-secondary" onclick="cleanupInvalidCosPhotos()" id="cleanupCosBtn" style="width: 100%; border-color: #fecaca; color: #991b1b;">扫描并清理无效照片</button>
+          </div>
+        </div>
+
+        <div id="syncLogs" style="background: #1e1e1e; color: #a6accd; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; height: 150px; overflow-y: auto; margin-bottom: 20px; display: none;">
+          <!-- 日志内容 -->
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-secondary" onclick="closeModal('settingsModal')">取消</button>
+          <button class="btn btn-primary" onclick="saveAndSyncSettings()" id="saveSettingsBtn">💾 保存并同步</button>
         </div>
       </div>
 
-      <div style="margin: 20px 0; border-top: 1px dashed #e7e5e4; padding-top: 20px;">
-        <label style="font-weight: bold; display: block; margin-bottom: 10px;">高级操作</label>
-        <div style="background: #fffbeb; padding: 15px; border-radius: 8px; border: 1px solid #fcd34d;">
-          <h4 style="margin-bottom: 8px; color: #92400e; font-size: 14px;">📡 从 COS 同步照片</h4>
-          <p style="font-size: 12px; color: #b45309; margin-bottom: 12px;">如果 COS 上有照片但在后台看不到，可以使用此功能扫描 COS 文件并自动恢复关联。</p>
-          <button class="btn btn-secondary" onclick="syncFromCos()" id="syncCosBtn" style="width: 100%; border-color: #fcd34d; color: #92400e;">开始扫描并同步</button>
+      <!-- Banner 管理面板 -->
+      <div id="panel-banner" class="settings-panel" style="display: none;">
+        <div class="banner-section" style="margin-bottom: 30px;">
+          <h4 style="margin-bottom: 15px; color: #292524;">首页 Banner (main-banner)</h4>
+          <div style="display: flex; gap: 20px; align-items: start;">
+            <div class="banner-preview" style="width: 200px; height: 100px; background: #f5f5f4; border-radius: 8px; overflow: hidden; border: 1px solid #e7e5e4;">
+              <img id="preview-main-banner" src="" alt="Main Banner" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
+              <div id="no-main-banner" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #a8a29e; font-size: 12px;">暂无图片</div>
+            </div>
+            <div style="flex: 1;">
+              <p style="font-size: 12px; color: #78716c; margin-bottom: 10px;">建议尺寸: 750x400, 格式: JPG/PNG</p>
+              <input type="file" id="file-main-banner" accept="image/*" style="display: none;" onchange="handleBannerSelect('main-banner', event)">
+              <button class="btn btn-secondary" onclick="document.getElementById('file-main-banner').click()">选择图片</button>
+              <button class="btn btn-primary" id="btn-upload-main-banner" onclick="uploadBanner('main-banner')" style="display: none; margin-left: 10px;">⬆️ 上传</button>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div id="syncLogs" style="background: #1e1e1e; color: #a6accd; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; height: 150px; overflow-y: auto; margin-bottom: 20px; display: none;">
-        <!-- 日志内容 -->
-      </div>
+        <div class="banner-section">
+          <h4 style="margin-bottom: 15px; color: #292524;">预约页 Banner (booking-banner)</h4>
+          <div style="display: flex; gap: 20px; align-items: start;">
+            <div class="banner-preview" style="width: 200px; height: 100px; background: #f5f5f4; border-radius: 8px; overflow: hidden; border: 1px solid #e7e5e4;">
+              <img id="preview-booking-banner" src="" alt="Booking Banner" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
+              <div id="no-booking-banner" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #a8a29e; font-size: 12px;">暂无图片</div>
+            </div>
+            <div style="flex: 1;">
+              <p style="font-size: 12px; color: #78716c; margin-bottom: 10px;">建议尺寸: 750x300, 格式: JPG/PNG</p>
+              <input type="file" id="file-booking-banner" accept="image/*" style="display: none;" onchange="handleBannerSelect('booking-banner', event)">
+              <button class="btn btn-secondary" onclick="document.getElementById('file-booking-banner').click()">选择图片</button>
+              <button class="btn btn-primary" id="btn-upload-booking-banner" onclick="uploadBanner('booking-banner')" style="display: none; margin-left: 10px;">⬆️ 上传</button>
+            </div>
+          </div>
+        </div>
 
-      <div class="form-actions">
-        <button class="btn btn-secondary" onclick="closeModal('settingsModal')">取消</button>
-        <button class="btn btn-primary" onclick="saveAndSyncSettings()" id="saveSettingsBtn">💾 保存并同步</button>
+        <div class="banner-section" style="margin-top: 30px;">
+          <h4 style="margin-bottom: 15px; color: #292524;">简介页 Banner (about-banner)</h4>
+          <div style="display: flex; gap: 20px; align-items: start;">
+            <div class="banner-preview" style="width: 200px; height: 100px; background: #f5f5f4; border-radius: 8px; overflow: hidden; border: 1px solid #e7e5e4;">
+              <img id="preview-about-banner" src="" alt="About Banner" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
+              <div id="no-about-banner" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #a8a29e; font-size: 12px;">暂无图片</div>
+            </div>
+            <div style="flex: 1;">
+              <p style="font-size: 12px; color: #78716c; margin-bottom: 10px;">建议尺寸: 750x400, 格式: JPG/PNG</p>
+              <input type="file" id="file-about-banner" accept="image/*" style="display: none;" onchange="handleBannerSelect('about-banner', event)">
+              <button class="btn btn-secondary" onclick="document.getElementById('file-about-banner').click()">选择图片</button>
+              <button class="btn btn-primary" id="btn-upload-about-banner" onclick="uploadBanner('about-banner')" style="display: none; margin-left: 10px;">⬆️ 上传</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -700,6 +973,10 @@
       <div class="form-group">
         <label>点赞数</label>
         <input type="number" id="seriesLikes" value="100">
+      </div>
+      <div class="form-group">
+        <label>轮播描述（可选）</label>
+        <textarea id="seriesBannerDescription" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="首页轮播图展示到这个系列时的描述文案；不填则使用全局默认文案。"></textarea>
       </div>
       <div class="form-actions">
         <button class="btn btn-secondary" onclick="closeModal('addSeriesModal')">取消</button>
@@ -752,6 +1029,10 @@
         <label>点赞数</label>
         <input type="number" id="editSeriesLikes">
       </div>
+      <div class="form-group">
+        <label>轮播描述（可选）</label>
+        <textarea id="editSeriesBannerDescription" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="首页轮播图展示到这个系列时的描述文案；不填则使用全局默认文案。"></textarea>
+      </div>
       <div class="form-actions">
         <button class="btn btn-secondary" onclick="closeModal('editSeriesModal')">取消</button>
         <button class="btn btn-primary" onclick="updateSeries()">保存</button>
@@ -772,6 +1053,7 @@
         <p style="font-size: 12px; color: #a8a29e; margin-top: 5px;">支持 JPG、PNG 格式</p>
       </div>
       <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFileSelect(event)">
+      <div class="upload-summary" id="uploadSummary"></div>
       <div class="preview-list" id="previewList"></div>
       <div class="form-actions">
         <button class="btn btn-secondary" onclick="closeModal('uploadPhotoModal')">取消</button>

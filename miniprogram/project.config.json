@@ -1,8 +1,8 @@
 {
   "miniprogramRoot": "./",
-  "projectname": "yunshang-photo",
-  "description": "云裳·影像 - 古风摄影小程序",
-  "appid": "wx950fcfe334ec7e62",
+  "projectname": "photo-portfolio-miniprogram",
+  "description": "摄影作品合集小程序",
+  "appid": "touristappid",
   "setting": {
     "urlCheck": true,
     "es6": true,

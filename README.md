@@ -1,34 +1,147 @@
-# 云裳古风摄影系统
+# 摄影作品小程序源码模板
 
-本项目包含“云裳古风摄影”的微信小程序端和后台管理系统。
+这是一套可复用的摄影作品展示小程序源码，包含微信小程序端和本地管理后台。交付给新客户时，只需要克隆仓库，然后替换客户自己的 AppID、名称、COS 配置、作品数据和联系方式。
 
-## 项目结构
+## 目录结构
 
-- `miniprogram/`: 微信小程序源码
-- `admin/`: 后台管理系统源码 (Node.js)
+- `miniprogram/`：微信小程序源码
+- `admin/`：本地管理后台，负责编辑配置、上传图片、同步 COS
+- `miniprogram/data/portfolio-config.json`：小程序默认配置和示例数据
 
-## 快速开始
+## 快速配置
 
-### 1. 微信小程序
-1. 使用 **微信开发者工具** 导入 `miniprogram` 目录。
-2. 配置 AppID (在 `project.config.json` 中或导入时填写)。
-3. 确保本地配置与腾讯云 COS 配置正确。
+### 1. 克隆源码
 
-### 2. 后台管理系统
-1. 进入 `admin` 目录：
-   ```bash
-   cd admin
-   ```
-2. 安装依赖：
-   ```bash
-   npm install
-   ```
-3. 启动服务：
-   ```bash
-   npm start
-   ```
-4. 访问 `http://localhost:8080` 进行内容管理。
+```bash
+git clone <REPO_URL>
+cd <PROJECT_DIR>
+```
 
-## 数据管理
-- 小程序和后台共享数据配置文件：`miniprogram/data/portfolio-config.json`。
-- 图片资源存储在腾讯云 COS。
+### 2. 配置小程序 AppID 和名称
+
+编辑 `miniprogram/project.config.json`：
+
+```json
+{
+  "projectname": "客户项目英文名",
+  "description": "客户小程序描述",
+  "appid": "客户小程序 AppID"
+}
+```
+
+编辑 `miniprogram/app.json`：
+
+```json
+{
+  "window": {
+    "navigationBarTitleText": "客户小程序名称"
+  }
+}
+```
+
+### 3. 配置 COS
+
+编辑 `miniprogram/app.ts`：
+
+```ts
+cos: {
+  bucket: '客户 COS Bucket',
+  region: '客户 COS Region',
+  baseUrl: 'https://客户 COS Bucket.cos.客户 COS Region.myqcloud.com'
+}
+```
+
+复制后台环境变量模板：
+
+```bash
+cd admin
+copy .env.example .env
+```
+
+然后填写 `admin/.env`：
+
+```env
+COS_SECRET_ID=客户 SecretId
+COS_SECRET_KEY=客户 SecretKey
+COS_BUCKET=客户 COS Bucket
+COS_REGION=客户 COS Region
+PORT=8080
+```
+
+不要把 `.env` 提交到 Git。
+
+### 4. 配置作品和资料
+
+可以直接编辑：
+
+```text
+miniprogram/data/portfolio-config.json
+```
+
+也可以启动后台管理：
+
+```bash
+cd admin
+npm install
+npm start
+```
+
+浏览器打开：
+
+```text
+http://localhost:8080
+```
+
+后台可管理主题、系列、照片、首页轮播文案、摄影师资料和门店信息。
+
+### 5. 上传图片到 COS
+
+建议使用以下目录：
+
+```text
+avatar/photographer.jpg
+banner/main-banner.jpg
+banner/booking-banner.jpg
+banner/about-banner.jpg
+portfolio/<图片文件名>
+config/portfolio-config.json
+```
+
+小程序会优先读取 COS 上的 `config/portfolio-config.json`，读取失败时才使用本地 `miniprogram/data/portfolio-config.json`。
+
+### 6. 本地预览
+
+```bash
+cd miniprogram
+npm install
+npm run compile
+```
+
+使用微信开发者工具导入 `miniprogram` 目录，确认 AppID 正确，然后编译、预览、真机扫码测试。
+
+### 7. 微信后台配置
+
+在微信公众平台为客户小程序配置：
+
+- 基本信息：名称、头像、简介
+- 服务类目
+- 隐私保护指引
+- 服务器域名：把客户 COS 域名加入 `request合法域名` 和 `downloadFile合法域名`
+
+### 8. 上传审核
+
+在微信开发者工具中上传代码，推荐版本号从 `1.0.0` 开始。上传后到微信公众平台设置体验版，客户验收通过后提交审核，审核通过后发布。
+
+## 交付检查
+
+- AppID 已替换为客户 AppID
+- 小程序名称和分享标题已替换
+- COS Bucket、Region、BaseUrl 已替换
+- `portfolio-config.json` 已更新为客户资料
+- COS 已上传图片和远程配置
+- 微信后台合法域名已配置
+- 真机预览图片、详情、预约、联系方式正常
+
+## 注意
+
+本仓库只保留源码模板和示例配置，不应提交客户密钥、真实预约数据、临时上传文件或客户专属素材。

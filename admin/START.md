@@ -1,171 +1,75 @@
-# 🚀 管理后台启动指南
+# 管理后台启动指南
 
-## 新版本说明
+后台用于管理小程序的主题、系列、照片、首页文案、摄影师资料，并同步配置到腾讯云 COS。
 
-现在使用 **Node.js 后端服务器**，可以：
-- ✅ 直接保存配置文件（不再需要手动下载替换）
-- ✅ 真实上传照片到 COS
-- ✅ 真实删除 COS 上的照片
-- ✅ 自动同步配置
-
----
-
-## 📦 安装依赖
-
-在 `admin` 目录下执行：
+## 1. 安装依赖
 
 ```bash
 cd admin
 npm install
 ```
 
-这会安装：
-- express（Web 服务器）
-- cors（跨域支持）
-- multer（文件上传）
-- cos-nodejs-sdk-v5（腾讯云 COS SDK）
+## 2. 配置环境变量
 
----
+复制模板：
 
-## ⚙️ 配置密钥
-
-编辑 `admin/server.js`，填入你的 COS 密钥：
-
-```javascript
-cos: {
-  SecretId: 'YOUR_SECRET_ID',      // 替换
-  SecretKey: 'YOUR_SECRET_KEY',    // 替换
-  Bucket: 'phtoto-test-1302910967',
-  Region: 'ap-chongqing'
-}
+```bash
+copy .env.example .env
 ```
 
----
+填写客户自己的 COS 配置：
 
-## 🎯 启动服务器
+```env
+COS_SECRET_ID=YOUR_COS_SECRET_ID
+COS_SECRET_KEY=YOUR_COS_SECRET_KEY
+COS_BUCKET=YOUR_COS_BUCKET
+COS_REGION=YOUR_COS_REGION
+PORT=8080
+```
 
-### 方法一：正常启动
+`.env` 已被 Git 忽略，不要提交客户密钥。
+
+## 3. 启动服务
+
 ```bash
 npm start
 ```
 
-### 方法二：开发模式（自动重启）
+开发模式：
+
 ```bash
 npm run dev
 ```
 
-看到以下信息表示启动成功：
-```
-╔════════════════════════════════════════╗
-║   🚀 管理后台服务器已启动              ║
-║                                        ║
-║   📡 API 地址: http://localhost:3000   ║
-║   🌐 管理后台: http://localhost:3000   ║
-╚════════════════════════════════════════╝
+浏览器打开：
+
+```text
+http://localhost:8080
 ```
 
----
+## 4. 常用操作
 
-## 🌐 访问管理后台
+- 添加或编辑主题
+- 添加或编辑系列
+- 批量上传照片
+- 删除照片或系列
+- 编辑首页轮播文案
+- 编辑摄影师资料和门店信息
+- 同步 `portfolio-config.json` 到 COS
 
-打开浏览器访问：**http://localhost:3000**
+## 5. 图片目录约定
 
----
-
-## 📋 功能说明
-
-### 1. 添加主题/系列
-- 点击对应按钮
-- 填写信息
-- 自动保存到配置文件 ✅
-
-### 2. 上传照片
-- 点击系列卡片中的"+"或"📤"
-- 选择或拖拽照片
-- 点击"上传"
-- 自动上传到 COS ✅
-- 自动更新配置文件 ✅
-
-### 3. 删除照片
-- 鼠标悬停在照片上
-- 点击"×"按钮
-- 自动从 COS 删除 ✅
-- 自动更新配置文件 ✅
-
-### 4. 删除系列
-- 点击系列卡片右上角的"🗑️"
-- 确认删除
-- 自动删除 COS 上的所有照片 ✅
-- 自动更新配置文件 ✅
-
----
-
-## 🔄 与旧版本的区别
-
-| 功能 | 旧版本 | 新版本 |
-|------|--------|--------|
-| 配置保存 | 下载文件，手动替换 | 自动保存 ✅ |
-| 照片上传 | 模拟（不实际上传） | 真实上传到 COS ✅ |
-| 照片删除 | 模拟（不实际删除） | 真实删除 COS 文件 ✅ |
-| 启动方式 | Python HTTP 服务器 | Node.js 服务器 |
-
----
-
-## ⚠️ 注意事项
-
-### 1. 端口占用
-如果 3000 端口被占用，修改 `server.js` 中的 `PORT` 变量
-
-### 2. 密钥安全
-- 不要将包含密钥的代码提交到 Git
-- 可以使用环境变量：
-  ```bash
-  export COS_SECRET_ID=your_id
-  export COS_SECRET_KEY=your_key
-  ```
-
-### 3. 文件权限
-确保 Node.js 有权限读写配置文件
-
-### 4. COS 权限
-确保密钥有以下权限：
-- PutObject（上传）
-- DeleteObject（删除）
-- GetBucket（列出文件）
-
----
-
-## 🐛 故障排查
-
-**Q: npm install 失败？**
-A: 
-```bash
-# 清除缓存
-npm cache clean --force
-# 使用淘宝镜像
-npm install --registry=https://registry.npmmirror.com
+```text
+avatar/photographer.jpg
+banner/main-banner.jpg
+banner/booking-banner.jpg
+banner/about-banner.jpg
+portfolio/<图片文件名>
+config/portfolio-config.json
 ```
 
-**Q: 启动后无法访问？**
-A: 检查防火墙是否阻止了 3000 端口
+## 6. 排查
 
-**Q: 上传照片失败？**
-A: 
-1. 检查 COS 密钥是否正确
-2. 检查网络连接
-3. 查看服务器控制台的错误信息
-
-**Q: 配置文件保存失败？**
-A: 检查文件路径和权限
-
----
-
-## 🎉 完成
-
-现在你可以：
-1. 启动服务器：`npm start`
-2. 访问管理后台：http://localhost:3000
-3. 直接管理主题、系列、照片
-4. 所有操作自动同步到配置文件和 COS
-
-不再需要手动下载和替换文件了！
+- 启动失败：检查 `.env` 是否存在，端口是否被占用。
+- 上传失败：检查 COS 密钥、Bucket、Region 和权限。
+- 小程序图片不显示：检查微信后台合法域名和 COS 文件是否公开可读。

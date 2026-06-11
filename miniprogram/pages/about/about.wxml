@@ -2,7 +2,9 @@
 <view class="about-page">
   <!-- 头部背景 -->
   <view class="profile-header">
-    <view class="header-bg"></view>
+    <image wx:if="{{bannerUrl}}" class="header-bg-img" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
+    <view wx:if="{{bannerUrl}}" class="header-overlay"></view>
+    <view wx:else class="header-bg"></view>
     
     <!-- 头像 -->
     <view class="avatar-wrap">
@@ -74,6 +76,26 @@
           <view class="contact-value">{{photographer.contact.email}}</view>
         </view>
         <view class="copy-btn">复制</view>
+      </view>
+    </view>
+
+    <!-- 到店地址 -->
+    <view class="contact-section" wx:if="{{photographer.studio.name || photographer.studio.address}}">
+      <view class="section-title">到店地址</view>
+
+      <view class="contact-item studio-item" bindtap="openStudioLocation">
+        <view class="contact-icon-wrap">
+          <text class="contact-icon">📍</text>
+        </view>
+        <view class="contact-info">
+          <view class="contact-label">Studio</view>
+          <view class="contact-value studio-name">{{photographer.studio.name || '门店地址'}}</view>
+          <view class="studio-address">{{photographer.studio.address || '请在后台补充完整门店地址'}}</view>
+        </view>
+        <view class="contact-actions">
+          <view class="copy-btn nav-btn">{{canOpenStudioLocation ? '导航' : '未配置'}}</view>
+          <view class="copy-btn" catchtap="copyStudioAddress">复制</view>
+        </view>
       </view>
     </view>
   </view>

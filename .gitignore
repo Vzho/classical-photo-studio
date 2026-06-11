@@ -16,6 +16,7 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .idea
+.kiro/
 .DS_Store
 *.suo
 *.ntvs*
@@ -27,3 +28,13 @@ dist-ssr
 .env
 admin/.env
 miniprogram/.env
+
+# Runtime data
+admin/uploads/
+admin/bookings.json
+
+# WeChat DevTools local config
+miniprogram/project.private.config.json
+
+# Generated miniprogram JavaScript from TypeScript
+miniprogram/**/*.js

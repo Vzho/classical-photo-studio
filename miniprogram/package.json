@@ -1,7 +1,7 @@
 {
-  "name": "yunshang-photo-miniprogram",
+  "name": "photo-portfolio-miniprogram",
   "version": "1.0.0",
-  "description": "云裳·影像古风摄影小程序",
+  "description": "摄影作品合集小程序源码模板",
   "main": "app.js",
   "scripts": {
     "compile": "tsc"

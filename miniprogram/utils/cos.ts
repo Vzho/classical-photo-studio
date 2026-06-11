@@ -16,6 +16,15 @@ export interface PortfolioItem {
   seriesId?: string
   isSeriesCover?: boolean
   photoCount?: number
+  bannerDescription?: string
+  candidatePhotoNames?: string[]
+  candidateIndex?: number
+}
+
+export interface HomeBannerContent {
+  logoText: string
+  tagText: string
+  description: string
 }
 
 // 获取COS图片完整URL
@@ -53,12 +62,53 @@ export async function getPortfolioImages(): Promise<PortfolioItem[]> {
   }
 }
 
+export async function getPortfolioPageData(): Promise<{
+  portfolioItems: PortfolioItem[]
+  homeBanner: Partial<HomeBannerContent> | null
+}> {
+  try {
+    const config = await loadConfig()
+    const allImages = generateImagesFromConfig(config)
+
+    return {
+      portfolioItems: allImages.filter(item => item.isSeriesCover),
+      homeBanner: config?.homeBanner || null
+    }
+  } catch (error) {
+    console.error('加载首页配置失败:', error)
+    return {
+      portfolioItems: [],
+      homeBanner: null
+    }
+  }
+}
+
 // 获取系列的所有照片
 export async function getSeriesImages(seriesId: string): Promise<PortfolioItem[]> {
   try {
     const config = await loadConfig()
     const allImages = generateImagesFromConfig(config)
-    return allImages.filter(item => item.seriesId === seriesId)
+    return allImages
+      .filter(item => item.seriesId === seriesId)
+      .map(item => {
+        if (!item.originalUrl) {
+          return item
+        }
+
+        const urlPart = item.originalUrl.split('?')[0]
+        const parts = urlPart.split('/portfolio/')
+        if (parts.length <= 1) {
+          return item
+        }
+
+        const path = `portfolio/${parts[1]}`
+        return {
+          ...item,
+          // 系列详情页列表使用高质量压缩图，兼顾清晰度和加载速度。
+          // 点击预览仍然走 originalUrl 原图。
+          imageUrl: getCosUrl(path, { width: 1400, format: 'webp', quality: 90 })
+        }
+      })
   } catch (error) {
     console.error('加载配置失败:', error)
     return []
@@ -143,7 +193,10 @@ function generateImagesFromConfig(config: any): PortfolioItem[] {
           likes: series.likes,
           seriesId: seriesId,
           isSeriesCover: isFirstPhoto,
-          photoCount: isFirstPhoto ? series.photos.length : undefined
+          photoCount: isFirstPhoto ? series.photos.length : undefined,
+          bannerDescription: series.bannerDescription,
+          candidatePhotoNames: isFirstPhoto ? [...series.photos] : undefined,
+          candidateIndex: isFirstPhoto ? 0 : undefined
         })
       })
     })
