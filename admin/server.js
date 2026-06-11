@@ -608,6 +608,62 @@ app.post('/api/upload/banner', upload.single('banner'), async (req, res) => {
   }
 })
 
+// 上传摄影师头像并自动写入配置
+app.post('/api/upload/avatar', upload.single('avatar'), async (req, res) => {
+  const file = req.file
+
+  try {
+    if (!file) {
+      return res.status(400).json({ error: '没有文件上传' })
+    }
+
+    if (!file.mimetype || !file.mimetype.startsWith('image/')) {
+      await fs.unlink(file.path).catch(() => {})
+      return res.status(400).json({ error: '请上传图片文件' })
+    }
+
+    const extensionMap = {
+      'image/jpeg': '.jpg',
+      'image/jpg': '.jpg',
+      'image/png': '.png',
+      'image/webp': '.webp',
+      'image/gif': '.gif'
+    }
+    const ext = extensionMap[file.mimetype] || path.extname(file.originalname) || '.jpg'
+    const fileName = `photographer${ext.toLowerCase()}`
+    const avatarPath = `avatar/${fileName}`
+
+    await uploadFileWithRetry(CONFIG.cos.Bucket, CONFIG.cos.Region, avatarPath, file.path, {
+      contentType: file.mimetype
+    })
+
+    await fs.unlink(file.path).catch(() => {})
+
+    await withConfigLock(async () => {
+      const config = await readConfig()
+      if (!config.photographer) config.photographer = {}
+      config.photographer.avatar = avatarPath
+
+      await writeConfig(config)
+
+      const configSynced = await uploadConfigToCos(config)
+      if (!configSynced) {
+        throw new Error('头像已上传，但配置同步到 COS 失败')
+      }
+    })
+
+    console.log(`✅ 头像上传成功: ${avatarPath}`)
+    res.json({ success: true, avatarPath, fileName })
+  } catch (error) {
+    if (file?.path) {
+      await fs.unlink(file.path).catch(() => {})
+    }
+
+    console.error('头像上传失败:', error)
+    res.status(500).json({ error: '上传失败: ' + error.message })
+  }
+})
+
 // 删除 COS 文件
 app.delete('/api/photo/:fileName', async (req, res) => {
   try {

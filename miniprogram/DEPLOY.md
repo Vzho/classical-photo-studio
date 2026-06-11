@@ -32,6 +32,8 @@ https://客户 COS Bucket.cos.客户 COS Region.myqcloud.com
 - `app.ts`：COS Bucket、Region、BaseUrl
 - `data/portfolio-config.json`：作品数据、首页文案、摄影师资料
 
+后台会自动上传头像、Banner、作品图，并同步 `config/portfolio-config.json` 到 COS；不需要手动创建 COS 目录。
+
 ## 4. 本地预览
 
 ```bash

@@ -52,15 +52,18 @@ http://localhost:8080
 - 添加或编辑主题
 - 添加或编辑系列
 - 批量上传照片
+- 上传摄影师头像
 - 删除照片或系列
 - 编辑首页轮播文案
 - 编辑摄影师资料和门店信息
 - 同步 `portfolio-config.json` 到 COS
 
-## 5. 图片目录约定
+## 5. 自动上传路径
+
+不需要手动创建 COS 目录。后台会自动使用以下 key：
 
 ```text
-avatar/photographer.jpg
+avatar/photographer.<ext>
 banner/main-banner.jpg
 banner/booking-banner.jpg
 banner/about-banner.jpg

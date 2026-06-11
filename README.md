@@ -92,19 +92,19 @@ npm start
 http://localhost:8080
 ```
 
-后台可管理主题、系列、照片、首页轮播文案、摄影师资料和门店信息。
+后台可管理主题、系列、照片、首页轮播文案、摄影师资料、头像和门店信息。
 
 ### 5. 上传图片到 COS
 
-建议使用以下目录：
+不需要手动创建 COS 目录，也不需要手动编写图片路径。后台会按固定 key 自动上传并写入配置：
 
 ```text
-avatar/photographer.jpg
-banner/main-banner.jpg
-banner/booking-banner.jpg
-banner/about-banner.jpg
-portfolio/<图片文件名>
-config/portfolio-config.json
+头像：avatar/photographer.<ext>
+首页 Banner：banner/main-banner.jpg
+预约页 Banner：banner/booking-banner.jpg
+简介页 Banner：banner/about-banner.jpg
+作品图片：portfolio/<自动生成的图片文件名>
+配置文件：config/portfolio-config.json
 ```
 
 小程序会优先读取 COS 上的 `config/portfolio-config.json`，读取失败时才使用本地 `miniprogram/data/portfolio-config.json`。
@@ -138,7 +138,7 @@ npm run compile
 - 小程序名称和分享标题已替换
 - COS Bucket、Region、BaseUrl 已替换
 - `portfolio-config.json` 已更新为客户资料
-- COS 已上传图片和远程配置
+- 后台已上传头像、Banner、作品图片并同步远程配置
 - 微信后台合法域名已配置
 - 真机预览图片、详情、预约、联系方式正常
 

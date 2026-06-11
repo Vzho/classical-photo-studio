@@ -118,6 +118,15 @@ function getPhotoThumbUrl(photoName, size = UI_CONFIG.photoThumbSize) {
   return `${CONFIG.cos.BaseUrl}/portfolio/${encodeURIComponent(photoName)}?imageMogr2/format/webp/thumbnail/${size}x/quality/75`
 }
 
+function getCosAssetUrl(assetPath) {
+  if (!CONFIG.cos.BaseUrl || !assetPath) {
+    return ''
+  }
+
+  const normalizedPath = String(assetPath).replace(/^\/+/, '')
+  return `${CONFIG.cos.BaseUrl}/${normalizedPath}`
+}
+
 function resetUploadSelection() {
   selectedFiles.forEach(item => {
     if (item.previewUrl) {
@@ -840,6 +849,13 @@ function closeModal(modalId) {
   if (modalId === 'uploadPhotoModal') {
     resetUploadSelection()
   }
+  if (modalId === 'profileModal') {
+    selectedAvatar = null
+    const fileInput = document.getElementById('file-profile-avatar')
+    const uploadBtn = document.getElementById('btn-upload-profile-avatar')
+    if (fileInput) fileInput.value = ''
+    if (uploadBtn) uploadBtn.style.display = 'none'
+  }
 }
 
 // Toast 提示
@@ -935,6 +951,7 @@ function openProfileModal() {
   document.getElementById('profileTitle').value = p.title || ''
   document.getElementById('profileLocation').value = p.location || ''
   document.getElementById('profileAvatar').value = p.avatar || ''
+  renderProfileAvatarPreview(p.avatar)
   document.getElementById('profileBio').value = p.bio || ''
   document.getElementById('profileSkills').value = (p.skills || []).join('，')
   document.getElementById('profileWechat').value = p.contact?.wechat || ''
@@ -945,6 +962,36 @@ function openProfileModal() {
   document.getElementById('profileStudioLongitude').value = p.studio?.longitude ?? ''
 
   openModal('profileModal')
+}
+
+function renderProfileAvatarPreview(avatarPathOrUrl) {
+  const preview = document.getElementById('profileAvatarPreview')
+  const empty = document.getElementById('profileAvatarEmpty')
+  const value = String(avatarPathOrUrl || '')
+  const src = value.startsWith('http') || value.startsWith('data:')
+    ? value
+    : getCosAssetUrl(value)
+
+  if (!preview || !empty) return
+
+  if (!src) {
+    preview.style.display = 'none'
+    preview.src = ''
+    empty.style.display = 'flex'
+    return
+  }
+
+  preview.onload = () => {
+    preview.style.display = 'block'
+    empty.style.display = 'none'
+  }
+  preview.onerror = () => {
+    preview.style.display = 'none'
+    empty.style.display = 'flex'
+  }
+  preview.src = src.startsWith('data:')
+    ? src
+    : `${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`
 }
 
 // 保存个人资料
@@ -1293,6 +1340,7 @@ let selectedBanners = {
   'booking-banner': null,
   'about-banner': null
 }
+let selectedAvatar = null
 
 function handleBannerSelect(type, event) {
   const file = event.target.files[0]
@@ -1317,6 +1365,68 @@ function handleBannerSelect(type, event) {
     document.getElementById(`btn-upload-${type}`).style.display = 'inline-block'
   }
   reader.readAsDataURL(file)
+}
+
+function handleAvatarSelect(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  if (!file.type.startsWith('image/')) {
+    showToast('请选择图片文件', 'error')
+    return
+  }
+
+  selectedAvatar = file
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    renderProfileAvatarPreview(e.target.result)
+    document.getElementById('btn-upload-profile-avatar').style.display = 'inline-block'
+  }
+  reader.readAsDataURL(file)
+  event.target.value = ''
+}
+
+async function uploadAvatar() {
+  if (!selectedAvatar) return
+
+  const btn = document.getElementById('btn-upload-profile-avatar')
+  btn.disabled = true
+  btn.textContent = '上传中...'
+
+  try {
+    const formData = new FormData()
+    formData.append('avatar', selectedAvatar)
+
+    const response = await fetch(`${CONFIG.apiUrl}/upload/avatar`, {
+      method: 'POST',
+      body: formData
+    })
+
+    const result = await response.json()
+
+    if (!result.success) {
+      throw new Error(result.error || '上传失败')
+    }
+
+    if (!portfolioData.photographer) {
+      portfolioData.photographer = {}
+    }
+
+    portfolioData.photographer.avatar = result.avatarPath
+    document.getElementById('profileAvatar').value = result.avatarPath
+    renderProfileAvatarPreview(result.avatarPath)
+
+    selectedAvatar = null
+    btn.style.display = 'none'
+    showToast('头像已上传并同步配置', 'success')
+  } catch (error) {
+    console.error('头像上传失败:', error)
+    showToast('头像上传失败: ' + error.message, 'error')
+  } finally {
+    btn.disabled = false
+    btn.textContent = '⬆️ 上传头像'
+  }
 }
 
 // 上传 Banner

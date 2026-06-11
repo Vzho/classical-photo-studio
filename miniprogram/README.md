@@ -61,16 +61,16 @@ config/portfolio-config.json
 
 请求失败时使用本地配置。
 
-## 图片目录
+## 图片上传
 
-建议上传到 COS：
+通过后台上传时，会自动写入以下 COS key，不需要手动创建目录：
 
 ```text
-avatar/photographer.jpg
+avatar/photographer.<ext>
 banner/main-banner.jpg
 banner/booking-banner.jpg
 banner/about-banner.jpg
-portfolio/<图片文件名>
+portfolio/<自动生成的图片文件名>
 config/portfolio-config.json
 ```
 
