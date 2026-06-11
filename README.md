@@ -13,8 +13,8 @@
 ### 1. 克隆源码
 
 ```bash
-git clone <REPO_URL>
-cd <PROJECT_DIR>
+git clone https://github.com/Vzho/classical-photo-studio.git
+cd classical-photo-studio
 ```
 
 ### 2. 配置小程序 AppID 和名称
