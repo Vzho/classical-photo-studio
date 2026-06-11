@@ -107,7 +107,7 @@ http://localhost:8080
 配置文件：config/portfolio-config.json
 ```
 
-小程序会优先读取 COS 上的 `config/portfolio-config.json`，读取失败时才使用本地 `miniprogram/data/portfolio-config.json`。
+正常使用后台管理即可，不需要手动维护这两个配置文件。后台保存时会自动更新本地 `miniprogram/data/portfolio-config.json`，并同步到 COS 的 `config/portfolio-config.json`。小程序线上优先读取 COS 配置，这样客户后续更新作品、头像、Banner 或资料时，不需要重新上传小程序代码；本地配置只作为源码模板和网络异常兜底。
 
 ### 6. 本地预览
 

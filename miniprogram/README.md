@@ -53,13 +53,13 @@ cos: {
 data/portfolio-config.json
 ```
 
-小程序会优先请求 COS 上的：
+正常使用后台管理即可，不需要手动维护两份配置。后台保存时会自动更新本地配置，并同步到 COS：
 
 ```text
 config/portfolio-config.json
 ```
 
-请求失败时使用本地配置。
+小程序线上优先读取 COS 配置，这样更新作品、头像、Banner 或资料时不需要重新上传小程序代码；本地 `data/portfolio-config.json` 只作为源码模板和网络异常兜底。
 
 ## 图片上传
 
