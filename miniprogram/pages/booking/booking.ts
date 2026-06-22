@@ -1,5 +1,23 @@
 import { FALLBACK_STYLE_OPTIONS, PHOTOGRAPHER } from '../../utils/constants'
-import { getCosUrl, getBookingPageData } from '../../utils/cos'
+import {
+  buildThemeStyle,
+  ConsultationContent,
+  FaqContent,
+  getBookingPageData,
+  getCosUrl,
+  PackageItem,
+  ScheduleContent,
+  ServiceFlowContent,
+  StoreItem,
+  TeamPhotographerItem
+} from '../../utils/cos'
+
+const DEFAULT_CONSULTATION: Required<ConsultationContent> = {
+  title: '预约咨询',
+  description: '填写信息后可生成咨询内容，发送给摄影师确认档期和方案。',
+  template: '你好，我想咨询拍摄：\n\n称呼：{{name}}\n联系方式：{{contact}}\n拍摄风格：{{style}}\n意向套餐：{{package}}\n期望日期：{{date}}\n门店：{{store}}\n摄影师：{{photographer}}\n备注：{{note}}\n\n我是在小程序中看到作品后联系你的，想进一步确认档期和拍摄方案。',
+  privacyTip: '你填写的信息仅用于生成咨询内容，请复制后发送给摄影师确认档期和拍摄方案。'
+}
 
 function normalizeStyleOptions(styleOptions?: string[]): string[] {
   const normalized = (styleOptions || [])
@@ -10,23 +28,54 @@ function normalizeStyleOptions(styleOptions?: string[]): string[] {
   return uniqueOptions.length > 0 ? uniqueOptions : FALLBACK_STYLE_OPTIONS
 }
 
+function getPickerNames(items: Array<{ name: string }>): string[] {
+  return ['暂不选择', ...items.map(item => item.name)]
+}
+
+function renderTemplate(template: string, values: Record<string, string>): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+    const value = values[key]
+    return value && value.trim() ? value.trim() : '未填写'
+  })
+}
+
 Page({
   data: {
     bannerUrl: '',
+    themeStyle: '',
     photographer: PHOTOGRAPHER,
-    // 首屏兜底展示；loadData 会优先用 CMS 配置覆盖。
     styleOptions: [...FALLBACK_STYLE_OPTIONS, '其他'],
+    packages: [] as PackageItem[],
+    stores: [] as StoreItem[],
+    photographers: [] as TeamPhotographerItem[],
+    packagePickerRange: ['暂不选择'],
+    storePickerRange: ['暂不选择'],
+    photographerPickerRange: ['暂不选择'],
+    selectedPackageIndex: 0,
+    selectedStoreIndex: 0,
+    selectedPhotographerIndex: 0,
+    selectedPackageName: '',
+    selectedStoreName: '',
+    selectedPhotographerName: '',
+    schedule: { enabled: false } as Partial<ScheduleContent>,
+    testimonials: [] as any[],
+    consultation: DEFAULT_CONSULTATION,
+    serviceFlow: { enabled: false, steps: [] } as Partial<ServiceFlowContent>,
+    faq: { enabled: false, items: [] } as Partial<FaqContent>,
     formData: {
       name: '',
-      phone: '',
+      contact: '',
       style: FALLBACK_STYLE_OPTIONS[0] || '',
-      customStyle: '', // 新增自定义风格字段
+      customStyle: '',
+      packageId: '',
+      storeId: '',
+      photographerId: '',
       date: '',
       notes: ''
     },
     minDate: '',
     submitting: false,
-    showSubmitBtn: false // 控制提交按钮显示
+    showSubmitBtn: false
   },
 
   async onLoad() {
@@ -37,13 +86,27 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 2 })
     }
+
+    this.applyPrefillFromStorage()
   },
 
   async loadData() {
-    // 设置最小日期为今天
     const today = new Date()
     const minDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-    const { photographer, booking } = await getBookingPageData()
+    const {
+      photographer,
+      booking,
+      theme,
+      packages,
+      schedule,
+      testimonials,
+      consultation,
+      serviceFlow,
+      faq,
+      stores,
+      photographers
+    } = await getBookingPageData()
+
     const styleOptions = normalizeStyleOptions(booking?.styleOptions)
     const selectedStyle = styleOptions.includes(this.data.formData.style)
       ? this.data.formData.style
@@ -51,14 +114,74 @@ Page({
 
     this.setData({
       bannerUrl: getCosUrl('banner/booking-banner.jpg'),
+      themeStyle: buildThemeStyle(theme),
       photographer: photographer || PHOTOGRAPHER,
       styleOptions: [...styleOptions, '其他'],
+      packages,
+      stores,
+      photographers,
+      packagePickerRange: getPickerNames(packages),
+      storePickerRange: getPickerNames(stores),
+      photographerPickerRange: getPickerNames(photographers),
+      schedule: {
+        enabled: false,
+        specialNotes: [],
+        restDays: [],
+        busyDates: [],
+        ...(schedule || {})
+      },
+      testimonials: testimonials || [],
+      consultation: {
+        ...DEFAULT_CONSULTATION,
+        ...(consultation || {})
+      },
+      serviceFlow: {
+        enabled: false,
+        ...(serviceFlow || {}),
+        steps: serviceFlow?.steps || []
+      },
+      faq: {
+        enabled: false,
+        ...(faq || {}),
+        items: faq?.items || []
+      },
       'formData.style': selectedStyle,
       minDate
     })
+
+    this.applyPrefillFromStorage()
   },
 
-  // 监听页面滚动
+  applyPrefillFromStorage() {
+    const prefill = wx.getStorageSync('prefillConsultation') || {}
+    const updates: Record<string, any> = {}
+    let removePrefill = false
+
+    if (prefill.style && this.data.styleOptions.includes(prefill.style)) {
+      updates['formData.style'] = prefill.style
+      removePrefill = true
+    }
+
+    if (prefill.packageId) {
+      const packageIndex = this.data.packages.findIndex(item => item.id === prefill.packageId)
+      if (packageIndex >= 0) {
+        const selectedPackage = this.data.packages[packageIndex]
+        updates.selectedPackageIndex = packageIndex + 1
+        updates.selectedPackageName = selectedPackage.name
+        updates['formData.packageId'] = selectedPackage.id
+        removePrefill = true
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
+      this.setData(updates)
+    }
+
+    if (removePrefill) {
+      wx.removeStorageSync('prefillConsultation')
+    }
+  },
+
   onPageScroll() {
     const query = wx.createSelectorQuery()
     query.select('.booking-page').boundingClientRect()
@@ -68,8 +191,6 @@ Page({
         const pageHeight = res[0].height
         const scrollTop = res[1].scrollTop
         const windowHeight = wx.getSystemInfoSync().windowHeight
-
-        // 距离底部 100px 时显示
         const isNearBottom = scrollTop + windowHeight > pageHeight - 100
 
         if (this.data.showSubmitBtn !== isNearBottom) {
@@ -81,10 +202,7 @@ Page({
 
   onBannerError() {
     console.warn('Banner 加载失败，使用默认背景')
-    // 如果图片加载失败，可以设置一个空字符串，让 WXML 显示默认背景
-    this.setData({
-      bannerUrl: ''
-    })
+    this.setData({ bannerUrl: '' })
   },
 
   onInputChange(e: WechatMiniprogram.Input) {
@@ -101,6 +219,39 @@ Page({
     })
   },
 
+  onPackageChange(e: WechatMiniprogram.PickerChange) {
+    const pickerIndex = Number(e.detail.value)
+    const selectedPackage = pickerIndex > 0 ? this.data.packages[pickerIndex - 1] : null
+
+    this.setData({
+      selectedPackageIndex: pickerIndex,
+      selectedPackageName: selectedPackage?.name || '',
+      'formData.packageId': selectedPackage?.id || ''
+    })
+  },
+
+  onStoreChange(e: WechatMiniprogram.PickerChange) {
+    const pickerIndex = Number(e.detail.value)
+    const selectedStore = pickerIndex > 0 ? this.data.stores[pickerIndex - 1] : null
+
+    this.setData({
+      selectedStoreIndex: pickerIndex,
+      selectedStoreName: selectedStore?.name || '',
+      'formData.storeId': selectedStore?.id || ''
+    })
+  },
+
+  onPhotographerChange(e: WechatMiniprogram.PickerChange) {
+    const pickerIndex = Number(e.detail.value)
+    const selectedPhotographer = pickerIndex > 0 ? this.data.photographers[pickerIndex - 1] : null
+
+    this.setData({
+      selectedPhotographerIndex: pickerIndex,
+      selectedPhotographerName: selectedPhotographer?.name || '',
+      'formData.photographerId': selectedPhotographer?.id || ''
+    })
+  },
+
   onDateChange(e: WechatMiniprogram.PickerChange) {
     this.setData({
       'formData.date': e.detail.value
@@ -108,15 +259,15 @@ Page({
   },
 
   validateForm(): boolean {
-    const { name, phone, date, style, customStyle } = this.data.formData
+    const { name, contact, date, style, customStyle } = this.data.formData
 
     if (!name.trim()) {
       wx.showToast({ title: '请输入您的称呼', icon: 'none' })
       return false
     }
 
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-      wx.showToast({ title: '请输入正确的手机号', icon: 'none' })
+    if (!contact.trim()) {
+      wx.showToast({ title: '请输入联系方式', icon: 'none' })
       return false
     }
 
@@ -126,48 +277,77 @@ Page({
     }
 
     if (!date) {
-      wx.showToast({ title: '请选择拍摄日期', icon: 'none' })
+      wx.showToast({ title: '请选择期望日期', icon: 'none' })
       return false
     }
 
     return true
   },
 
+  getSelectedPackage(): PackageItem | null {
+    return this.data.packages.find(item => item.id === this.data.formData.packageId) || null
+  },
+
+  getSelectedStore(): StoreItem | null {
+    return this.data.stores.find(item => item.id === this.data.formData.storeId) || null
+  },
+
+  getSelectedPhotographer(): TeamPhotographerItem | null {
+    return this.data.photographers.find(item => item.id === this.data.formData.photographerId) || null
+  },
+
   async onSubmit() {
     if (!this.validateForm()) return
 
-    const { name, phone, style, customStyle, date, notes } = this.data.formData
-    const finalStyle = style === '其他' ? customStyle : style
-    const wechat = this.data.photographer?.contact?.wechat || PHOTOGRAPHER.contact.wechat
-
-    // 生成预约单文本（包含微信号，方便用户查看）
-    const bookingText = `【预约单】\n姓名：${name}\n电话：${phone}\n风格：${finalStyle}\n日期：${date}\n备注：${notes || '无'}\n\n----------------\n请添加客服微信：${wechat}\n发送此消息以确认预约`
-
     this.setData({ submitting: true })
 
-    // 1. 一次性复制所有内容
-    wx.setClipboardData({
-      data: bookingText,
-      success: () => {
-        // 2. 简单的弹窗提示
-        wx.showModal({
-          title: '预约单已复制',
-          content: '请打开微信，添加客服好友（微信号已包含在复制内容中），粘贴并发送即可。',
-          showCancel: false,
-          confirmText: '我知道了',
-          success: () => {
-            // 用户点击确定后，可以额外再提示一下微信号，或者什么都不做
-          }
-        })
-      }
+    const { name, contact, style, customStyle, date, notes } = this.data.formData
+    const finalStyle = style === '其他' ? customStyle : style
+    const selectedPackage = this.getSelectedPackage()
+    const selectedStore = this.getSelectedStore()
+    const selectedPhotographer = this.getSelectedPhotographer()
+    const photographerName = selectedPhotographer?.name || this.data.photographer?.name || PHOTOGRAPHER.name
+    const photographerWechat = this.data.photographer?.contact?.wechat || PHOTOGRAPHER.contact.wechat
+
+    const consultationText = renderTemplate(this.data.consultation.template || DEFAULT_CONSULTATION.template, {
+      name,
+      contact,
+      style: finalStyle,
+      package: selectedPackage?.name || '',
+      date,
+      note: notes,
+      store: selectedStore?.name || '',
+      photographer: photographerName
     })
 
+    const consultationData = {
+      name,
+      contact,
+      style: finalStyle,
+      packageId: selectedPackage?.id || '',
+      packageName: selectedPackage?.name || '',
+      date,
+      storeId: selectedStore?.id || '',
+      storeName: selectedStore?.name || '',
+      photographerId: selectedPhotographer?.id || '',
+      photographerName,
+      note: notes,
+      photographerWechat,
+      text: consultationText,
+      createdAt: new Date().toISOString()
+    }
+
+    wx.setStorageSync('lastConsultation', consultationData)
     this.setData({ submitting: false })
+
+    wx.navigateTo({
+      url: '/pages/success/success'
+    })
   },
 
   onShareAppMessage() {
     return {
-      title: '摄影作品合集 - 预约拍摄',
+      title: '摄影作品合集 - 预约咨询',
       path: '/pages/booking/booking'
     }
   }

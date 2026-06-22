@@ -31,6 +31,191 @@ export interface BookingContent {
   styleOptions: string[]
 }
 
+export interface ThemeContent {
+  enabled?: boolean
+  preset?: string
+  brandName?: string
+  primaryColor?: string
+  backgroundColor?: string
+  textColor?: string
+  cardStyle?: string
+  buttonStyle?: string
+  imageRadius?: string
+  layoutDensity?: string
+  homeLayout?: string
+  showDecorations?: boolean
+}
+
+export interface PackageItem {
+  id: string
+  name: string
+  priceText?: string
+  subtitle?: string
+  duration?: string
+  retouchCount?: string
+  originalPhotos?: string
+  makeupIncluded?: boolean
+  makeupText?: string
+  includes?: string[]
+  suitableFor?: string[]
+  relatedSeriesIds?: string[]
+  relatedPhotographerIds?: string[]
+  isRecommended?: boolean
+  sort?: number
+  enabled?: boolean
+}
+
+export interface ScheduleContent {
+  enabled?: boolean
+  title?: string
+  notice?: string
+  availableText?: string
+  restDays?: string[]
+  busyDates?: string[]
+  specialNotes?: string[]
+}
+
+export interface TestimonialItem {
+  id: string
+  name: string
+  shootType?: string
+  content: string
+  imageUrl?: string
+  relatedSeriesId?: string
+  relatedPackageId?: string
+  dateText?: string
+  sort?: number
+  enabled?: boolean
+}
+
+export interface ConsultationContent {
+  title?: string
+  description?: string
+  template?: string
+  privacyTip?: string
+}
+
+export interface ServiceFlowContent {
+  enabled?: boolean
+  steps?: Array<{
+    title: string
+    description: string
+  }>
+}
+
+export interface FaqContent {
+  enabled?: boolean
+  items?: Array<{
+    question: string
+    answer: string
+  }>
+}
+
+export interface ConsultButtonContent {
+  enabled?: boolean
+  text?: string
+  action?: 'booking' | 'copyWechat' | 'contact' | 'phone'
+  showOnPages?: string[]
+}
+
+export interface StoreItem {
+  id: string
+  name: string
+  address?: string
+  phone?: string
+  businessHours?: string
+  transportTips?: string
+  latitude?: number | null
+  longitude?: number | null
+  sort?: number
+  enabled?: boolean
+}
+
+export interface TeamPhotographerItem {
+  id: string
+  name: string
+  title?: string
+  avatar?: string
+  bio?: string
+  skills?: string[]
+  relatedSeriesIds?: string[]
+  relatedPackageIds?: string[]
+  sort?: number
+  enabled?: boolean
+}
+
+function isModuleEnabled(config: any, moduleName: string): boolean {
+  return config?.modules?.[moduleName] !== false
+}
+
+function getEnabledSortedItems<T extends { enabled?: boolean; sort?: number }>(items?: T[]): T[] {
+  return (Array.isArray(items) ? items : [])
+    .filter(item => item && item.enabled !== false)
+    .sort((a, b) => (a.sort || 999) - (b.sort || 999))
+}
+
+function getConfiguredPackages(config: any): PackageItem[] {
+  if (!isModuleEnabled(config, 'packages')) return []
+  return getEnabledSortedItems<PackageItem>(config?.packages)
+}
+
+export function buildThemeStyle(theme?: Partial<ThemeContent> | null): string {
+  if (!theme || theme.enabled === false) return ''
+
+  const styles: string[] = []
+  if (theme.primaryColor) styles.push(`--primary: ${theme.primaryColor}`)
+  if (theme.backgroundColor) styles.push(`--bg-light: ${theme.backgroundColor}`)
+  if (theme.textColor) styles.push(`--text-main: ${theme.textColor}`)
+
+  return styles.length ? `${styles.join('; ')};` : ''
+}
+
+function getConfiguredTestimonials(config: any): TestimonialItem[] {
+  if (!isModuleEnabled(config, 'testimonials')) return []
+  return getEnabledSortedItems<TestimonialItem>(config?.testimonials)
+}
+
+function getConfiguredStores(config: any): StoreItem[] {
+  if (!isModuleEnabled(config, 'stores')) return []
+
+  const stores = getEnabledSortedItems<StoreItem>(config?.stores)
+  if (stores.length > 0) return stores
+
+  const studio = config?.photographer?.studio
+  if (!studio?.name && !studio?.address) return []
+
+  return [{
+    id: 'primary-store',
+    name: studio.name || '门店地址',
+    address: studio.address || '',
+    latitude: studio.latitude ?? null,
+    longitude: studio.longitude ?? null,
+    sort: 1,
+    enabled: true
+  }]
+}
+
+function getConfiguredPhotographers(config: any): TeamPhotographerItem[] {
+  if (!isModuleEnabled(config, 'photographers')) return []
+
+  const photographers = getEnabledSortedItems<TeamPhotographerItem>(config?.photographers)
+  if (photographers.length > 0) return photographers
+
+  const photographer = config?.photographer
+  if (!photographer?.name) return []
+
+  return [{
+    id: 'primary-photographer',
+    name: photographer.name,
+    title: photographer.title,
+    avatar: photographer.avatar,
+    bio: photographer.bio,
+    skills: photographer.skills || [],
+    sort: 1,
+    enabled: true
+  }]
+}
+
 // 获取COS图片完整URL
 // options: { width?: number, quality?: number, format?: 'webp' | 'jpg' }
 export function getCosUrl(path: string, options?: { width?: number, quality?: number, format?: string }): string {
@@ -69,6 +254,11 @@ export async function getPortfolioImages(): Promise<PortfolioItem[]> {
 export async function getPortfolioPageData(): Promise<{
   portfolioItems: PortfolioItem[]
   homeBanner: Partial<HomeBannerContent> | null
+  theme: Partial<ThemeContent> | null
+  packages: PackageItem[]
+  schedule: Partial<ScheduleContent> | null
+  testimonials: TestimonialItem[]
+  consultButton: Partial<ConsultButtonContent> | null
 }> {
   try {
     const config = await loadConfig()
@@ -76,13 +266,23 @@ export async function getPortfolioPageData(): Promise<{
 
     return {
       portfolioItems: allImages.filter(item => item.isSeriesCover),
-      homeBanner: config?.homeBanner || null
+      homeBanner: config?.homeBanner || null,
+      theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
+      packages: getConfiguredPackages(config).filter(item => item.isRecommended).slice(0, 3),
+      schedule: isModuleEnabled(config, 'schedule') ? config?.schedule || null : null,
+      testimonials: getConfiguredTestimonials(config).slice(0, 3),
+      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : null
     }
   } catch (error) {
     console.error('加载首页配置失败:', error)
     return {
       portfolioItems: [],
-      homeBanner: null
+      homeBanner: null,
+      theme: null,
+      packages: [],
+      schedule: null,
+      testimonials: [],
+      consultButton: null
     }
   }
 }
@@ -139,19 +339,110 @@ export async function getPhotographerProfile(): Promise<any> {
 export async function getBookingPageData(): Promise<{
   photographer: any | null
   booking: Partial<BookingContent> | null
+  theme: Partial<ThemeContent> | null
+  packages: PackageItem[]
+  schedule: Partial<ScheduleContent> | null
+  testimonials: TestimonialItem[]
+  consultation: Partial<ConsultationContent> | null
+  serviceFlow: Partial<ServiceFlowContent> | null
+  faq: Partial<FaqContent> | null
+  stores: StoreItem[]
+  photographers: TeamPhotographerItem[]
 }> {
   try {
     const config = await loadConfig()
 
     return {
       photographer: config?.photographer || null,
-      booking: config?.booking || null
+      booking: config?.booking || null,
+      theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
+      packages: getConfiguredPackages(config),
+      schedule: isModuleEnabled(config, 'schedule') ? config?.schedule || null : null,
+      testimonials: getConfiguredTestimonials(config),
+      consultation: config?.consultation || null,
+      serviceFlow: isModuleEnabled(config, 'serviceFlow') ? config?.serviceFlow || null : null,
+      faq: isModuleEnabled(config, 'faq') ? config?.faq || null : null,
+      stores: getConfiguredStores(config),
+      photographers: getConfiguredPhotographers(config)
     }
   } catch (error) {
     console.error('加载预约页配置失败:', error)
     return {
       photographer: null,
-      booking: null
+      booking: null,
+      theme: null,
+      packages: [],
+      schedule: null,
+      testimonials: [],
+      consultation: null,
+      serviceFlow: null,
+      faq: null,
+      stores: [],
+      photographers: []
+    }
+  }
+}
+
+export async function getPackagesPageData(): Promise<{
+  theme: Partial<ThemeContent> | null
+  packages: PackageItem[]
+  schedule: Partial<ScheduleContent> | null
+  testimonials: TestimonialItem[]
+  consultButton: Partial<ConsultButtonContent> | null
+}> {
+  try {
+    const config = await loadConfig()
+
+    return {
+      theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
+      packages: getConfiguredPackages(config),
+      schedule: isModuleEnabled(config, 'schedule') ? config?.schedule || null : null,
+      testimonials: getConfiguredTestimonials(config),
+      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : null
+    }
+  } catch (error) {
+    console.error('加载套餐页配置失败:', error)
+    return {
+      theme: null,
+      packages: [],
+      schedule: null,
+      testimonials: [],
+      consultButton: null
+    }
+  }
+}
+
+export async function getAboutPageData(): Promise<{
+  photographer: any | null
+  theme: Partial<ThemeContent> | null
+  stores: StoreItem[]
+  photographers: TeamPhotographerItem[]
+  testimonials: TestimonialItem[]
+  serviceFlow: Partial<ServiceFlowContent> | null
+  faq: Partial<FaqContent> | null
+}> {
+  try {
+    const config = await loadConfig()
+
+    return {
+      photographer: config?.photographer || null,
+      theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
+      stores: getConfiguredStores(config),
+      photographers: getConfiguredPhotographers(config),
+      testimonials: getConfiguredTestimonials(config),
+      serviceFlow: isModuleEnabled(config, 'serviceFlow') ? config?.serviceFlow || null : null,
+      faq: isModuleEnabled(config, 'faq') ? config?.faq || null : null
+    }
+  } catch (error) {
+    console.error('加载简介页配置失败:', error)
+    return {
+      photographer: null,
+      theme: null,
+      stores: [],
+      photographers: [],
+      testimonials: [],
+      serviceFlow: null,
+      faq: null
     }
   }
 }

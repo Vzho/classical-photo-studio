@@ -651,6 +651,7 @@
         <button class="btn btn-secondary" onclick="openProfileModal()" style="padding: 8px 16px; font-size: 14px;">👤 编辑资料</button>
         <button class="btn btn-secondary" onclick="openHomeBannerModal()" style="padding: 8px 16px; font-size: 14px;">📝 首页文案</button>
         <button class="btn btn-secondary" onclick="openBookingSettingsModal()" style="padding: 8px 16px; font-size: 14px;">📅 预约设置</button>
+        <button class="btn btn-secondary" onclick="openContentModulesModal()" style="padding: 8px 16px; font-size: 14px;">🧩 内容模块</button>
         <button class="btn btn-secondary" onclick="openSettingsModal()" style="padding: 8px 16px; font-size: 14px;">⚙️ 系统设置</button>
         <button class="btn btn-secondary" onclick="refreshData()" style="padding: 8px 16px; font-size: 14px;">🔄 刷新</button>
         <div class="stats">
@@ -849,6 +850,88 @@
       <div class="form-actions">
         <button class="btn btn-secondary" onclick="closeModal('bookingSettingsModal')">取消</button>
         <button class="btn btn-primary" onclick="saveBookingSettings()">保存并同步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- v1.1 内容模块设置 -->
+  <div class="modal" id="contentModulesModal">
+    <div class="modal-content" style="max-width: 920px;">
+      <div class="modal-header">
+        <h3>🧩 v1.1 内容模块</h3>
+        <button class="close-btn" onclick="closeModal('contentModulesModal')">×</button>
+      </div>
+
+      <div style="background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 12px; color: #78716c; line-height: 1.6;">
+        这些内容会写入 <code>config/portfolio-config.json</code> 并同步到 COS。小程序只读取配置展示，不上传客户咨询信息，不生成后台预约记录。
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px;">
+        <div class="form-group">
+          <label>模块开关 JSON</label>
+          <textarea id="v11ModulesJson" rows="9" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>主题设置 JSON</label>
+          <textarea id="v11ThemeJson" rows="9" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>套餐 packages JSON</label>
+          <textarea id="v11PackagesJson" rows="12" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>档期 schedule JSON</label>
+          <textarea id="v11ScheduleJson" rows="12" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>客户评价 testimonials JSON</label>
+          <textarea id="v11TestimonialsJson" rows="12" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>固定咨询按钮 consultButton JSON</label>
+          <textarea id="v11ConsultButtonJson" rows="12" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>服务流程 serviceFlow JSON</label>
+          <textarea id="v11ServiceFlowJson" rows="12" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>常见问题 faq JSON</label>
+          <textarea id="v11FaqJson" rows="12" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>摄影师列表 photographers JSON</label>
+          <textarea id="v11PhotographersJson" rows="12" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>门店列表 stores JSON</label>
+          <textarea id="v11StoresJson" rows="12" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>咨询页标题</label>
+        <input type="text" id="v11ConsultationTitle" placeholder="预约咨询">
+      </div>
+      <div class="form-group">
+        <label>咨询页说明</label>
+        <textarea id="v11ConsultationDescription" rows="2" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>咨询文本模板</label>
+        <textarea id="v11ConsultationTemplate" rows="10" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+        <div style="margin-top: 8px; font-size: 12px; color: #78716c;">
+          支持变量：{{name}}、{{contact}}、{{style}}、{{package}}、{{date}}、{{note}}、{{store}}、{{photographer}}。
+        </div>
+      </div>
+      <div class="form-group">
+        <label>隐私提示文案</label>
+        <textarea id="v11ConsultationPrivacyTip" rows="2" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="closeModal('contentModulesModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveContentModules()">保存并同步</button>
       </div>
     </div>
   </div>

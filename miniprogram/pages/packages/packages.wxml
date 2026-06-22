@@ -1,0 +1,65 @@
+<view class="packages-page" style="{{themeStyle}}">
+  <view class="page-header">
+    <view class="page-kicker">Packages</view>
+    <view class="page-title">拍摄套餐</view>
+    <view class="page-desc">价格和服务内容仅作咨询参考，最终方案以双方沟通确认为准。</view>
+  </view>
+
+  <view class="schedule-card" wx:if="{{schedule.enabled}}">
+    <view class="schedule-title">{{schedule.title || '近期档期'}}</view>
+    <view class="schedule-main">{{schedule.availableText}}</view>
+    <view class="schedule-notice">{{schedule.notice || '档期仅供参考，具体拍摄时间请与摄影师确认。'}}</view>
+  </view>
+
+  <view class="empty-card" wx:if="{{!packages.length}}">
+    <view class="empty-title">暂未配置套餐</view>
+    <view class="empty-desc">摄影师可以在 CMS 的内容模块里维护套餐和价格说明。</view>
+    <button class="consult-btn" bindtap="goBooking">先发起拍摄咨询</button>
+  </view>
+
+  <view class="package-list">
+    <view class="package-card" wx:for="{{packages}}" wx:key="id">
+      <view class="package-header">
+        <view>
+          <view class="package-badge" wx:if="{{item.isRecommended}}">推荐</view>
+          <view class="package-name">{{item.name}}</view>
+          <view class="package-subtitle">{{item.subtitle}}</view>
+        </view>
+        <view class="package-price">{{item.priceText}}</view>
+      </view>
+
+      <view class="package-meta">
+        <view wx:if="{{item.duration}}">{{item.duration}}</view>
+        <view wx:if="{{item.retouchCount}}">{{item.retouchCount}}</view>
+        <view wx:if="{{item.originalPhotos}}">{{item.originalPhotos}}</view>
+        <view wx:if="{{item.makeupText}}">{{item.makeupText}}</view>
+      </view>
+
+      <view class="section-block" wx:if="{{item.suitableFor.length}}">
+        <view class="section-title">适合</view>
+        <view class="tag-list">
+          <view class="tag" wx:for="{{item.suitableFor}}" wx:key="*this">{{item}}</view>
+        </view>
+      </view>
+
+      <view class="section-block" wx:if="{{item.includes.length}}">
+        <view class="section-title">包含服务</view>
+        <view class="include-list">
+          <view class="include-item" wx:for="{{item.includes}}" wx:key="*this">{{item}}</view>
+        </view>
+      </view>
+
+      <button class="consult-btn" bindtap="consultPackage" data-id="{{item.id}}">
+        {{consultButton.text || '咨询此套餐'}}
+      </button>
+    </view>
+  </view>
+
+  <view class="testimonial-section" wx:if="{{testimonials.length}}">
+    <view class="module-title">客户评价</view>
+    <view class="testimonial-card" wx:for="{{testimonials}}" wx:key="id">
+      <view class="testimonial-content">“{{item.content}}”</view>
+      <view class="testimonial-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
+    </view>
+  </view>
+</view>

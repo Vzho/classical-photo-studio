@@ -5,6 +5,7 @@
     "pages/about/about",
     "pages/booking/booking",
     "pages/success/success",
+    "pages/packages/packages",
     "pages/series/series"
   ],
   "window": {
@@ -31,7 +32,7 @@
       },
       {
         "pagePath": "pages/booking/booking",
-        "text": "预约"
+        "text": "咨询"
       }
     ]
   },

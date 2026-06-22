@@ -1,17 +1,23 @@
 import { PHOTOGRAPHER } from '../../utils/constants'
-import { getCosUrl, getPhotographerProfile } from '../../utils/cos'
+import { buildThemeStyle, getAboutPageData, getCosUrl } from '../../utils/cos'
 
 Page({
   data: {
     photographer: PHOTOGRAPHER,
+    themeStyle: '',
     avatarUrl: '',
     bannerUrl: '',
-    canOpenStudioLocation: false
+    canOpenStudioLocation: false,
+    stores: [] as any[],
+    photographers: [] as any[],
+    testimonials: [] as any[],
+    serviceFlow: { enabled: false, steps: [] } as any,
+    faq: { enabled: false, items: [] } as any
   },
 
   async onLoad() {
     // 优先加载远程配置的摄影师信息
-    const remoteProfile = await getPhotographerProfile()
+    const { photographer: remoteProfile, theme, stores, photographers, testimonials, serviceFlow, faq } = await getAboutPageData()
     const profile = {
       ...PHOTOGRAPHER,
       ...(remoteProfile || {}),
@@ -42,9 +48,26 @@ Page({
 
     this.setData({
       photographer: profile,
+      themeStyle: buildThemeStyle(theme),
       avatarUrl: getCosUrl(profile.avatar),
       bannerUrl,
-      canOpenStudioLocation: Number.isFinite(latitude) && Number.isFinite(longitude)
+      canOpenStudioLocation: Number.isFinite(latitude) && Number.isFinite(longitude),
+      stores,
+      photographers: photographers.map(item => ({
+        ...item,
+        avatar: item.avatar ? getCosUrl(item.avatar) : ''
+      })),
+      testimonials,
+      serviceFlow: {
+        enabled: false,
+        ...(serviceFlow || {}),
+        steps: serviceFlow?.steps || []
+      },
+      faq: {
+        enabled: false,
+        ...(faq || {}),
+        items: faq?.items || []
+      }
     })
   },
 
@@ -145,6 +168,24 @@ Page({
 
     if (!address) {
       wx.showToast({ title: '暂无店铺地址', icon: 'none' })
+      return
+    }
+
+    wx.setClipboardData({
+      data: address,
+      success: () => {
+        wx.showToast({ title: '地址已复制', icon: 'success' })
+      }
+    })
+  },
+
+  copyStoreAddress(e: WechatMiniprogram.TouchEvent) {
+    const index = Number(e.currentTarget.dataset.index)
+    const store = this.data.stores[index]
+    const address = [store?.name, store?.address].filter(Boolean).join('\n')
+
+    if (!address) {
+      wx.showToast({ title: '暂无门店地址', icon: 'none' })
       return
     }
 

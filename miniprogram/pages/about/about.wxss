@@ -306,3 +306,115 @@
 .btn-icon {
   font-size: 36rpx;
 }
+
+.content-section-card {
+  margin-top: 32rpx;
+  padding: 32rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  border: 2rpx solid #f5f5f4;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.03);
+}
+
+.store-card,
+.team-card,
+.review-card,
+.faq-item {
+  padding: 24rpx;
+  border-radius: 18rpx;
+  background: #fafaf9;
+  margin-bottom: 18rpx;
+}
+
+.store-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+  align-items: flex-start;
+}
+
+.store-main {
+  flex: 1;
+}
+
+.store-name,
+.team-name,
+.flow-title,
+.faq-question {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: var(--text-main);
+  margin-bottom: 8rpx;
+}
+
+.store-address,
+.store-meta,
+.team-title,
+.team-bio,
+.flow-desc,
+.faq-answer,
+.review-meta {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.store-copy-btn {
+  flex-shrink: 0;
+  height: 68rpx;
+  padding: 0 22rpx;
+  border: none;
+  border-radius: 16rpx;
+  background: rgba(124,106,93,0.1);
+  color: var(--primary);
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.store-copy-btn::after {
+  border: none;
+}
+
+.team-card {
+  display: flex;
+  gap: 20rpx;
+}
+
+.team-avatar {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #e7e5e4;
+}
+
+.team-info {
+  flex: 1;
+}
+
+.flow-item {
+  display: flex;
+  gap: 18rpx;
+  margin-bottom: 22rpx;
+}
+
+.flow-number {
+  width: 44rpx;
+  height: 44rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(124,106,93,0.12);
+  color: var(--primary);
+  font-size: 22rpx;
+  font-weight: bold;
+}
+
+.review-content {
+  font-size: 26rpx;
+  line-height: 1.8;
+  color: var(--text-main);
+  margin-bottom: 10rpx;
+}

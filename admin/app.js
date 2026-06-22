@@ -32,6 +32,121 @@ const FALLBACK_BOOKING_CONFIG = {
   styleOptions: ['写真', '古风', '婚纱', '亲子', '商业']
 }
 
+const DEFAULT_CONSULTATION_TEMPLATE = `你好，我想咨询拍摄：
+
+称呼：{{name}}
+联系方式：{{contact}}
+拍摄风格：{{style}}
+意向套餐：{{package}}
+期望日期：{{date}}
+门店：{{store}}
+摄影师：{{photographer}}
+备注：{{note}}
+
+我是在小程序中看到作品后联系你的，想进一步确认档期和拍摄方案。`
+
+const DEFAULT_V11_CONFIG = {
+  configVersion: '1.1.0',
+  modules: {
+    theme: true,
+    packages: true,
+    schedule: true,
+    testimonials: true,
+    photographers: false,
+    stores: true,
+    serviceFlow: true,
+    faq: true,
+    consultButton: true
+  },
+  theme: {
+    enabled: true,
+    preset: 'minimal',
+    brandName: '摄影作品合集',
+    primaryColor: '#7C6A5D',
+    backgroundColor: '#FAFAF9',
+    textColor: '#292524',
+    cardStyle: 'soft',
+    buttonStyle: 'rounded',
+    imageRadius: 'medium',
+    layoutDensity: 'comfortable',
+    homeLayout: 'banner-first',
+    showDecorations: true
+  },
+  packages: [
+    {
+      id: 'portrait-basic',
+      name: '个人写真基础套餐',
+      priceText: '¥699 起',
+      subtitle: '适合头像、生日纪念、日常写真',
+      duration: '约 2 小时',
+      retouchCount: '6 张精修',
+      originalPhotos: '底片精选交付',
+      makeupIncluded: true,
+      makeupText: '含基础妆造',
+      includes: ['拍摄前沟通', '拍摄指导', '服装搭配建议', '6 张精修', '底片精选交付'],
+      suitableFor: ['个人写真', '头像拍摄', '生日纪念'],
+      relatedSeriesIds: [],
+      relatedPhotographerIds: [],
+      isRecommended: true,
+      sort: 1,
+      enabled: true
+    }
+  ],
+  schedule: {
+    enabled: true,
+    title: '近期档期',
+    notice: '档期仅供参考，具体拍摄时间请与摄影师确认。',
+    availableText: '本周还有少量可沟通档期',
+    restDays: [],
+    busyDates: [],
+    specialNotes: ['周末档期较紧张，建议提前沟通']
+  },
+  testimonials: [
+    {
+      id: 'review-001',
+      name: '示例客户',
+      shootType: '个人写真',
+      content: '摄影师很会引导，拍摄过程轻松，成片效果很喜欢。',
+      imageUrl: '',
+      relatedSeriesId: '',
+      relatedPackageId: 'portrait-basic',
+      dateText: '2026 年 6 月',
+      sort: 1,
+      enabled: true
+    }
+  ],
+  consultButton: {
+    enabled: true,
+    text: '咨询拍摄',
+    action: 'booking',
+    showOnPages: ['portfolio', 'seriesDetail', 'packageDetail', 'about']
+  },
+  consultation: {
+    title: '预约咨询',
+    description: '填写信息后可生成咨询内容，发送给摄影师确认档期和方案。',
+    template: DEFAULT_CONSULTATION_TEMPLATE,
+    privacyTip: '你填写的信息仅用于生成咨询内容，请复制后发送给摄影师确认档期和拍摄方案。'
+  },
+  serviceFlow: {
+    enabled: true,
+    steps: [
+      { title: '咨询沟通', description: '确认拍摄风格、预算、人数和时间。' },
+      { title: '确定方案', description: '根据需求推荐合适套餐和拍摄地点。' },
+      { title: '正式拍摄', description: '摄影师现场引导动作和情绪。' },
+      { title: '选片修图', description: '拍摄后进行选片和精修交付。' }
+    ]
+  },
+  faq: {
+    enabled: true,
+    items: [
+      { question: '需要提前多久预约咨询？', answer: '建议提前 3-7 天沟通，周末档期建议更早确认。' },
+      { question: '不会摆动作怎么办？', answer: '摄影师会在现场进行动作和表情引导。' }
+    ]
+  },
+  photographers: [],
+  stores: []
+}
+
 // 初始化
 async function init() {
   console.log('🚀 管理后台启动中...')
@@ -973,6 +1088,158 @@ async function saveBookingSettings() {
   if (success) {
     closeModal('bookingSettingsModal')
     showToast('预约设置已更新', 'success')
+  }
+}
+
+function deepClone(value) {
+  return JSON.parse(JSON.stringify(value))
+}
+
+function fillMissingObject(target, defaults) {
+  const output = { ...(target || {}) }
+
+  Object.entries(defaults).forEach(([key, value]) => {
+    if (output[key] === undefined) {
+      output[key] = deepClone(value)
+    } else if (
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      output[key] &&
+      typeof output[key] === 'object' &&
+      !Array.isArray(output[key])
+    ) {
+      output[key] = fillMissingObject(output[key], value)
+    }
+  })
+
+  return output
+}
+
+function ensureV11Config() {
+  if (!portfolioData || typeof portfolioData !== 'object') {
+    portfolioData = { themes: [] }
+  }
+
+  if (!Array.isArray(portfolioData.themes)) {
+    portfolioData.themes = []
+  }
+
+  portfolioData.configVersion = portfolioData.configVersion || DEFAULT_V11_CONFIG.configVersion
+  portfolioData.modules = fillMissingObject(portfolioData.modules, DEFAULT_V11_CONFIG.modules)
+  portfolioData.theme = fillMissingObject(portfolioData.theme, DEFAULT_V11_CONFIG.theme)
+  portfolioData.packages = Array.isArray(portfolioData.packages)
+    ? portfolioData.packages
+    : deepClone(DEFAULT_V11_CONFIG.packages)
+  portfolioData.schedule = fillMissingObject(portfolioData.schedule, DEFAULT_V11_CONFIG.schedule)
+  portfolioData.testimonials = Array.isArray(portfolioData.testimonials)
+    ? portfolioData.testimonials
+    : deepClone(DEFAULT_V11_CONFIG.testimonials)
+  portfolioData.consultButton = fillMissingObject(portfolioData.consultButton, DEFAULT_V11_CONFIG.consultButton)
+  portfolioData.consultation = fillMissingObject(portfolioData.consultation, DEFAULT_V11_CONFIG.consultation)
+  portfolioData.serviceFlow = fillMissingObject(portfolioData.serviceFlow, DEFAULT_V11_CONFIG.serviceFlow)
+  portfolioData.faq = fillMissingObject(portfolioData.faq, DEFAULT_V11_CONFIG.faq)
+  portfolioData.photographers = Array.isArray(portfolioData.photographers)
+    ? portfolioData.photographers
+    : deepClone(DEFAULT_V11_CONFIG.photographers)
+  portfolioData.stores = Array.isArray(portfolioData.stores)
+    ? portfolioData.stores
+    : deepClone(DEFAULT_V11_CONFIG.stores)
+
+  return portfolioData
+}
+
+function setJsonTextarea(id, value) {
+  document.getElementById(id).value = JSON.stringify(value, null, 2)
+}
+
+function parseJsonTextarea(id, label) {
+  const raw = document.getElementById(id).value.trim()
+
+  try {
+    return JSON.parse(raw)
+  } catch (error) {
+    throw new Error(`${label} 不是合法 JSON：${error.message}`)
+  }
+}
+
+function requireArray(value, label) {
+  if (!Array.isArray(value)) {
+    throw new Error(`${label} 必须是 JSON 数组`)
+  }
+}
+
+function openContentModulesModal() {
+  const config = ensureV11Config()
+
+  setJsonTextarea('v11ModulesJson', config.modules)
+  setJsonTextarea('v11ThemeJson', config.theme)
+  setJsonTextarea('v11PackagesJson', config.packages)
+  setJsonTextarea('v11ScheduleJson', config.schedule)
+  setJsonTextarea('v11TestimonialsJson', config.testimonials)
+  setJsonTextarea('v11ConsultButtonJson', config.consultButton)
+  setJsonTextarea('v11ServiceFlowJson', config.serviceFlow)
+  setJsonTextarea('v11FaqJson', config.faq)
+  setJsonTextarea('v11PhotographersJson', config.photographers)
+  setJsonTextarea('v11StoresJson', config.stores)
+
+  document.getElementById('v11ConsultationTitle').value = config.consultation.title || ''
+  document.getElementById('v11ConsultationDescription').value = config.consultation.description || ''
+  document.getElementById('v11ConsultationTemplate').value = config.consultation.template || DEFAULT_CONSULTATION_TEMPLATE
+  document.getElementById('v11ConsultationPrivacyTip').value = config.consultation.privacyTip || ''
+
+  openModal('contentModulesModal')
+}
+
+async function saveContentModules() {
+  try {
+    const modules = parseJsonTextarea('v11ModulesJson', '模块开关')
+    const theme = parseJsonTextarea('v11ThemeJson', '主题设置')
+    const packages = parseJsonTextarea('v11PackagesJson', '套餐')
+    const schedule = parseJsonTextarea('v11ScheduleJson', '档期')
+    const testimonials = parseJsonTextarea('v11TestimonialsJson', '客户评价')
+    const consultButton = parseJsonTextarea('v11ConsultButtonJson', '固定咨询按钮')
+    const serviceFlow = parseJsonTextarea('v11ServiceFlowJson', '服务流程')
+    const faq = parseJsonTextarea('v11FaqJson', '常见问题')
+    const photographers = parseJsonTextarea('v11PhotographersJson', '摄影师列表')
+    const stores = parseJsonTextarea('v11StoresJson', '门店列表')
+
+    requireArray(packages, '套餐 packages')
+    requireArray(testimonials, '客户评价 testimonials')
+    requireArray(photographers, '摄影师列表 photographers')
+    requireArray(stores, '门店列表 stores')
+
+    const consultation = {
+      title: document.getElementById('v11ConsultationTitle').value.trim(),
+      description: document.getElementById('v11ConsultationDescription').value.trim(),
+      template: document.getElementById('v11ConsultationTemplate').value.trim(),
+      privacyTip: document.getElementById('v11ConsultationPrivacyTip').value.trim()
+    }
+
+    if (!consultation.title || !consultation.description || !consultation.template || !consultation.privacyTip) {
+      throw new Error('请填写完整的咨询模板设置')
+    }
+
+    portfolioData.configVersion = '1.1.0'
+    portfolioData.modules = modules
+    portfolioData.theme = theme
+    portfolioData.packages = packages
+    portfolioData.schedule = schedule
+    portfolioData.testimonials = testimonials
+    portfolioData.consultButton = consultButton
+    portfolioData.consultation = consultation
+    portfolioData.serviceFlow = serviceFlow
+    portfolioData.faq = faq
+    portfolioData.photographers = photographers
+    portfolioData.stores = stores
+
+    const success = await saveConfig()
+    if (success) {
+      closeModal('contentModulesModal')
+      showToast('内容模块已更新并同步', 'success')
+    }
+  } catch (error) {
+    showToast(error.message, 'error')
   }
 }
 

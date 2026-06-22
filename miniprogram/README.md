@@ -1,6 +1,6 @@
 # 摄影作品合集 微信小程序
 
-这是摄影作品展示和预约咨询小程序源码。
+这是摄影作品展示和预约咨询小程序源码。当前版本是轻量 CMS 运营版：不做登录、数据库、订单或支付，只展示摄影师主动配置的内容，并在用户本机生成可复制的咨询文本。
 
 ## 配置项
 
@@ -53,7 +53,20 @@ cos: {
 data/portfolio-config.json
 ```
 
-其中 `booking.styleOptions` 控制预约页“心仪风格”选项；正常使用后台的“预约设置”维护即可。源码中的风格数组只作为 CMS 配置缺失时的兜底，不作为客户业务配置入口。
+其中 `booking.styleOptions` 控制咨询页“心仪风格”选项；正常使用后台的“预约设置”维护即可。源码中的风格数组只作为 CMS 配置缺失时的兜底，不作为客户业务配置入口。
+
+v1.1 新增字段包括：
+
+- `packages`：套餐和价格说明
+- `schedule`：近期档期说明
+- `testimonials`：精选客户评价
+- `consultButton`：固定咨询按钮
+- `consultation`：咨询页文案和咨询文本模板
+- `serviceFlow`：服务流程
+- `faq`：常见问题
+- `photographers`：多摄影师展示
+- `stores`：多门店展示
+- `modules`：模块开关
 
 正常使用后台管理即可，不需要手动维护两份配置。后台保存时会自动更新本地配置，并同步到 COS：
 
@@ -62,6 +75,8 @@ config/portfolio-config.json
 ```
 
 小程序线上优先读取 COS 配置，这样更新作品、头像、Banner 或资料时不需要重新上传小程序代码；本地 `data/portfolio-config.json` 只作为源码模板和网络异常兜底。
+
+咨询页提交时不会调用后台接口，也不会把用户填写的信息写入 COS 或数据库。它只使用 `wx.setStorageSync('lastConsultation', consultationData)` 临时保存到用户本机，用于咨询结果页展示和复制。
 
 ## 图片上传
 

@@ -1,5 +1,15 @@
 import { CATEGORIES, Category } from '../../utils/constants'
-import { getPortfolioPageData, getCosUrl, HomeBannerContent, PortfolioItem } from '../../utils/cos'
+import {
+  buildThemeStyle,
+  ConsultButtonContent,
+  getPortfolioPageData,
+  getCosUrl,
+  HomeBannerContent,
+  PackageItem,
+  PortfolioItem,
+  ScheduleContent,
+  TestimonialItem
+} from '../../utils/cos'
 
 const DEFAULT_HOME_BANNER: HomeBannerContent = {
   logoText: '摄影作品合集',
@@ -39,6 +49,15 @@ Page({
     filteredItems: [] as PortfolioItem[],
     bannerItems: [] as PortfolioItem[], // 轮播图数据
     homeBanner: DEFAULT_HOME_BANNER,
+    themeStyle: '',
+    packages: [] as PackageItem[],
+    schedule: { enabled: false } as Partial<ScheduleContent>,
+    testimonials: [] as TestimonialItem[],
+    consultButton: {
+      enabled: true,
+      text: '咨询拍摄',
+      action: 'booking'
+    } as Partial<ConsultButtonContent>,
     bannerUrl: '',
     showFloatingBtn: false // 控制悬浮按钮显示
   },
@@ -82,9 +101,21 @@ Page({
     })
   },
 
+  goPackages() {
+    wx.navigateTo({
+      url: '/pages/packages/packages'
+    })
+  },
+
+  consultPackage(e: WechatMiniprogram.TouchEvent) {
+    const packageId = e.currentTarget.dataset.id as string
+    wx.setStorageSync('prefillConsultation', { packageId })
+    this.goBooking()
+  },
+
   async loadData() {
     const bannerUrl = getCosUrl('banner/main-banner.jpg')
-    const { portfolioItems, homeBanner } = await getPortfolioPageData()
+    const { portfolioItems, homeBanner, theme, packages, schedule, testimonials, consultButton } = await getPortfolioPageData()
     const categories = ['全部', ...Array.from(new Set(portfolioItems.map(item => item.category)))]
     const activeCategory = categories.includes(this.data.activeCategory) ? this.data.activeCategory : '全部'
     
@@ -139,6 +170,24 @@ Page({
       homeBanner: {
         ...DEFAULT_HOME_BANNER,
         ...(homeBanner || {})
+      },
+      themeStyle: buildThemeStyle(theme),
+      packages: packages.map(item => ({
+        ...item,
+        includes: item.includes || [],
+        suitableFor: item.suitableFor || []
+      })),
+      schedule: {
+        enabled: false,
+        specialNotes: [],
+        ...(schedule || {})
+      },
+      testimonials,
+      consultButton: {
+        enabled: true,
+        text: '咨询拍摄',
+        action: 'booking',
+        ...(consultButton || {})
       },
       filteredItems: activeCategory === '全部'
         ? portfolioItems

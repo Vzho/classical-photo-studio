@@ -30,7 +30,7 @@ https://客户 COS Bucket.cos.客户 COS Region.myqcloud.com
 - `project.config.json`：AppID、项目名、描述
 - `app.json`：导航栏标题
 - `app.ts`：COS Bucket、Region、BaseUrl
-- `data/portfolio-config.json`：作品数据、首页文案、预约风格、摄影师资料
+- `data/portfolio-config.json`：作品数据、首页文案、预约咨询风格、摄影师资料、套餐、档期、评价、服务流程、FAQ、门店和咨询模板
 
 后台会自动上传头像、Banner、作品图，并同步 `config/portfolio-config.json` 到 COS；不需要手动创建 COS 目录。
 
@@ -51,8 +51,11 @@ npm run compile
 - 图片预览正常
 - 摄影师简介正常
 - 微信号、邮箱、门店地址正确
-- 预约单复制正常
-- 预约页心仪风格和客户需求一致
+- 套餐、档期、评价、服务流程和 FAQ 展示正常
+- 咨询页心仪风格和客户需求一致
+- 咨询页点击后进入“咨询信息已生成”页面
+- 咨询结果页复制咨询内容和复制摄影师微信正常
+- 后台没有保存客户咨询记录
 - 分享标题正确
 
 ## 6. 上传审核

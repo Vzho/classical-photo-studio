@@ -1,57 +1,65 @@
-<!-- 预约拍摄页面 -->
-<view class="booking-page">
-  <!-- 顶部Banner -->
+<!-- 预约咨询页面 -->
+<view class="booking-page" style="{{themeStyle}}">
   <view class="booking-banner" style="{{!bannerUrl ? 'background: #e7e5e4;' : ''}}">
     <image wx:if="{{bannerUrl}}" class="banner-img" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
     <view class="banner-overlay">
-      <view class="banner-tag">一站式全包服务</view>
-      <view class="banner-title">记录您的温婉时光</view>
+      <view class="banner-tag">拍摄咨询</view>
+      <view class="banner-title">{{consultation.title}}</view>
+      <view class="banner-desc">{{consultation.description}}</view>
     </view>
   </view>
 
-  <!-- 表单区域 -->
+  <view class="notice-card">
+    <view class="notice-title">咨询说明</view>
+    <view class="notice-text">{{consultation.privacyTip}}</view>
+  </view>
+
+  <view class="info-card" wx:if="{{schedule.enabled}}">
+    <view class="info-card-title">{{schedule.title || '近期档期'}}</view>
+    <view class="schedule-available">{{schedule.availableText}}</view>
+    <view class="schedule-notice">{{schedule.notice || '档期仅供参考，具体拍摄时间请与摄影师确认。'}}</view>
+    <view class="note-list" wx:if="{{schedule.specialNotes.length}}">
+      <view class="note-item" wx:for="{{schedule.specialNotes}}" wx:key="*this">{{item}}</view>
+    </view>
+  </view>
+
   <view class="form-section">
-    <!-- 称呼 -->
     <view class="form-item">
       <view class="form-label">
         <text class="label-icon">👤</text>
         <text>您的称呼</text>
       </view>
-      <input 
-        class="form-input" 
-        placeholder="怎么称呼您？" 
+      <input
+        class="form-input"
+        placeholder="怎么称呼您？"
         value="{{formData.name}}"
         bindinput="onInputChange"
         data-field="name"
       />
     </view>
 
-    <!-- 电话 -->
     <view class="form-item">
       <view class="form-label">
         <text class="label-icon">📱</text>
-        <text>联系电话</text>
+        <text>联系方式</text>
       </view>
-      <input 
-        class="form-input" 
-        type="number"
-        placeholder="请输入您的手机号码" 
-        value="{{formData.phone}}"
+      <input
+        class="form-input"
+        placeholder="手机号或微信号，便于摄影师联系"
+        value="{{formData.contact}}"
         bindinput="onInputChange"
-        data-field="phone"
-        maxlength="11"
+        data-field="contact"
       />
     </view>
 
-    <!-- 风格选择 -->
     <view class="form-item">
       <view class="form-label">
         <text class="label-icon">🎨</text>
         <text>心仪风格</text>
       </view>
       <view class="style-grid">
-        <view 
-          wx:for="{{styleOptions}}" 
+        <view
+          wx:for="{{styleOptions}}"
           wx:key="*this"
           class="style-item {{formData.style === item ? 'active' : ''}}"
           bindtap="onStyleSelect"
@@ -60,11 +68,10 @@
           {{item}}
         </view>
       </view>
-      <!-- 自定义风格输入框 -->
       <view class="custom-style-input-wrap" wx:if="{{formData.style === '其他'}}">
-        <input 
-          class="form-input custom-style-input" 
-          placeholder="请输入您想要的风格（如：敦煌飞天、戏曲）" 
+        <input
+          class="form-input custom-style-input"
+          placeholder="请输入您想要的风格"
           value="{{formData.customStyle}}"
           bindinput="onInputChange"
           data-field="customStyle"
@@ -72,7 +79,18 @@
       </view>
     </view>
 
-    <!-- 日期选择 -->
+    <view class="form-item" wx:if="{{packages.length}}">
+      <view class="form-label">
+        <text class="label-icon">💼</text>
+        <text>意向套餐</text>
+      </view>
+      <picker range="{{packagePickerRange}}" value="{{selectedPackageIndex}}" bindchange="onPackageChange">
+        <view class="form-input date-picker {{selectedPackageName ? '' : 'placeholder'}}">
+          {{selectedPackageName || '暂不选择套餐'}}
+        </view>
+      </picker>
+    </view>
+
     <view class="form-item">
       <view class="form-label">
         <text class="label-icon">📅</text>
@@ -85,15 +103,38 @@
       </picker>
     </view>
 
-    <!-- 备注 -->
+    <view class="form-item" wx:if="{{stores.length}}">
+      <view class="form-label">
+        <text class="label-icon">📍</text>
+        <text>意向门店</text>
+      </view>
+      <picker range="{{storePickerRange}}" value="{{selectedStoreIndex}}" bindchange="onStoreChange">
+        <view class="form-input date-picker {{selectedStoreName ? '' : 'placeholder'}}">
+          {{selectedStoreName || '暂不选择门店'}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item" wx:if="{{photographers.length}}">
+      <view class="form-label">
+        <text class="label-icon">📷</text>
+        <text>意向摄影师</text>
+      </view>
+      <picker range="{{photographerPickerRange}}" value="{{selectedPhotographerIndex}}" bindchange="onPhotographerChange">
+        <view class="form-input date-picker {{selectedPhotographerName ? '' : 'placeholder'}}">
+          {{selectedPhotographerName || '暂不选择摄影师'}}
+        </view>
+      </picker>
+    </view>
+
     <view class="form-item">
       <view class="form-label">
         <text class="label-icon">📝</text>
-        <text>额外备注</text>
+        <text>备注说明</text>
       </view>
-      <textarea 
-        class="form-textarea" 
-        placeholder="如有特殊需求或喜欢的场景请告诉我们..."
+      <textarea
+        class="form-textarea"
+        placeholder="人数、场景、服装、预算或其他想提前沟通的信息"
         value="{{formData.notes}}"
         bindinput="onInputChange"
         data-field="notes"
@@ -102,20 +143,42 @@
     </view>
   </view>
 
-  <!-- 底部提交 -->
+  <view class="content-module" wx:if="{{serviceFlow.enabled && serviceFlow.steps.length}}">
+    <view class="module-title">服务流程</view>
+    <view class="flow-list">
+      <view class="flow-item" wx:for="{{serviceFlow.steps}}" wx:key="title">
+        <view class="flow-number">{{index + 1}}</view>
+        <view class="flow-content">
+          <view class="flow-title">{{item.title}}</view>
+          <view class="flow-desc">{{item.description}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="content-module" wx:if="{{faq.enabled && faq.items.length}}">
+    <view class="module-title">常见问题</view>
+    <view class="faq-list">
+      <view class="faq-item" wx:for="{{faq.items}}" wx:key="question">
+        <view class="faq-question">{{item.question}}</view>
+        <view class="faq-answer">{{item.answer}}</view>
+      </view>
+    </view>
+  </view>
+
   <view class="submit-section {{showSubmitBtn ? 'show' : ''}}">
     <view class="tips-row">
       <view class="tip-item">
         <text class="tip-icon">✓</text>
-        <text>拍摄前48小时免费改期</text>
+        <text>不上传客户信息</text>
       </view>
       <view class="tip-item">
         <text class="tip-icon">⏰</text>
-        <text>24h内回复确认</text>
+        <text>最终时间以沟通为准</text>
       </view>
     </view>
     <button class="submit-btn" bindtap="onSubmit" loading="{{submitting}}">
-      <text>立即提交预约</text>
+      <text>生成咨询内容</text>
       <text class="btn-arrow">→</text>
     </button>
   </view>

@@ -50,6 +50,11 @@ Page({
     this.setData({ images })
   },
 
+  consultSameStyle() {
+    wx.setStorageSync('prefillConsultation', { style: this.data.seriesCategory })
+    wx.switchTab({ url: '/pages/booking/booking' })
+  },
+
   onShareAppMessage() {
     return {
       title: `${this.data.seriesTitle} - 摄影作品合集`,

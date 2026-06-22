@@ -24,7 +24,6 @@ const CONFIG = {
   projectConfigPath: path.join(__dirname, '../miniprogram/project.config.json'),
   envPath: path.join(__dirname, '.env'),
   syncLogPath: path.join(__dirname, 'sync.log'),
-  bookingDataPath: path.join(__dirname, 'bookings.json'), // 预约数据文件
   uploadDir: path.join(__dirname, 'uploads'),
   cos: {
     SecretId: process.env.COS_SECRET_ID,
@@ -846,62 +845,21 @@ app.post('/api/photos/cleanup-orphans', async (req, res) => {
   }
 })
 
-// ==================== 预约管理 API ====================
-
-// 提交预约
+// ==================== 咨询说明 API ====================
+// v1.1 定位为“生成咨询内容”，不保存客户咨询数据。
 app.post('/api/booking', async (req, res) => {
-  try {
-    const booking = req.body
-    if (!booking.name || !booking.phone) {
-      return res.status(400).json({ error: '姓名和电话不能为空' })
-    }
-
-    // 读取现有预约
-    let bookings = []
-    try {
-      const data = await fs.readFile(CONFIG.bookingDataPath, 'utf-8')
-      bookings = JSON.parse(data)
-    } catch (e) {
-      // 文件不存在则初始化空数组
-    }
-
-    // 添加新预约
-    const newBooking = {
-      id: Date.now().toString(),
-      createTime: new Date().toISOString(),
-      status: 'pending', // pending, confirmed, completed, cancelled
-      ...booking
-    }
-
-    bookings.unshift(newBooking) // 最新预约排前面
-
-    // 保存到文件
-    await fs.writeFile(CONFIG.bookingDataPath, JSON.stringify(bookings, null, 2), 'utf-8')
-
-    console.log(`📝 收到新预约: ${newBooking.name} (${newBooking.phone})`)
-
-    res.json({ success: true, message: '预约提交成功' })
-  } catch (error) {
-    console.error('提交预约失败:', error)
-    res.status(500).json({ error: '提交预约失败' })
-  }
+  res.status(410).json({
+    success: false,
+    error: '当前版本不支持真实预约提交。请在小程序前端生成咨询内容并由用户自行发送给摄影师。'
+  })
 })
 
-// 获取预约列表 (Admin用)
 app.get('/api/bookings', async (req, res) => {
-  try {
-    let bookings = []
-    try {
-      const data = await fs.readFile(CONFIG.bookingDataPath, 'utf-8')
-      bookings = JSON.parse(data)
-    } catch (e) {
-      // 文件不存在则返回空数组
-    }
-    res.json({ success: true, data: bookings })
-  } catch (error) {
-    console.error('获取预约列表失败:', error)
-    res.status(500).json({ error: '获取预约列表失败' })
-  }
+  res.json({
+    success: true,
+    data: [],
+    message: '当前版本不保存客户咨询记录。'
+  })
 })
 
 // ==================== 系统设置与同步 API ====================

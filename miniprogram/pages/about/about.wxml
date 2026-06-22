@@ -1,5 +1,5 @@
 <!-- 摄影师简介页面 -->
-<view class="about-page">
+<view class="about-page" style="{{themeStyle}}">
   <!-- 头部背景 -->
   <view class="profile-header">
     <image wx:if="{{bannerUrl}}" class="header-bg-img" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
@@ -98,13 +98,65 @@
         </view>
       </view>
     </view>
+
+    <view class="content-section-card" wx:if="{{stores.length > 1}}">
+      <view class="section-title">门店信息</view>
+      <view class="store-card" wx:for="{{stores}}" wx:key="id">
+        <view class="store-main">
+          <view class="store-name">{{item.name}}</view>
+          <view class="store-address">{{item.address}}</view>
+          <view class="store-meta" wx:if="{{item.businessHours}}">{{item.businessHours}}</view>
+          <view class="store-meta" wx:if="{{item.transportTips}}">{{item.transportTips}}</view>
+        </view>
+        <button class="store-copy-btn" bindtap="copyStoreAddress" data-index="{{index}}">复制地址</button>
+      </view>
+    </view>
+
+    <view class="content-section-card" wx:if="{{photographers.length}}">
+      <view class="section-title">摄影师团队</view>
+      <view class="team-card" wx:for="{{photographers}}" wx:key="id">
+        <image wx:if="{{item.avatar}}" class="team-avatar" src="{{item.avatar}}" mode="aspectFill" />
+        <view class="team-info">
+          <view class="team-name">{{item.name}}</view>
+          <view class="team-title">{{item.title}}</view>
+          <view class="team-bio">{{item.bio}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="content-section-card" wx:if="{{serviceFlow.enabled && serviceFlow.steps.length}}">
+      <view class="section-title">服务流程</view>
+      <view class="flow-item" wx:for="{{serviceFlow.steps}}" wx:key="title">
+        <view class="flow-number">{{index + 1}}</view>
+        <view>
+          <view class="flow-title">{{item.title}}</view>
+          <view class="flow-desc">{{item.description}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="content-section-card" wx:if="{{faq.enabled && faq.items.length}}">
+      <view class="section-title">常见问题</view>
+      <view class="faq-item" wx:for="{{faq.items}}" wx:key="question">
+        <view class="faq-question">{{item.question}}</view>
+        <view class="faq-answer">{{item.answer}}</view>
+      </view>
+    </view>
+
+    <view class="content-section-card" wx:if="{{testimonials.length}}">
+      <view class="section-title">客户评价</view>
+      <view class="review-card" wx:for="{{testimonials}}" wx:key="id">
+        <view class="review-content">“{{item.content}}”</view>
+        <view class="review-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
+      </view>
+    </view>
   </view>
 
   <!-- 底部预约按钮 -->
   <view class="bottom-action">
     <button class="booking-btn" bindtap="goBooking">
       <text class="btn-icon">📅</text>
-      <text>立即开启拍摄预约</text>
+      <text>发起拍摄咨询</text>
     </button>
   </view>
 </view>

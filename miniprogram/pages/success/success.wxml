@@ -1,6 +1,5 @@
-<!-- 预约成功页面 -->
+<!-- 咨询结果页面 -->
 <view class="success-page">
-  <!-- 成功图标 -->
   <view class="success-icon-wrap">
     <view class="icon-pulse"></view>
     <view class="success-icon">
@@ -8,36 +7,48 @@
     </view>
   </view>
 
-  <!-- 成功信息 -->
   <view class="success-info">
-    <view class="success-title">预约已收到</view>
+    <view class="success-title">咨询信息已生成</view>
     <view class="success-desc">
-      感谢您对摄影作品合集的信任。摄影师将在
-      <text class="highlight">24小时内</text>
-      通过您预留的电话与您核实档期及细节。
+      咨询内容已生成，请发送给摄影师。最终拍摄时间和方案以双方沟通确认为准。
     </view>
   </view>
 
-  <!-- 后续流程 -->
-  <view class="steps-card">
-    <view class="steps-header">
-      <text class="steps-icon">ℹ️</text>
-      <text class="steps-title">后续流程</text>
-    </view>
-    <view class="steps-list">
-      <view class="step-item" wx:for="{{steps}}" wx:key="title">
-        <view class="step-number">{{index + 1}}</view>
-        <view class="step-content">
-          <view class="step-title">{{item.title}}</view>
-          <view class="step-desc">{{item.desc}}</view>
+  <view class="empty-card" wx:if="{{!consultation}}">
+    <view class="empty-title">暂无咨询内容</view>
+    <view class="empty-desc">请先填写预约咨询表单，生成咨询内容后再查看。</view>
+    <button class="btn-primary" bindtap="goBooking">去填写咨询</button>
+  </view>
+
+  <view wx:else class="result-content">
+    <view class="summary-card">
+      <view class="card-title">咨询摘要</view>
+      <view class="summary-list">
+        <view class="summary-item" wx:for="{{summaryItems}}" wx:key="label">
+          <view class="summary-label">{{item.label}}</view>
+          <view class="summary-value">{{item.value}}</view>
         </view>
       </view>
     </view>
+
+    <view class="text-card">
+      <view class="card-title">可复制咨询内容</view>
+      <view class="consultation-text">{{consultation.text}}</view>
+    </view>
+
+    <view class="wechat-card" wx:if="{{consultation.photographerWechat}}">
+      <view>
+        <view class="wechat-label">摄影师微信</view>
+        <view class="wechat-value">{{consultation.photographerWechat}}</view>
+      </view>
+      <button class="mini-copy-btn" bindtap="copyWechat">复制</button>
+    </view>
   </view>
 
-  <!-- 底部按钮 -->
   <view class="bottom-actions">
-    <button class="btn-primary" bindtap="goHome">返回首页</button>
-    <button class="btn-secondary" bindtap="viewBooking">查看预约单</button>
+    <button wx:if="{{consultation}}" class="btn-primary" bindtap="copyConsultation">复制咨询内容</button>
+    <button wx:if="{{consultation}}" class="btn-secondary" bindtap="contactPhotographer">联系摄影师确认档期</button>
+    <button class="btn-secondary" bindtap="goPackages">查看套餐</button>
+    <button class="btn-plain" bindtap="goHome">返回作品集</button>
   </view>
 </view>

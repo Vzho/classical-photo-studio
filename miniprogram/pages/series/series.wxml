@@ -22,4 +22,8 @@
       <view class="image-number">{{index + 1}}/{{images.length}}</view>
     </view>
   </view>
+
+  <view class="series-consult-bar">
+    <button class="series-consult-btn" bindtap="consultSameStyle">咨询同款风格</button>
+  </view>
 </view>

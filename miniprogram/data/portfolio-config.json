@@ -1,4 +1,30 @@
 {
+  "configVersion": "1.1.0",
+  "modules": {
+    "theme": true,
+    "packages": true,
+    "schedule": true,
+    "testimonials": true,
+    "photographers": false,
+    "stores": true,
+    "serviceFlow": true,
+    "faq": true,
+    "consultButton": true
+  },
+  "theme": {
+    "enabled": true,
+    "preset": "minimal",
+    "brandName": "摄影作品合集",
+    "primaryColor": "#7C6A5D",
+    "backgroundColor": "#FAFAF9",
+    "textColor": "#292524",
+    "cardStyle": "soft",
+    "buttonStyle": "rounded",
+    "imageRadius": "medium",
+    "layoutDensity": "comfortable",
+    "homeLayout": "banner-first",
+    "showDecorations": true
+  },
   "themes": [
     {
       "id": "sample",
@@ -20,7 +46,7 @@
   "homeBanner": {
     "logoText": "摄影作品合集",
     "tagText": "精选作品",
-    "description": "展示摄影作品、服务风格和预约入口。"
+    "description": "展示摄影作品、服务风格和预约咨询入口。"
   },
   "booking": {
     "styleOptions": [
@@ -31,6 +57,135 @@
       "商业"
     ]
   },
+  "packages": [
+    {
+      "id": "portrait-basic",
+      "name": "个人写真基础套餐",
+      "priceText": "¥699 起",
+      "subtitle": "适合头像、生日纪念、日常写真",
+      "duration": "约 2 小时",
+      "retouchCount": "6 张精修",
+      "originalPhotos": "底片精选交付",
+      "makeupIncluded": true,
+      "makeupText": "含基础妆造",
+      "includes": [
+        "拍摄前沟通",
+        "拍摄指导",
+        "服装搭配建议",
+        "6 张精修",
+        "底片精选交付"
+      ],
+      "suitableFor": [
+        "个人写真",
+        "头像拍摄",
+        "生日纪念"
+      ],
+      "relatedSeriesIds": [
+        "series-sample-sample-series"
+      ],
+      "relatedPhotographerIds": [],
+      "isRecommended": true,
+      "sort": 1,
+      "enabled": true
+    }
+  ],
+  "schedule": {
+    "enabled": true,
+    "title": "近期档期",
+    "notice": "档期仅供参考，具体拍摄时间请与摄影师确认。",
+    "availableText": "本周还有少量可沟通档期",
+    "restDays": [
+      "Monday"
+    ],
+    "busyDates": [
+      "2026-07-06",
+      "2026-07-13"
+    ],
+    "specialNotes": [
+      "周末档期较紧张，建议提前沟通",
+      "外景拍摄需根据天气确认"
+    ]
+  },
+  "testimonials": [
+    {
+      "id": "review-001",
+      "name": "示例客户",
+      "shootType": "个人写真",
+      "content": "摄影师很会引导，拍摄过程轻松，成片效果很喜欢。",
+      "imageUrl": "",
+      "relatedSeriesId": "series-sample-sample-series",
+      "relatedPackageId": "portrait-basic",
+      "dateText": "2026 年 6 月",
+      "sort": 1,
+      "enabled": true
+    }
+  ],
+  "consultButton": {
+    "enabled": true,
+    "text": "咨询拍摄",
+    "action": "booking",
+    "showOnPages": [
+      "portfolio",
+      "seriesDetail",
+      "packageDetail",
+      "about"
+    ]
+  },
+  "consultation": {
+    "title": "预约咨询",
+    "description": "填写信息后可生成咨询内容，发送给摄影师确认档期和方案。",
+    "template": "你好，我想咨询拍摄：\n\n称呼：{{name}}\n联系方式：{{contact}}\n拍摄风格：{{style}}\n意向套餐：{{package}}\n期望日期：{{date}}\n门店：{{store}}\n摄影师：{{photographer}}\n备注：{{note}}\n\n我是在小程序中看到作品后联系你的，想进一步确认档期和拍摄方案。",
+    "privacyTip": "你填写的信息仅用于生成咨询内容，请复制后发送给摄影师确认档期和拍摄方案。"
+  },
+  "serviceFlow": {
+    "enabled": true,
+    "steps": [
+      {
+        "title": "咨询沟通",
+        "description": "确认拍摄风格、预算、人数和时间。"
+      },
+      {
+        "title": "确定方案",
+        "description": "根据需求推荐合适套餐和拍摄地点。"
+      },
+      {
+        "title": "正式拍摄",
+        "description": "摄影师现场引导动作和情绪。"
+      },
+      {
+        "title": "选片修图",
+        "description": "拍摄后进行选片和精修交付。"
+      }
+    ]
+  },
+  "faq": {
+    "enabled": true,
+    "items": [
+      {
+        "question": "需要提前多久预约咨询？",
+        "answer": "建议提前 3-7 天沟通，周末档期建议更早确认。"
+      },
+      {
+        "question": "不会摆动作怎么办？",
+        "answer": "摄影师会在现场进行动作和表情引导。"
+      }
+    ]
+  },
+  "photographers": [],
+  "stores": [
+    {
+      "id": "store-001",
+      "name": "示例工作室",
+      "address": "这里填写门店地址",
+      "phone": "",
+      "businessHours": "10:00 - 20:00",
+      "transportTips": "这里填写交通提示",
+      "latitude": null,
+      "longitude": null,
+      "sort": 1,
+      "enabled": true
+    }
+  ],
   "photographer": {
     "name": "摄影师名称",
     "title": "摄影师简介标题",
