@@ -27,6 +27,10 @@ export interface HomeBannerContent {
   description: string
 }
 
+export interface BookingContent {
+  styleOptions: string[]
+}
+
 // 获取COS图片完整URL
 // options: { width?: number, quality?: number, format?: 'webp' | 'jpg' }
 export function getCosUrl(path: string, options?: { width?: number, quality?: number, format?: string }): string {
@@ -129,6 +133,26 @@ export async function getPhotographerProfile(): Promise<any> {
   } catch (error) {
     console.error('加载摄影师配置失败:', error)
     return null
+  }
+}
+
+export async function getBookingPageData(): Promise<{
+  photographer: any | null
+  booking: Partial<BookingContent> | null
+}> {
+  try {
+    const config = await loadConfig()
+
+    return {
+      photographer: config?.photographer || null,
+      booking: config?.booking || null
+    }
+  } catch (error) {
+    console.error('加载预约页配置失败:', error)
+    return {
+      photographer: null,
+      booking: null
+    }
   }
 }
 

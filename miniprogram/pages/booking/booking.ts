@@ -1,5 +1,14 @@
 import { STYLE_OPTIONS, PHOTOGRAPHER } from '../../utils/constants'
-import { getCosUrl, getPhotographerProfile } from '../../utils/cos'
+import { getCosUrl, getBookingPageData } from '../../utils/cos'
+
+function normalizeStyleOptions(styleOptions?: string[]): string[] {
+  const normalized = (styleOptions || [])
+    .map(item => String(item).trim())
+    .filter(item => item && item !== '其他')
+
+  const uniqueOptions = Array.from(new Set(normalized))
+  return uniqueOptions.length > 0 ? uniqueOptions : STYLE_OPTIONS
+}
 
 Page({
   data: {
@@ -9,7 +18,7 @@ Page({
     formData: {
       name: '',
       phone: '',
-      style: '清冷风',
+      style: STYLE_OPTIONS[0] || '',
       customStyle: '', // 新增自定义风格字段
       date: '',
       notes: ''
@@ -33,11 +42,17 @@ Page({
     // 设置最小日期为今天
     const today = new Date()
     const minDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-    const remoteProfile = await getPhotographerProfile()
+    const { photographer, booking } = await getBookingPageData()
+    const styleOptions = normalizeStyleOptions(booking?.styleOptions)
+    const selectedStyle = styleOptions.includes(this.data.formData.style)
+      ? this.data.formData.style
+      : styleOptions[0] || ''
 
     this.setData({
       bannerUrl: getCosUrl('banner/booking-banner.jpg'),
-      photographer: remoteProfile || PHOTOGRAPHER,
+      photographer: photographer || PHOTOGRAPHER,
+      styleOptions: [...styleOptions, '其他'],
+      'formData.style': selectedStyle,
       minDate
     })
   },

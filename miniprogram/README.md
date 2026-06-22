@@ -53,6 +53,8 @@ cos: {
 data/portfolio-config.json
 ```
 
+其中 `booking.styleOptions` 控制预约页“心仪风格”选项；正常使用后台的“预约设置”维护即可。
+
 正常使用后台管理即可，不需要手动维护两份配置。后台保存时会自动更新本地配置，并同步到 COS：
 
 ```text

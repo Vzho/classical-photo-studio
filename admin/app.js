@@ -27,6 +27,9 @@ const DEFAULT_HOME_BANNER = {
   tagText: '精选作品',
   description: '展示摄影作品、服务风格和预约入口。'
 }
+const DEFAULT_BOOKING_CONFIG = {
+  styleOptions: ['写真', '古风', '婚纱', '亲子', '商业']
+}
 
 // 初始化
 async function init() {
@@ -919,6 +922,56 @@ async function saveHomeBanner() {
   if (success) {
     closeModal('homeBannerModal')
     showToast('首页轮播文案已更新', 'success')
+  }
+}
+
+function ensureBookingConfig() {
+  const currentBooking = portfolioData.booking || {}
+  const styleOptions = Array.isArray(currentBooking.styleOptions)
+    ? currentBooking.styleOptions
+    : DEFAULT_BOOKING_CONFIG.styleOptions
+
+  portfolioData.booking = {
+    ...currentBooking,
+    styleOptions: normalizeBookingStyleOptions(styleOptions)
+  }
+
+  return portfolioData.booking
+}
+
+function normalizeBookingStyleOptions(styleOptions) {
+  const normalized = (styleOptions || [])
+    .map(item => String(item).trim())
+    .filter(item => item && item !== '其他')
+
+  return Array.from(new Set(normalized))
+}
+
+function openBookingSettingsModal() {
+  const booking = ensureBookingConfig()
+  document.getElementById('bookingStyleOptions').value = booking.styleOptions.join('\n')
+  openModal('bookingSettingsModal')
+}
+
+async function saveBookingSettings() {
+  const rawOptions = document.getElementById('bookingStyleOptions').value
+    .split(/\r?\n/)
+  const styleOptions = normalizeBookingStyleOptions(rawOptions)
+
+  if (styleOptions.length === 0) {
+    showToast('请至少填写一个预约风格', 'error')
+    return
+  }
+
+  portfolioData.booking = {
+    ...(portfolioData.booking || {}),
+    styleOptions
+  }
+
+  const success = await saveConfig()
+  if (success) {
+    closeModal('bookingSettingsModal')
+    showToast('预约设置已更新', 'success')
   }
 }
 

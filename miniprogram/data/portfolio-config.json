@@ -22,6 +22,15 @@
     "tagText": "精选作品",
     "description": "展示摄影作品、服务风格和预约入口。"
   },
+  "booking": {
+    "styleOptions": [
+      "写真",
+      "古风",
+      "婚纱",
+      "亲子",
+      "商业"
+    ]
+  },
   "photographer": {
     "name": "摄影师名称",
     "title": "摄影师简介标题",
