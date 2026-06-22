@@ -1064,6 +1064,61 @@
         <div id="testimonialEditorList"></div>
       </div>
 
+      <div style="padding: 16px; border: 1px solid #e7e5e4; border-radius: 8px; background: #fafaf9; margin-bottom: 16px;">
+        <h4 style="margin: 0 0 12px; color: #292524;">固定咨询按钮结构化编辑</h4>
+        <div class="form-group">
+          <label><input type="checkbox" id="consultButtonEnabled"> 启用固定/底部咨询按钮</label>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+          <div class="form-group">
+            <label>按钮文案</label>
+            <input type="text" id="consultButtonText" placeholder="咨询拍摄">
+          </div>
+          <div class="form-group">
+            <label>点击动作</label>
+            <select id="consultButtonAction" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+              <option value="booking">进入咨询页</option>
+              <option value="copyWechat">复制微信</option>
+              <option value="contact">弹出联系方式</option>
+              <option value="phone">拨打电话</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>显示页面</label>
+          <div style="display: flex; flex-wrap: wrap; gap: 14px; color: #57534e;">
+            <label><input type="checkbox" data-consult-page="portfolio"> 作品首页</label>
+            <label><input type="checkbox" data-consult-page="seriesDetail"> 系列详情</label>
+            <label><input type="checkbox" data-consult-page="packageDetail"> 套餐详情</label>
+            <label><input type="checkbox" data-consult-page="about"> 简介页</label>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 16px; border: 1px solid #e7e5e4; border-radius: 8px; background: #fafaf9; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <h4 style="margin: 0 0 4px; color: #292524;">服务流程结构化编辑</h4>
+            <p style="margin: 0; color: #78716c; font-size: 12px;">展示在咨询页和套餐详情页。</p>
+          </div>
+          <button class="btn btn-secondary" type="button" onclick="addServiceFlowEditorItem()">新增步骤</button>
+        </div>
+        <label style="display: block; margin-bottom: 12px;"><input type="checkbox" id="serviceFlowEnabled"> 启用服务流程</label>
+        <div id="serviceFlowEditorList"></div>
+      </div>
+
+      <div style="padding: 16px; border: 1px solid #e7e5e4; border-radius: 8px; background: #fafaf9; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <h4 style="margin: 0 0 4px; color: #292524;">FAQ 结构化编辑</h4>
+            <p style="margin: 0; color: #78716c; font-size: 12px;">展示在咨询页、套餐详情页和简介页。</p>
+          </div>
+          <button class="btn btn-secondary" type="button" onclick="addFaqEditorItem()">新增问题</button>
+        </div>
+        <label style="display: block; margin-bottom: 12px;"><input type="checkbox" id="faqEnabled"> 启用 FAQ</label>
+        <div id="faqEditorList"></div>
+      </div>
+
       <div class="form-group">
         <label>咨询页标题</label>
         <input type="text" id="v11ConsultationTitle" placeholder="预约咨询">

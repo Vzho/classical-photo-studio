@@ -1390,6 +1390,9 @@ function renderContentModuleStructuredEditors(config) {
   renderPackageEditor(config.packages || [])
   renderScheduleEditor(config.schedule || {})
   renderTestimonialEditor(config.testimonials || [])
+  renderConsultButtonEditor(config.consultButton || {})
+  renderServiceFlowEditor(config.serviceFlow || {})
+  renderFaqEditor(config.faq || {})
 }
 
 function renderPackageEditor(packages) {
@@ -1471,6 +1474,63 @@ function renderTestimonialEditor(testimonials) {
         </label>
       </div>
       ${editorTextarea('content', '评价内容', item.content ? [item.content] : [], 4)}
+    </div>
+  `).join('')
+}
+
+function renderConsultButtonEditor(consultButton) {
+  setCheckedValue('consultButtonEnabled', consultButton.enabled !== false)
+  setInputValue('consultButtonText', consultButton.text || '')
+  setInputValue('consultButtonAction', consultButton.action || 'booking')
+
+  const showOnPages = Array.isArray(consultButton.showOnPages) ? consultButton.showOnPages : []
+  document.querySelectorAll('[data-consult-page]').forEach(input => {
+    input.checked = showOnPages.includes(input.dataset.consultPage)
+  })
+}
+
+function renderServiceFlowEditor(serviceFlow) {
+  setCheckedValue('serviceFlowEnabled', serviceFlow.enabled !== false)
+  const steps = Array.isArray(serviceFlow.steps) ? serviceFlow.steps : []
+  const container = document.getElementById('serviceFlowEditorList')
+  if (!container) return
+
+  if (!steps.length) {
+    container.innerHTML = '<div style="color: #78716c; font-size: 13px;">暂无服务流程，点击“新增步骤”。</div>'
+    return
+  }
+
+  container.innerHTML = steps.map((item, index) => `
+    <div data-index="${index}" style="background: #fff; border: 1px solid #e7e5e4; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+        <strong>步骤 ${index + 1}</strong>
+        <button class="btn btn-danger" type="button" onclick="removeServiceFlowEditorItem(${index})">删除</button>
+      </div>
+      ${editorInput('title', '步骤标题', item.title, '咨询沟通')}
+      ${editorTextarea('description', '步骤说明', item.description ? [item.description] : [], 3)}
+    </div>
+  `).join('')
+}
+
+function renderFaqEditor(faq) {
+  setCheckedValue('faqEnabled', faq.enabled !== false)
+  const items = Array.isArray(faq.items) ? faq.items : []
+  const container = document.getElementById('faqEditorList')
+  if (!container) return
+
+  if (!items.length) {
+    container.innerHTML = '<div style="color: #78716c; font-size: 13px;">暂无 FAQ，点击“新增问题”。</div>'
+    return
+  }
+
+  container.innerHTML = items.map((item, index) => `
+    <div data-index="${index}" style="background: #fff; border: 1px solid #e7e5e4; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+        <strong>问题 ${index + 1}</strong>
+        <button class="btn btn-danger" type="button" onclick="removeFaqEditorItem(${index})">删除</button>
+      </div>
+      ${editorInput('question', '问题', item.question, '拍摄前需要准备什么？')}
+      ${editorTextarea('answer', '回答', item.answer ? [item.answer] : [], 3)}
     </div>
   `).join('')
 }
@@ -1579,10 +1639,56 @@ function readTestimonialEditor() {
   })
 }
 
+function readConsultButtonEditor() {
+  return {
+    enabled: Boolean(document.getElementById('consultButtonEnabled')?.checked),
+    text: document.getElementById('consultButtonText')?.value.trim() || '',
+    action: document.getElementById('consultButtonAction')?.value || 'booking',
+    showOnPages: Array.from(document.querySelectorAll('[data-consult-page]'))
+      .filter(input => input.checked)
+      .map(input => input.dataset.consultPage)
+  }
+}
+
+function readServiceFlowEditor() {
+  return {
+    enabled: Boolean(document.getElementById('serviceFlowEnabled')?.checked),
+    steps: Array.from(document.querySelectorAll('#serviceFlowEditorList [data-index]')).map((card, index) => {
+      const title = getFieldValue(card, 'title')
+      const description = getFieldValue(card, 'description')
+
+      if (!title || !description) {
+        throw new Error(`第 ${index + 1} 个服务流程步骤必须填写标题和说明`)
+      }
+
+      return { title, description }
+    })
+  }
+}
+
+function readFaqEditor() {
+  return {
+    enabled: Boolean(document.getElementById('faqEnabled')?.checked),
+    items: Array.from(document.querySelectorAll('#faqEditorList [data-index]')).map((card, index) => {
+      const question = getFieldValue(card, 'question')
+      const answer = getFieldValue(card, 'answer')
+
+      if (!question || !answer) {
+        throw new Error(`第 ${index + 1} 个 FAQ 必须填写问题和回答`)
+      }
+
+      return { question, answer }
+    })
+  }
+}
+
 function syncStructuredContentToJson() {
   setJsonTextarea('v11PackagesJson', readPackageEditor())
   setJsonTextarea('v11ScheduleJson', readScheduleEditor())
   setJsonTextarea('v11TestimonialsJson', readTestimonialEditor())
+  setJsonTextarea('v11ConsultButtonJson', readConsultButtonEditor())
+  setJsonTextarea('v11ServiceFlowJson', readServiceFlowEditor())
+  setJsonTextarea('v11FaqJson', readFaqEditor())
 }
 
 function addPackageEditorItem() {
@@ -1629,6 +1735,40 @@ function removeTestimonialEditorItem(index) {
   testimonials.splice(index, 1)
   renderTestimonialEditor(testimonials)
   setJsonTextarea('v11TestimonialsJson', testimonials)
+}
+
+function addServiceFlowEditorItem() {
+  const serviceFlow = readServiceFlowEditor()
+  serviceFlow.steps.push({
+    title: '新步骤',
+    description: '这里填写服务流程说明。'
+  })
+  renderServiceFlowEditor(serviceFlow)
+  setJsonTextarea('v11ServiceFlowJson', serviceFlow)
+}
+
+function removeServiceFlowEditorItem(index) {
+  const serviceFlow = readServiceFlowEditor()
+  serviceFlow.steps.splice(index, 1)
+  renderServiceFlowEditor(serviceFlow)
+  setJsonTextarea('v11ServiceFlowJson', serviceFlow)
+}
+
+function addFaqEditorItem() {
+  const faq = readFaqEditor()
+  faq.items.push({
+    question: '新问题',
+    answer: '这里填写回答。'
+  })
+  renderFaqEditor(faq)
+  setJsonTextarea('v11FaqJson', faq)
+}
+
+function removeFaqEditorItem(index) {
+  const faq = readFaqEditor()
+  faq.items.splice(index, 1)
+  renderFaqEditor(faq)
+  setJsonTextarea('v11FaqJson', faq)
 }
 
 function openContentModulesModal() {
