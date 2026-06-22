@@ -99,7 +99,7 @@
       </view>
     </view>
 
-    <view class="content-section-card" wx:if="{{stores.length > 1}}">
+    <view class="content-section-card" wx:if="{{stores.length}}">
       <view class="section-title">门店信息</view>
       <view class="store-card" wx:for="{{stores}}" wx:key="id" bindtap="openStoreDetail" data-index="{{index}}">
         <view class="store-main">
