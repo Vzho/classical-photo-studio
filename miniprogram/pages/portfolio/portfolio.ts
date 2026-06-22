@@ -9,6 +9,7 @@ import {
   PackageItem,
   PortfolioItem,
   ScheduleContent,
+  ServiceFlowContent,
   TestimonialItem
 } from '../../utils/cos'
 
@@ -54,6 +55,7 @@ Page({
     packages: [] as PackageItem[],
     schedule: { enabled: false } as Partial<ScheduleContent>,
     testimonials: [] as TestimonialItem[],
+    serviceFlow: { enabled: false, steps: [] } as Partial<ServiceFlowContent>,
     consultButton: {
       enabled: true,
       text: '咨询拍摄',
@@ -107,6 +109,13 @@ Page({
     })
   },
 
+  scrollToWorks() {
+    wx.pageScrollTo({
+      selector: '.portfolio-grid',
+      duration: 300
+    })
+  },
+
   consultPackage(e: WechatMiniprogram.TouchEvent) {
     const packageId = e.currentTarget.dataset.id as string
     handleConsultButtonAction(this.data.consultButton, { packageId })
@@ -114,7 +123,7 @@ Page({
 
   async loadData() {
     const bannerUrl = getCosUrl('banner/main-banner.jpg')
-    const { portfolioItems, homeBanner, theme, packages, schedule, testimonials, consultButton } = await getPortfolioPageData()
+    const { portfolioItems, homeBanner, theme, packages, schedule, testimonials, serviceFlow, consultButton } = await getPortfolioPageData()
     const categories = ['全部', ...Array.from(new Set(portfolioItems.map(item => item.category)))]
     const activeCategory = categories.includes(this.data.activeCategory) ? this.data.activeCategory : '全部'
     
@@ -182,6 +191,11 @@ Page({
         ...(schedule || {})
       },
       testimonials,
+      serviceFlow: {
+        enabled: false,
+        ...(serviceFlow || {}),
+        steps: serviceFlow?.steps || []
+      },
       consultButton: {
         enabled: true,
         text: '咨询拍摄',

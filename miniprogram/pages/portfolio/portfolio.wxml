@@ -25,6 +25,10 @@
             <text class="banner-season">{{item.category}}</text>
             <view class="banner-title">{{item.title}}</view>
             <view class="banner-desc">{{item.bannerDescription || homeBanner.description}}</view>
+            <view class="hero-actions">
+              <button class="hero-action primary" catchtap="scrollToWorks">查看作品</button>
+              <button class="hero-action secondary" catchtap="goBooking">{{consultButton.text || '预约咨询'}}</button>
+            </view>
           </view>
         </view>
       </swiper-item>
@@ -86,6 +90,24 @@
       <view class="testimonial-card" wx:for="{{testimonials}}" wx:key="id">
         <view class="testimonial-content">“{{item.content}}”</view>
         <view class="testimonial-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="home-module" wx:if="{{serviceFlow.enabled && serviceFlow.steps.length}}">
+    <view class="module-header">
+      <view>
+        <view class="module-title">拍摄流程</view>
+        <view class="module-desc">先了解合作步骤，再发起拍摄咨询</view>
+      </view>
+    </view>
+    <view class="home-flow-list">
+      <view class="home-flow-item" wx:for="{{serviceFlow.steps}}" wx:key="title">
+        <view class="home-flow-number">{{index + 1}}</view>
+        <view>
+          <view class="home-flow-title">{{item.title}}</view>
+          <view class="home-flow-desc">{{item.description}}</view>
+        </view>
       </view>
     </view>
   </view>

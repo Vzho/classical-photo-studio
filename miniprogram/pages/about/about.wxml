@@ -101,7 +101,7 @@
 
     <view class="content-section-card" wx:if="{{stores.length > 1}}">
       <view class="section-title">门店信息</view>
-      <view class="store-card" wx:for="{{stores}}" wx:key="id">
+      <view class="store-card" wx:for="{{stores}}" wx:key="id" bindtap="openStoreDetail" data-index="{{index}}">
         <view class="store-main">
           <view class="store-name">{{item.name}}</view>
           <view class="store-address">{{item.address}}</view>
@@ -110,9 +110,9 @@
           <view class="store-meta" wx:if="{{item.transportTips}}">{{item.transportTips}}</view>
         </view>
         <view class="store-action-list">
-          <button class="store-copy-btn" wx:if="{{item.phone}}" bindtap="callStorePhone" data-index="{{index}}">电话</button>
-          <button class="store-copy-btn" bindtap="openStoreLocation" data-index="{{index}}">导航</button>
-          <button class="store-copy-btn muted" bindtap="copyStoreAddress" data-index="{{index}}">复制</button>
+          <button class="store-copy-btn" wx:if="{{item.phone}}" catchtap="callStorePhone" data-index="{{index}}">电话</button>
+          <button class="store-copy-btn" catchtap="openStoreLocation" data-index="{{index}}">导航</button>
+          <button class="store-copy-btn muted" catchtap="copyStoreAddress" data-index="{{index}}">复制</button>
         </view>
       </view>
     </view>
@@ -125,6 +125,25 @@
           <view class="team-name">{{item.name}}</view>
           <view class="team-title">{{item.title}}</view>
           <view class="team-bio">{{item.bio}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="content-section-card" wx:if="{{packages.length}}">
+      <view class="section-title">服务价格</view>
+      <view class="about-package-card" wx:for="{{packages}}" wx:key="id">
+        <view class="about-package-main">
+          <view class="about-package-name">{{item.name}}</view>
+          <view class="about-package-desc">{{item.subtitle}}</view>
+          <view class="about-package-meta">
+            <text wx:if="{{item.duration}}">{{item.duration}}</text>
+            <text wx:if="{{item.retouchCount}}">{{item.retouchCount}}</text>
+          </view>
+        </view>
+        <view class="about-package-side">
+          <view class="about-package-price">{{item.priceText}}</view>
+          <button class="about-package-btn" bindtap="openPackageDetail" data-id="{{item.id}}">详情</button>
+          <button class="about-package-btn primary" bindtap="consultPackage" data-id="{{item.id}}">咨询</button>
         </view>
       </view>
     </view>
@@ -163,5 +182,33 @@
       <text class="btn-icon">📅</text>
       <text>{{consultButton.text || '发起拍摄咨询'}}</text>
     </button>
+  </view>
+
+  <view wx:if="{{selectedStore}}" class="store-modal-mask" bindtap="closeStoreDetail">
+    <view class="store-modal" catchtap="noop">
+      <view class="store-modal-header">
+        <view>
+          <view class="store-modal-title">{{selectedStore.name}}</view>
+          <view class="store-modal-subtitle">{{selectedStore.businessHours}}</view>
+        </view>
+        <button class="store-modal-close" bindtap="closeStoreDetail">×</button>
+      </view>
+      <view class="store-modal-row" wx:if="{{selectedStore.address}}">
+        <view class="store-modal-label">地址</view>
+        <view class="store-modal-value">{{selectedStore.address}}</view>
+      </view>
+      <view class="store-modal-row" wx:if="{{selectedStore.phone}}">
+        <view class="store-modal-label">电话</view>
+        <view class="store-modal-value">{{selectedStore.phone}}</view>
+      </view>
+      <view class="store-modal-row" wx:if="{{selectedStore.transportTips}}">
+        <view class="store-modal-label">交通提示</view>
+        <view class="store-modal-value">{{selectedStore.transportTips}}</view>
+      </view>
+      <view class="store-modal-actions">
+        <button class="store-modal-btn" bindtap="copySelectedStoreAddress">复制地址</button>
+        <button class="store-modal-btn primary" bindtap="closeStoreDetail">知道了</button>
+      </view>
+    </view>
   </view>
 </view>

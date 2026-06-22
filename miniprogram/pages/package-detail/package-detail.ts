@@ -2,10 +2,12 @@ import {
   buildThemeStyle,
   ConsultButtonContent,
   FaqContent,
+  getCosUrl,
   getPackageDetailPageData,
   PackageItem,
   PortfolioItem,
   ServiceFlowContent,
+  TeamPhotographerItem,
   TestimonialItem
 } from '../../utils/cos'
 import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
@@ -15,6 +17,7 @@ Page({
     themeStyle: '',
     packageItem: null as PackageItem | null,
     relatedSeries: [] as PortfolioItem[],
+    photographers: [] as TeamPhotographerItem[],
     testimonials: [] as TestimonialItem[],
     serviceFlow: { enabled: false, steps: [] } as Partial<ServiceFlowContent>,
     faq: { enabled: false, items: [] } as Partial<FaqContent>,
@@ -36,7 +39,7 @@ Page({
   },
 
   async loadData(packageId: string) {
-    const { theme, packageItem, relatedSeries, testimonials, serviceFlow, faq, consultButton } = await getPackageDetailPageData(packageId)
+    const { theme, packageItem, relatedSeries, photographers, testimonials, serviceFlow, faq, consultButton } = await getPackageDetailPageData(packageId)
 
     this.setData({
       themeStyle: buildThemeStyle(theme),
@@ -48,6 +51,10 @@ Page({
           }
         : null,
       relatedSeries,
+      photographers: photographers.map(item => ({
+        ...item,
+        avatar: item.avatar ? getCosUrl(item.avatar) : ''
+      })),
       testimonials,
       serviceFlow: {
         enabled: false,

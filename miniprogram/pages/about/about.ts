@@ -1,6 +1,6 @@
 import { PHOTOGRAPHER } from '../../utils/constants'
 import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
-import { buildThemeStyle, ConsultButtonContent, getAboutPageData, getCosUrl } from '../../utils/cos'
+import { buildThemeStyle, ConsultButtonContent, getAboutPageData, getCosUrl, PackageItem } from '../../utils/cos'
 
 Page({
   data: {
@@ -10,6 +10,8 @@ Page({
     bannerUrl: '',
     canOpenStudioLocation: false,
     stores: [] as any[],
+    selectedStore: null as any,
+    packages: [] as PackageItem[],
     photographers: [] as any[],
     testimonials: [] as any[],
     serviceFlow: { enabled: false, steps: [] } as any,
@@ -24,7 +26,7 @@ Page({
 
   async onLoad() {
     // 优先加载远程配置的摄影师信息
-    const { photographer: remoteProfile, theme, consultButton, stores, photographers, testimonials, serviceFlow, faq } = await getAboutPageData()
+    const { photographer: remoteProfile, theme, consultButton, packages, stores, photographers, testimonials, serviceFlow, faq } = await getAboutPageData()
     const profile = {
       ...PHOTOGRAPHER,
       ...(remoteProfile || {}),
@@ -59,6 +61,11 @@ Page({
       avatarUrl: getCosUrl(profile.avatar),
       bannerUrl,
       canOpenStudioLocation: Number.isFinite(latitude) && Number.isFinite(longitude),
+      packages: packages.map(item => ({
+        ...item,
+        includes: item.includes || [],
+        suitableFor: item.suitableFor || []
+      })),
       stores,
       photographers: photographers.map(item => ({
         ...item,
@@ -211,6 +218,37 @@ Page({
     })
   },
 
+  openStoreDetail(e: WechatMiniprogram.TouchEvent) {
+    const index = Number(e.currentTarget.dataset.index)
+    const store = this.data.stores[index]
+    if (!store) return
+
+    this.setData({ selectedStore: store })
+  },
+
+  closeStoreDetail() {
+    this.setData({ selectedStore: null })
+  },
+
+  noop() {},
+
+  copySelectedStoreAddress() {
+    const store = this.data.selectedStore
+    const address = [store?.name, store?.address].filter(Boolean).join('\n')
+
+    if (!address) {
+      wx.showToast({ title: '暂无门店地址', icon: 'none' })
+      return
+    }
+
+    wx.setClipboardData({
+      data: address,
+      success: () => {
+        wx.showToast({ title: '地址已复制', icon: 'success' })
+      }
+    })
+  },
+
   getStoreCoordinates(store: any): { latitude: number; longitude: number } | null {
     const rawLatitude = store?.latitude
     const rawLongitude = store?.longitude
@@ -304,6 +342,20 @@ Page({
 
   goBooking() {
     handleConsultButtonAction(this.data.consultButton)
+  },
+
+  consultPackage(e: WechatMiniprogram.TouchEvent) {
+    const packageId = e.currentTarget.dataset.id as string
+    handleConsultButtonAction(this.data.consultButton, { packageId })
+  },
+
+  openPackageDetail(e: WechatMiniprogram.TouchEvent) {
+    const packageId = e.currentTarget.dataset.id as string
+    if (!packageId) return
+
+    wx.navigateTo({
+      url: `/pages/package-detail/package-detail?id=${packageId}`
+    })
   },
 
   onShareAppMessage() {

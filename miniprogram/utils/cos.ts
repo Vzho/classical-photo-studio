@@ -372,6 +372,7 @@ export async function getPortfolioPageData(): Promise<{
   packages: PackageItem[]
   schedule: Partial<ScheduleContent> | null
   testimonials: TestimonialItem[]
+  serviceFlow: Partial<ServiceFlowContent> | null
   consultButton: Partial<ConsultButtonContent> | null
 }> {
   try {
@@ -385,6 +386,7 @@ export async function getPortfolioPageData(): Promise<{
       packages: getConfiguredPackages(config).filter(item => item.isRecommended).slice(0, 3),
       schedule: isModuleEnabled(config, 'schedule') ? config?.schedule || null : null,
       testimonials: getConfiguredTestimonials(config).slice(0, 3),
+      serviceFlow: isModuleEnabled(config, 'serviceFlow') ? config?.serviceFlow || null : null,
       consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : { enabled: false }
     }
   } catch (error) {
@@ -396,6 +398,7 @@ export async function getPortfolioPageData(): Promise<{
       packages: [],
       schedule: null,
       testimonials: [],
+      serviceFlow: null,
       consultButton: null
     }
   }
@@ -592,6 +595,7 @@ export async function getPackageDetailPageData(packageId: string): Promise<{
   theme: Partial<ThemeContent> | null
   packageItem: PackageItem | null
   relatedSeries: PortfolioItem[]
+  photographers: TeamPhotographerItem[]
   testimonials: TestimonialItem[]
   serviceFlow: Partial<ServiceFlowContent> | null
   faq: Partial<FaqContent> | null
@@ -601,13 +605,17 @@ export async function getPackageDetailPageData(packageId: string): Promise<{
     const config = await loadConfig()
     const packageItem = getConfiguredPackages(config).find(item => item.id === packageId) || null
     const relatedSeriesIds = packageItem?.relatedSeriesIds || []
+    const relatedPhotographerIds = packageItem?.relatedPhotographerIds || []
     const relatedSeries = generateImagesFromConfig(config)
       .filter(item => item.isSeriesCover && item.seriesId && relatedSeriesIds.includes(item.seriesId))
+    const photographers = getConfiguredPhotographers(config)
+      .filter(item => (item.relatedPackageIds || []).includes(packageId) || relatedPhotographerIds.includes(item.id))
 
     return {
       theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
       packageItem,
       relatedSeries,
+      photographers,
       testimonials: getConfiguredTestimonials(config).filter(item => item.relatedPackageId === packageId),
       serviceFlow: isModuleEnabled(config, 'serviceFlow') ? config?.serviceFlow || null : null,
       faq: isModuleEnabled(config, 'faq') ? config?.faq || null : null,
@@ -619,6 +627,7 @@ export async function getPackageDetailPageData(packageId: string): Promise<{
       theme: null,
       packageItem: null,
       relatedSeries: [],
+      photographers: [],
       testimonials: [],
       serviceFlow: null,
       faq: null,
@@ -631,6 +640,7 @@ export async function getAboutPageData(): Promise<{
   photographer: any | null
   theme: Partial<ThemeContent> | null
   consultButton: Partial<ConsultButtonContent> | null
+  packages: PackageItem[]
   stores: StoreItem[]
   photographers: TeamPhotographerItem[]
   testimonials: TestimonialItem[]
@@ -644,6 +654,7 @@ export async function getAboutPageData(): Promise<{
       photographer: config?.photographer || null,
       theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
       consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : { enabled: false },
+      packages: getConfiguredPackages(config),
       stores: getConfiguredStores(config),
       photographers: getConfiguredPhotographers(config),
       testimonials: getConfiguredTestimonials(config),
@@ -656,6 +667,7 @@ export async function getAboutPageData(): Promise<{
       photographer: null,
       theme: null,
       consultButton: null,
+      packages: [],
       stores: [],
       photographers: [],
       testimonials: [],

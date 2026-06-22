@@ -64,6 +64,18 @@
       </scroll-view>
     </view>
 
+    <view class="detail-section" wx:if="{{photographers.length}}">
+      <view class="section-title">推荐摄影师</view>
+      <view class="photographer-card" wx:for="{{photographers}}" wx:key="id">
+        <image wx:if="{{item.avatar}}" class="photographer-avatar" src="{{item.avatar}}" mode="aspectFill" />
+        <view class="photographer-info">
+          <view class="photographer-name">{{item.name}}</view>
+          <view class="photographer-title">{{item.title}}</view>
+          <view class="photographer-bio">{{item.bio}}</view>
+        </view>
+      </view>
+    </view>
+
     <view class="detail-section" wx:if="{{testimonials.length}}">
       <view class="section-title">相关评价</view>
       <view class="testimonial-card" wx:for="{{testimonials}}" wx:key="id">

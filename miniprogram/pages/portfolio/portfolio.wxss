@@ -83,6 +83,37 @@
   line-height: 1.6;
 }
 
+.hero-actions {
+  display: flex;
+  gap: 18rpx;
+  margin-top: 28rpx;
+}
+
+.hero-action {
+  height: 78rpx;
+  padding: 0 30rpx;
+  border: none;
+  border-radius: var(--button-radius, 22rpx);
+  font-size: 26rpx;
+  font-weight: bold;
+  line-height: 78rpx;
+}
+
+.hero-action::after {
+  border: none;
+}
+
+.hero-action.primary {
+  background: #fff;
+  color: #292524;
+}
+
+.hero-action.secondary {
+  background: rgba(255,255,255,0.16);
+  color: #fff;
+  border: 1rpx solid rgba(255,255,255,0.55);
+}
+
 /* 分类筛选 */
 .category-scroll {
   position: sticky;
@@ -455,4 +486,45 @@
   margin-top: 10rpx;
   font-size: 22rpx;
   color: var(--text-muted);
+}
+
+.home-flow-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+
+.home-flow-item {
+  display: flex;
+  gap: 18rpx;
+  padding: var(--card-padding, 22rpx);
+  border-radius: var(--card-radius, 18rpx);
+  background: #fafaf9;
+}
+
+.home-flow-number {
+  width: 44rpx;
+  height: 44rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(124,106,93,0.12);
+  color: var(--primary);
+  font-size: 22rpx;
+  font-weight: bold;
+}
+
+.home-flow-title {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: var(--text-main);
+  margin-bottom: 6rpx;
+}
+
+.home-flow-desc {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  line-height: 1.65;
 }

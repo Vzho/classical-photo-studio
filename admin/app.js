@@ -1393,6 +1393,8 @@ function renderContentModuleStructuredEditors(config) {
   renderConsultButtonEditor(config.consultButton || {})
   renderServiceFlowEditor(config.serviceFlow || {})
   renderFaqEditor(config.faq || {})
+  renderPhotographerEditor(config.photographers || [])
+  renderStoreEditor(config.stores || [])
 }
 
 function renderPackageEditor(packages) {
@@ -1531,6 +1533,72 @@ function renderFaqEditor(faq) {
       </div>
       ${editorInput('question', '问题', item.question, '拍摄前需要准备什么？')}
       ${editorTextarea('answer', '回答', item.answer ? [item.answer] : [], 3)}
+    </div>
+  `).join('')
+}
+
+function renderPhotographerEditor(photographers) {
+  const container = document.getElementById('photographerEditorList')
+  if (!container) return
+
+  if (!photographers.length) {
+    container.innerHTML = '<div style="color: #78716c; font-size: 13px;">暂无团队摄影师，点击“新增摄影师”。个人摄影师资料仍可在“编辑资料”中维护。</div>'
+    return
+  }
+
+  container.innerHTML = photographers.map((item, index) => `
+    <div data-index="${index}" style="background: #fff; border: 1px solid #e7e5e4; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+        <strong>${escapeHtml(item.name || item.id || `摄影师 ${index + 1}`)}</strong>
+        <button class="btn btn-danger" type="button" onclick="removePhotographerEditorItem(${index})">删除</button>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+        ${editorInput('id', '摄影师 ID', item.id, 'photographer-001')}
+        ${editorInput('name', '姓名', item.name, '阿泽')}
+        ${editorInput('title', '职称/标签', item.title, '人像摄影师')}
+        ${editorInput('avatar', '头像 COS key / URL', item.avatar, 'avatar/photographer.jpg')}
+        ${editorInput('sort', '排序', item.sort ?? index + 1, '1', 'number')}
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" data-field="enabled" ${item.enabled !== false ? 'checked' : ''}> 启用
+        </label>
+      </div>
+      ${editorTextarea('bio', '简介', item.bio ? [item.bio] : [], 3)}
+      ${editorTextarea('skills', '擅长技能（一行一个）', item.skills)}
+      ${editorTextarea('relatedSeriesIds', '关联作品系列 ID（一行一个）', item.relatedSeriesIds)}
+      ${editorTextarea('relatedPackageIds', '关联套餐 ID（一行一个）', item.relatedPackageIds)}
+    </div>
+  `).join('')
+}
+
+function renderStoreEditor(stores) {
+  const container = document.getElementById('storeEditorList')
+  if (!container) return
+
+  if (!stores.length) {
+    container.innerHTML = '<div style="color: #78716c; font-size: 13px;">暂无门店，点击“新增门店”。</div>'
+    return
+  }
+
+  container.innerHTML = stores.map((item, index) => `
+    <div data-index="${index}" style="background: #fff; border: 1px solid #e7e5e4; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+        <strong>${escapeHtml(item.name || item.id || `门店 ${index + 1}`)}</strong>
+        <button class="btn btn-danger" type="button" onclick="removeStoreEditorItem(${index})">删除</button>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+        ${editorInput('id', '门店 ID', item.id, 'store-001')}
+        ${editorInput('name', '门店名称', item.name, '主理人工作室')}
+        ${editorInput('phone', '电话', item.phone, '13800000000')}
+        ${editorInput('businessHours', '营业时间', item.businessHours, '10:00 - 20:00')}
+        ${editorInput('latitude', '纬度', item.latitude ?? '', '30.000000', 'number')}
+        ${editorInput('longitude', '经度', item.longitude ?? '', '120.000000', 'number')}
+        ${editorInput('sort', '排序', item.sort ?? index + 1, '1', 'number')}
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" data-field="enabled" ${item.enabled !== false ? 'checked' : ''}> 启用
+        </label>
+      </div>
+      ${editorTextarea('address', '门店地址', item.address ? [item.address] : [], 2)}
+      ${editorTextarea('transportTips', '交通提示', item.transportTips ? [item.transportTips] : [], 2)}
     </div>
   `).join('')
 }
@@ -1682,6 +1750,57 @@ function readFaqEditor() {
   }
 }
 
+function readPhotographerEditor() {
+  return Array.from(document.querySelectorAll('#photographerEditorList [data-index]')).map((card, index) => {
+    const id = getFieldValue(card, 'id')
+    const name = getFieldValue(card, 'name')
+
+    if (!id || !name) {
+      throw new Error(`第 ${index + 1} 个摄影师必须填写 ID 和姓名`)
+    }
+
+    return {
+      id,
+      name,
+      title: getFieldValue(card, 'title'),
+      avatar: getFieldValue(card, 'avatar'),
+      bio: getFieldValue(card, 'bio'),
+      skills: parseListInput(getFieldValue(card, 'skills')),
+      relatedSeriesIds: parseListInput(getFieldValue(card, 'relatedSeriesIds')),
+      relatedPackageIds: parseListInput(getFieldValue(card, 'relatedPackageIds')),
+      sort: Number(getFieldValue(card, 'sort')) || index + 1,
+      enabled: getFieldChecked(card, 'enabled')
+    }
+  })
+}
+
+function readStoreEditor() {
+  return Array.from(document.querySelectorAll('#storeEditorList [data-index]')).map((card, index) => {
+    const id = getFieldValue(card, 'id')
+    const name = getFieldValue(card, 'name')
+
+    if (!id || !name) {
+      throw new Error(`第 ${index + 1} 个门店必须填写 ID 和门店名称`)
+    }
+
+    const latitude = getFieldValue(card, 'latitude')
+    const longitude = getFieldValue(card, 'longitude')
+
+    return {
+      id,
+      name,
+      address: getFieldValue(card, 'address'),
+      phone: getFieldValue(card, 'phone'),
+      businessHours: getFieldValue(card, 'businessHours'),
+      transportTips: getFieldValue(card, 'transportTips'),
+      latitude: latitude ? Number(latitude) : null,
+      longitude: longitude ? Number(longitude) : null,
+      sort: Number(getFieldValue(card, 'sort')) || index + 1,
+      enabled: getFieldChecked(card, 'enabled')
+    }
+  })
+}
+
 function syncStructuredContentToJson() {
   setJsonTextarea('v11PackagesJson', readPackageEditor())
   setJsonTextarea('v11ScheduleJson', readScheduleEditor())
@@ -1689,6 +1808,8 @@ function syncStructuredContentToJson() {
   setJsonTextarea('v11ConsultButtonJson', readConsultButtonEditor())
   setJsonTextarea('v11ServiceFlowJson', readServiceFlowEditor())
   setJsonTextarea('v11FaqJson', readFaqEditor())
+  setJsonTextarea('v11PhotographersJson', readPhotographerEditor())
+  setJsonTextarea('v11StoresJson', readStoreEditor())
 }
 
 function addPackageEditorItem() {
@@ -1769,6 +1890,56 @@ function removeFaqEditorItem(index) {
   faq.items.splice(index, 1)
   renderFaqEditor(faq)
   setJsonTextarea('v11FaqJson', faq)
+}
+
+function addPhotographerEditorItem() {
+  const photographers = readPhotographerEditor()
+  photographers.push({
+    id: `photographer-${String(photographers.length + 1).padStart(3, '0')}`,
+    name: '新摄影师',
+    title: '',
+    avatar: '',
+    bio: '',
+    skills: [],
+    relatedSeriesIds: [],
+    relatedPackageIds: [],
+    sort: photographers.length + 1,
+    enabled: true
+  })
+  renderPhotographerEditor(photographers)
+  setJsonTextarea('v11PhotographersJson', photographers)
+}
+
+function removePhotographerEditorItem(index) {
+  const photographers = readPhotographerEditor()
+  photographers.splice(index, 1)
+  renderPhotographerEditor(photographers)
+  setJsonTextarea('v11PhotographersJson', photographers)
+}
+
+function addStoreEditorItem() {
+  const stores = readStoreEditor()
+  stores.push({
+    id: `store-${String(stores.length + 1).padStart(3, '0')}`,
+    name: '新门店',
+    address: '',
+    phone: '',
+    businessHours: '',
+    transportTips: '',
+    latitude: null,
+    longitude: null,
+    sort: stores.length + 1,
+    enabled: true
+  })
+  renderStoreEditor(stores)
+  setJsonTextarea('v11StoresJson', stores)
+}
+
+function removeStoreEditorItem(index) {
+  const stores = readStoreEditor()
+  stores.splice(index, 1)
+  renderStoreEditor(stores)
+  setJsonTextarea('v11StoresJson', stores)
 }
 
 function openContentModulesModal() {
