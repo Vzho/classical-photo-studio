@@ -663,6 +663,33 @@ app.post('/api/upload/avatar', upload.single('avatar'), async (req, res) => {
   }
 })
 
+app.post('/api/upload/asset', upload.single('asset'), async (req, res) => {
+  try {
+    const file = req.file
+    const folder = String(req.body.folder || '').replace(/[^a-zA-Z0-9_-]/g, '')
+    const allowedFolders = new Set(['avatar', 'testimonial'])
+
+    if (!file || !folder || !allowedFolders.has(folder)) {
+      return res.status(400).json({ success: false, error: '缺少文件或目录不合法' })
+    }
+
+    const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg'
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`
+    const assetPath = `${folder}/${fileName}`
+
+    await uploadFileWithRetry(CONFIG.cos.Bucket, CONFIG.cos.Region, assetPath, file.path, {
+      SliceSize: SLICE_SIZE
+    })
+
+    await fs.unlink(file.path).catch(() => {})
+    res.json({ success: true, assetPath, fileName })
+  } catch (error) {
+    console.error('上传内容图片失败:', error)
+    if (req.file?.path) await fs.unlink(req.file.path).catch(() => {})
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
 // 删除 COS 文件
 app.delete('/api/photo/:fileName', async (req, res) => {
   try {

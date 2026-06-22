@@ -17,6 +17,7 @@ let selectedFiles = []
 let nextSelectedFileId = 1
 let uploadTasks = []
 let uploadPollTimer = null
+let contentAssetUploadTarget = null
 const expandedSeriesKeys = new Set()
 const UI_CONFIG = {
   maxVisiblePhotos: 8,
@@ -1469,7 +1470,7 @@ function renderTestimonialEditor(testimonials) {
         ${editorInput('dateText', '时间文案', item.dateText, '2026 年 6 月')}
         ${editorInput('relatedSeriesId', '关联作品系列 ID', item.relatedSeriesId, 'series-sample-sample-series')}
         ${editorInput('relatedPackageId', '关联套餐 ID', item.relatedPackageId, 'portrait-basic')}
-        ${editorInput('imageUrl', '评价图片 URL / COS key', item.imageUrl, '')}
+        ${editorAssetInput('imageUrl', '评价图片 COS key / URL', item.imageUrl, '', 'testimonial')}
         ${editorInput('sort', '排序', item.sort ?? index + 1, '1', 'number')}
         <label style="display: flex; align-items: center; gap: 8px;">
           <input type="checkbox" data-field="enabled" ${item.enabled !== false ? 'checked' : ''}> 启用
@@ -1556,7 +1557,7 @@ function renderPhotographerEditor(photographers) {
         ${editorInput('id', '摄影师 ID', item.id, 'photographer-001')}
         ${editorInput('name', '姓名', item.name, '阿泽')}
         ${editorInput('title', '职称/标签', item.title, '人像摄影师')}
-        ${editorInput('avatar', '头像 COS key / URL', item.avatar, 'avatar/photographer.jpg')}
+        ${editorAssetInput('avatar', '头像 COS key / URL', item.avatar, 'avatar/photographer.jpg', 'avatar')}
         ${editorInput('sort', '排序', item.sort ?? index + 1, '1', 'number')}
         <label style="display: flex; align-items: center; gap: 8px;">
           <input type="checkbox" data-field="enabled" ${item.enabled !== false ? 'checked' : ''}> 启用
@@ -1612,6 +1613,18 @@ function editorInput(field, label, value = '', placeholder = '', type = 'text') 
   `
 }
 
+function editorAssetInput(field, label, value = '', placeholder = '', folder = 'avatar') {
+  return `
+    <label style="display: block;">
+      <span style="display: block; font-size: 12px; color: #57534e; margin-bottom: 4px;">${label}</span>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" data-field="${field}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}">
+        <button class="btn btn-secondary" type="button" onclick="selectContentAsset(this, '${escapeHtml(folder)}')" style="white-space: nowrap;">上传</button>
+      </div>
+    </label>
+  `
+}
+
 function editorTextarea(field, label, value, rows = 3) {
   return `
     <label style="display: block; margin-top: 12px;">
@@ -1629,6 +1642,49 @@ function setInputValue(id, value) {
 function setCheckedValue(id, value) {
   const el = document.getElementById(id)
   if (el) el.checked = Boolean(value)
+}
+
+function selectContentAsset(button, folder) {
+  const wrapper = button.closest('label')
+  const input = wrapper?.querySelector('input[data-field]')
+  const fileInput = document.getElementById('contentAssetInput')
+
+  if (!input || !fileInput) {
+    showToast('未找到图片字段', 'error')
+    return
+  }
+
+  contentAssetUploadTarget = { input, folder }
+  fileInput.value = ''
+  fileInput.click()
+}
+
+async function handleContentAssetSelected(event) {
+  const file = event.target.files?.[0]
+  if (!file || !contentAssetUploadTarget) return
+
+  const formData = new FormData()
+  formData.append('asset', file)
+  formData.append('folder', contentAssetUploadTarget.folder)
+
+  try {
+    showToast('正在上传图片...', 'info')
+    const response = await fetch(`${CONFIG.apiUrl}/upload/asset`, {
+      method: 'POST',
+      body: formData
+    })
+    const result = await response.json()
+    if (!result.success) throw new Error(result.error || '上传失败')
+
+    contentAssetUploadTarget.input.value = result.assetPath
+    showToast('图片已上传，请保存并同步', 'success')
+  } catch (error) {
+    console.error('内容图片上传失败:', error)
+    showToast('图片上传失败: ' + error.message, 'error')
+  } finally {
+    contentAssetUploadTarget = null
+    event.target.value = ''
+  }
 }
 
 function getFieldValue(card, field) {
