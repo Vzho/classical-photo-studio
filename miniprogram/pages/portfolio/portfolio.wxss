@@ -103,7 +103,7 @@
 .category-item {
   flex-shrink: 0;
   padding: 16rpx 32rpx;
-  border-radius: 40rpx;
+  border-radius: var(--button-radius, 40rpx);
   font-size: 26rpx;
   background: #fff;
   color: #78716c;
@@ -119,19 +119,19 @@
 
 /* 作品网格 - 瀑布流布局优化 */
 .portfolio-grid {
-  padding: 24rpx;
+  padding: var(--page-padding, 24rpx);
   column-count: 2; /* 双列布局 */
-  column-gap: 24rpx; /* 列间距 */
+  column-gap: var(--section-gap, 24rpx); /* 列间距 */
 }
 
 .portfolio-item {
   width: 100%;
   break-inside: avoid; /* 防止元素被分割到两列 */
-  margin-bottom: 24rpx; /* 底部间距 */
+  margin-bottom: var(--section-gap, 24rpx); /* 底部间距 */
   background: #fff;
-  border-radius: 24rpx;
+  border-radius: var(--card-radius, 24rpx);
   overflow: hidden;
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05); /* 添加阴影增加层次感 */
+  box-shadow: var(--card-shadow, 0 4rpx 12rpx rgba(0,0,0,0.05)); /* 添加阴影增加层次感 */
 }
 
 .item-image-wrap {
@@ -296,8 +296,8 @@
   padding: 20rpx 32rpx;
   background: var(--primary);
   color: #fff;
-  border-radius: 40rpx;
-  box-shadow: 0 8rpx 32rpx rgba(124,106,93,0.3);
+  border-radius: var(--button-radius, 40rpx);
+  box-shadow: var(--card-shadow, 0 8rpx 32rpx rgba(124,106,93,0.3));
   z-index: 99;
   opacity: 0;
   transform: translateY(20rpx);
@@ -326,12 +326,12 @@
 }
 
 .home-module {
-  margin: 28rpx 24rpx;
-  padding: 28rpx;
+  margin: var(--section-gap, 28rpx) 24rpx;
+  padding: var(--card-padding, 28rpx);
   background: #fff;
-  border-radius: 24rpx;
-  border: 2rpx solid #f5f5f4;
-  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.03);
+  border-radius: var(--card-radius, 24rpx);
+  border: 2rpx solid var(--card-border, #f5f5f4);
+  box-shadow: var(--card-shadow, 0 6rpx 20rpx rgba(0,0,0,0.03));
 }
 
 .module-header {
@@ -368,8 +368,8 @@
 
 .package-card {
   width: 430rpx;
-  padding: 24rpx;
-  border-radius: 20rpx;
+  padding: var(--card-padding, 24rpx);
+  border-radius: var(--card-radius, 20rpx);
   background: #fafaf9;
   box-sizing: border-box;
 }
@@ -401,7 +401,7 @@
   height: 74rpx;
   margin-top: 20rpx;
   border: none;
-  border-radius: 18rpx;
+  border-radius: var(--button-radius, 18rpx);
   background: var(--primary);
   color: #fff;
   font-size: 26rpx;
@@ -415,8 +415,8 @@
 
 .schedule-card {
   margin-top: 18rpx;
-  padding: 24rpx;
-  border-radius: 18rpx;
+  padding: var(--card-padding, 24rpx);
+  border-radius: var(--card-radius, 18rpx);
   background: #fafaf9;
 }
 
@@ -440,8 +440,8 @@
 }
 
 .testimonial-card {
-  padding: 22rpx;
-  border-radius: 18rpx;
+  padding: var(--card-padding, 22rpx);
+  border-radius: var(--card-radius, 18rpx);
   background: #fafaf9;
 }
 

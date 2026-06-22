@@ -1,7 +1,7 @@
 /* 预约页面样式 */
 .booking-page {
   min-height: 100vh;
-  background: #fafaf9;
+  background: var(--bg-light);
   padding-bottom: 280rpx;
 }
 
@@ -53,10 +53,11 @@
 .info-card,
 .content-module {
   margin: 28rpx 32rpx 0;
-  padding: 28rpx;
+  padding: var(--card-padding, 28rpx);
   background: #fff;
-  border: 2rpx solid #f5f5f4;
-  border-radius: 20rpx;
+  border: 2rpx solid var(--card-border, #f5f5f4);
+  border-radius: var(--card-radius, 20rpx);
+  box-shadow: var(--card-shadow, none);
 }
 
 .notice-title,
@@ -127,7 +128,7 @@
   padding: 0 28rpx;
   background: #fafaf9;
   border: 2rpx solid #e7e5e4;
-  border-radius: 20rpx;
+  border-radius: var(--button-radius, 20rpx);
   font-size: 28rpx;
   box-sizing: border-box;
 }
@@ -151,7 +152,7 @@
   padding: 24rpx 28rpx;
   background: #fafaf9;
   border: 2rpx solid #e7e5e4;
-  border-radius: 20rpx;
+  border-radius: var(--button-radius, 20rpx);
   font-size: 28rpx;
   box-sizing: border-box;
 }
@@ -160,15 +161,15 @@
 .style-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20rpx;
+  gap: var(--section-gap, 20rpx);
 }
 
 .style-item {
-  padding: 28rpx;
+  padding: var(--card-padding, 28rpx);
   text-align: center;
   background: #fafaf9;
   border: 2rpx solid #e7e5e4;
-  border-radius: 20rpx;
+  border-radius: var(--button-radius, 20rpx);
   font-size: 28rpx;
   color: #78716c;
 }
@@ -226,7 +227,7 @@
 
 .faq-item {
   padding: 20rpx;
-  border-radius: 16rpx;
+  border-radius: var(--card-radius, 16rpx);
   background: #fafaf9;
 }
 
@@ -287,8 +288,8 @@
   color: #fff;
   font-size: 34rpx;
   font-weight: bold;
-  border-radius: 24rpx;
-  box-shadow: 0 16rpx 40rpx rgba(124,106,93,0.2);
+  border-radius: var(--button-radius, 24rpx);
+  box-shadow: var(--card-shadow, 0 16rpx 40rpx rgba(124,106,93,0.2));
   border: none;
 }
 

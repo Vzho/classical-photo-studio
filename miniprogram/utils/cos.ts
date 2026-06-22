@@ -188,6 +188,49 @@ export function buildThemeStyle(theme?: Partial<ThemeContent> | null): string {
   if (theme.backgroundColor) styles.push(`--bg-light: ${theme.backgroundColor}`)
   if (theme.textColor) styles.push(`--text-main: ${theme.textColor}`)
 
+  const cardStyle = theme.cardStyle || 'soft'
+  const buttonStyle = theme.buttonStyle || 'rounded'
+  const imageRadius = theme.imageRadius || 'medium'
+  const layoutDensity = theme.layoutDensity || 'comfortable'
+
+  const cardShadowMap: Record<string, string> = {
+    minimal: 'none',
+    soft: '0 8rpx 24rpx rgba(0,0,0,0.03)',
+    elevated: '0 16rpx 40rpx rgba(0,0,0,0.08)'
+  }
+  const cardBorderMap: Record<string, string> = {
+    minimal: '#e7e5e4',
+    soft: '#f5f5f4',
+    elevated: 'transparent'
+  }
+  const buttonRadiusMap: Record<string, string> = {
+    square: '8rpx',
+    rounded: '22rpx',
+    pill: '999rpx'
+  }
+  const imageRadiusMap: Record<string, string> = {
+    none: '0',
+    small: '12rpx',
+    medium: '24rpx',
+    large: '36rpx'
+  }
+  const densityMap: Record<string, { gap: string; padding: string; pagePadding: string }> = {
+    compact: { gap: '18rpx', padding: '22rpx', pagePadding: '24rpx' },
+    comfortable: { gap: '24rpx', padding: '28rpx', pagePadding: '32rpx' },
+    airy: { gap: '34rpx', padding: '36rpx', pagePadding: '40rpx' }
+  }
+  const density = densityMap[layoutDensity] || densityMap.comfortable
+
+  styles.push(`--card-shadow: ${cardShadowMap[cardStyle] || cardShadowMap.soft}`)
+  styles.push(`--card-border: ${cardBorderMap[cardStyle] || cardBorderMap.soft}`)
+  styles.push(`--button-radius: ${buttonRadiusMap[buttonStyle] || buttonRadiusMap.rounded}`)
+  styles.push(`--image-radius: ${imageRadiusMap[imageRadius] || imageRadiusMap.medium}`)
+  styles.push(`--card-radius: ${imageRadiusMap[imageRadius] || imageRadiusMap.medium}`)
+  styles.push(`--section-gap: ${density.gap}`)
+  styles.push(`--card-padding: ${density.padding}`)
+  styles.push(`--page-padding: ${density.pagePadding}`)
+  styles.push(`--decoration-opacity: ${theme.showDecorations === false ? '0' : '1'}`)
+
   return styles.length ? `${styles.join('; ')};` : ''
 }
 
