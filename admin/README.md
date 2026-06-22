@@ -15,6 +15,14 @@
 - 同步 `portfolio-config.json` 到 COS
 - 不保存客户咨询数据；小程序只在用户本机生成可复制的咨询内容
 
+## 内容模块关联规则
+
+- 套餐 `relatedSeriesIds`：关联作品系列，格式为 `series-<主题ID>-<系列ID>`
+- 评价 `relatedSeriesId`：显示到对应作品详情页
+- 评价 `relatedPackageId`：显示到对应套餐详情页
+- 套餐详情页、作品详情页和预约咨询页都优先读取 COS 上的 `config/portfolio-config.json`
+- 修改内容模块后点击“保存并同步”，不需要手动上传 JSON
+
 ## 启动
 
 ```bash

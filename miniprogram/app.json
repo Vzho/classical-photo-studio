@@ -6,6 +6,7 @@
     "pages/booking/booking",
     "pages/success/success",
     "pages/packages/packages",
+    "pages/package-detail/package-detail",
     "pages/series/series"
   ],
   "window": {

@@ -1,10 +1,21 @@
-import { getSeriesImages, PortfolioItem } from '../../utils/cos'
+import {
+  buildThemeStyle,
+  getSeriesPageData,
+  PackageItem,
+  PortfolioItem,
+  TeamPhotographerItem,
+  TestimonialItem
+} from '../../utils/cos'
 
 Page({
   data: {
+    themeStyle: '',
     seriesTitle: '',
     seriesCategory: '',
     images: [] as PortfolioItem[],
+    packages: [] as PackageItem[],
+    testimonials: [] as TestimonialItem[],
+    photographers: [] as TeamPhotographerItem[],
     currentIndex: 0
   },
 
@@ -21,8 +32,18 @@ Page({
   },
 
   async loadSeriesImages(seriesId: string) {
-    const images = await getSeriesImages(seriesId)
-    this.setData({ images })
+    const { images, theme, packages, testimonials, photographers } = await getSeriesPageData(seriesId)
+    this.setData({
+      themeStyle: buildThemeStyle(theme),
+      images,
+      packages: packages.map(item => ({
+        ...item,
+        includes: item.includes || [],
+        suitableFor: item.suitableFor || []
+      })),
+      testimonials,
+      photographers
+    })
   },
 
   onImageTap(e: WechatMiniprogram.TouchEvent) {
@@ -52,6 +73,15 @@ Page({
 
   consultSameStyle() {
     wx.setStorageSync('prefillConsultation', { style: this.data.seriesCategory })
+    wx.switchTab({ url: '/pages/booking/booking' })
+  },
+
+  consultPackage(e: WechatMiniprogram.TouchEvent) {
+    const packageId = e.currentTarget.dataset.id as string
+    wx.setStorageSync('prefillConsultation', {
+      style: this.data.seriesCategory,
+      packageId
+    })
     wx.switchTab({ url: '/pages/booking/booking' })
   },
 

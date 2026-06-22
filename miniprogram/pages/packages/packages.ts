@@ -55,6 +55,15 @@ Page({
     wx.switchTab({ url: '/pages/booking/booking' })
   },
 
+  openPackageDetail(e: WechatMiniprogram.TouchEvent) {
+    const packageId = e.currentTarget.dataset.id as string
+    if (!packageId) return
+
+    wx.navigateTo({
+      url: `/pages/package-detail/package-detail?id=${packageId}`
+    })
+  },
+
   goBooking() {
     wx.switchTab({ url: '/pages/booking/booking' })
   },

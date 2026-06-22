@@ -1,5 +1,5 @@
 <!-- 系列详情页 -->
-<view class="series-page">
+<view class="series-page" style="{{themeStyle}}">
   <!-- 头部信息 -->
   <view class="series-header">
     <view class="series-title">{{seriesTitle}}</view>
@@ -20,6 +20,37 @@
     >
       <image class="image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load binderror="onSeriesImageError" data-id="{{item.id}}" />
       <view class="image-number">{{index + 1}}/{{images.length}}</view>
+    </view>
+  </view>
+
+  <view class="detail-module" wx:if="{{packages.length}}">
+    <view class="module-title">推荐套餐</view>
+    <view class="related-package" wx:for="{{packages}}" wx:key="id">
+      <view class="related-package-main">
+        <view class="related-package-name">{{item.name}}</view>
+        <view class="related-package-desc">{{item.subtitle}}</view>
+      </view>
+      <view class="related-package-side">
+        <view class="related-package-price">{{item.priceText}}</view>
+        <button class="small-consult-btn" bindtap="consultPackage" data-id="{{item.id}}">咨询此套餐</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="detail-module" wx:if="{{photographers.length}}">
+    <view class="module-title">关联摄影师</view>
+    <view class="photographer-card" wx:for="{{photographers}}" wx:key="id">
+      <view class="photographer-name">{{item.name}}</view>
+      <view class="photographer-title">{{item.title}}</view>
+      <view class="photographer-bio">{{item.bio}}</view>
+    </view>
+  </view>
+
+  <view class="detail-module" wx:if="{{testimonials.length}}">
+    <view class="module-title">相关评价</view>
+    <view class="testimonial-card" wx:for="{{testimonials}}" wx:key="id">
+      <view class="testimonial-content">“{{item.content}}”</view>
+      <view class="testimonial-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
     </view>
   </view>
 

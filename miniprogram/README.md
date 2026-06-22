@@ -68,6 +68,14 @@ v1.1 新增字段包括：
 - `stores`：多门店展示
 - `modules`：模块开关
 
+关联规则：
+
+- 作品系列 ID 格式为 `series-<主题ID>-<系列ID>`，例如 `series-sample-sample-series`
+- 套餐的 `relatedSeriesIds` 用来关联作品详情和套餐详情里的作品
+- 客户评价的 `relatedSeriesId` 用来显示到对应作品详情
+- 客户评价的 `relatedPackageId` 用来显示到对应套餐详情
+- 摄影师列表的 `relatedSeriesIds` / `relatedPackageIds` 用于后续关联展示
+
 正常使用后台管理即可，不需要手动维护两份配置。后台保存时会自动更新本地配置，并同步到 COS：
 
 ```text

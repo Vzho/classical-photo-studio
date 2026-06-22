@@ -49,9 +49,12 @@
         </view>
       </view>
 
-      <button class="consult-btn" bindtap="consultPackage" data-id="{{item.id}}">
-        {{consultButton.text || '咨询此套餐'}}
-      </button>
+      <view class="package-actions">
+        <button class="detail-btn" bindtap="openPackageDetail" data-id="{{item.id}}">查看详情</button>
+        <button class="consult-btn" bindtap="consultPackage" data-id="{{item.id}}">
+          {{consultButton.text || '咨询此套餐'}}
+        </button>
+      </view>
     </view>
   </view>
 

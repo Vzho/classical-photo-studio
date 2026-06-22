@@ -1,0 +1,98 @@
+<view class="package-detail-page" style="{{themeStyle}}">
+  <view class="empty-card" wx:if="{{!packageItem}}">
+    <view class="empty-title">套餐不存在</view>
+    <view class="empty-desc">请返回套餐列表重新选择，或在 CMS 中确认套餐已启用。</view>
+  </view>
+
+  <view wx:else>
+    <view class="detail-hero">
+      <view class="hero-kicker">Package</view>
+      <view class="hero-title">{{packageItem.name}}</view>
+      <view class="hero-price">{{packageItem.priceText}}</view>
+      <view class="hero-desc">{{packageItem.subtitle}}</view>
+      <button class="hero-consult-btn" bindtap="consultPackage">{{consultButton.text || '咨询此套餐'}}</button>
+    </view>
+
+    <view class="detail-section">
+      <view class="section-title">套餐信息</view>
+      <view class="meta-grid">
+        <view class="meta-item" wx:if="{{packageItem.duration}}">
+          <view class="meta-label">拍摄时长</view>
+          <view class="meta-value">{{packageItem.duration}}</view>
+        </view>
+        <view class="meta-item" wx:if="{{packageItem.retouchCount}}">
+          <view class="meta-label">精修数量</view>
+          <view class="meta-value">{{packageItem.retouchCount}}</view>
+        </view>
+        <view class="meta-item" wx:if="{{packageItem.originalPhotos}}">
+          <view class="meta-label">底片说明</view>
+          <view class="meta-value">{{packageItem.originalPhotos}}</view>
+        </view>
+        <view class="meta-item" wx:if="{{packageItem.makeupText}}">
+          <view class="meta-label">妆造说明</view>
+          <view class="meta-value">{{packageItem.makeupText}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="detail-section" wx:if="{{packageItem.suitableFor.length}}">
+      <view class="section-title">适合人群</view>
+      <view class="tag-list">
+        <view class="tag" wx:for="{{packageItem.suitableFor}}" wx:key="*this">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="detail-section" wx:if="{{packageItem.includes.length}}">
+      <view class="section-title">包含服务</view>
+      <view class="include-list">
+        <view class="include-item" wx:for="{{packageItem.includes}}" wx:key="*this">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="detail-section" wx:if="{{relatedSeries.length}}">
+      <view class="section-title">关联作品</view>
+      <scroll-view scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="series-row">
+          <view class="series-card" wx:for="{{relatedSeries}}" wx:key="id" bindtap="openSeries" data-item="{{item}}">
+            <image class="series-cover" src="{{item.imageUrl}}" mode="aspectFill" />
+            <view class="series-info">
+              <view class="series-title">{{item.title}}</view>
+              <view class="series-meta">{{item.category}} · {{item.photoCount}} 张</view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="detail-section" wx:if="{{testimonials.length}}">
+      <view class="section-title">相关评价</view>
+      <view class="testimonial-card" wx:for="{{testimonials}}" wx:key="id">
+        <view class="testimonial-content">“{{item.content}}”</view>
+        <view class="testimonial-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
+      </view>
+    </view>
+
+    <view class="detail-section" wx:if="{{serviceFlow.enabled && serviceFlow.steps.length}}">
+      <view class="section-title">服务流程</view>
+      <view class="flow-item" wx:for="{{serviceFlow.steps}}" wx:key="title">
+        <view class="flow-number">{{index + 1}}</view>
+        <view>
+          <view class="flow-title">{{item.title}}</view>
+          <view class="flow-desc">{{item.description}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="detail-section" wx:if="{{faq.enabled && faq.items.length}}">
+      <view class="section-title">常见问题</view>
+      <view class="faq-item" wx:for="{{faq.items}}" wx:key="question">
+        <view class="faq-question">{{item.question}}</view>
+        <view class="faq-answer">{{item.answer}}</view>
+      </view>
+    </view>
+
+    <view class="bottom-consult-bar">
+      <button class="bottom-consult-btn" bindtap="consultPackage">{{consultButton.text || '咨询此套餐'}}</button>
+    </view>
+  </view>
+</view>

@@ -74,6 +74,93 @@
   backdrop-filter: blur(10rpx);
 }
 
+.detail-module {
+  margin: 0 24rpx 24rpx;
+  padding: 28rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  border: 2rpx solid #f5f5f4;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.03);
+}
+
+.module-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: var(--text-main);
+  margin-bottom: 20rpx;
+}
+
+.related-package,
+.photographer-card,
+.testimonial-card {
+  padding: 22rpx;
+  border-radius: 18rpx;
+  background: #fafaf9;
+  margin-bottom: 16rpx;
+}
+
+.related-package {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.related-package-main {
+  flex: 1;
+}
+
+.related-package-name,
+.photographer-name {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: var(--text-main);
+  margin-bottom: 8rpx;
+}
+
+.related-package-desc,
+.photographer-title,
+.photographer-bio,
+.testimonial-meta {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.related-package-side {
+  width: 190rpx;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.related-package-price {
+  color: var(--primary);
+  font-size: 28rpx;
+  font-weight: bold;
+  margin-bottom: 12rpx;
+}
+
+.small-consult-btn {
+  height: 62rpx;
+  padding: 0 18rpx;
+  border: none;
+  border-radius: 16rpx;
+  background: var(--primary);
+  color: #fff;
+  font-size: 23rpx;
+  font-weight: bold;
+}
+
+.small-consult-btn::after {
+  border: none;
+}
+
+.testimonial-content {
+  font-size: 26rpx;
+  color: var(--text-main);
+  line-height: 1.8;
+  margin-bottom: 10rpx;
+}
+
 .series-consult-bar {
   position: fixed;
   left: 0;

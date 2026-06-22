@@ -319,6 +319,55 @@ export async function getSeriesImages(seriesId: string): Promise<PortfolioItem[]
   }
 }
 
+export async function getSeriesPageData(seriesId: string): Promise<{
+  images: PortfolioItem[]
+  theme: Partial<ThemeContent> | null
+  packages: PackageItem[]
+  testimonials: TestimonialItem[]
+  photographers: TeamPhotographerItem[]
+}> {
+  try {
+    const config = await loadConfig()
+    const allImages = generateImagesFromConfig(config)
+    const images = allImages
+      .filter(item => item.seriesId === seriesId)
+      .map(item => {
+        if (!item.originalUrl) {
+          return item
+        }
+
+        const urlPart = item.originalUrl.split('?')[0]
+        const parts = urlPart.split('/portfolio/')
+        if (parts.length <= 1) {
+          return item
+        }
+
+        const path = `portfolio/${parts[1]}`
+        return {
+          ...item,
+          imageUrl: getCosUrl(path, { width: 1400, format: 'webp', quality: 90 })
+        }
+      })
+
+    return {
+      images,
+      theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
+      packages: getConfiguredPackages(config).filter(item => (item.relatedSeriesIds || []).includes(seriesId)),
+      testimonials: getConfiguredTestimonials(config).filter(item => item.relatedSeriesId === seriesId),
+      photographers: getConfiguredPhotographers(config).filter(item => (item.relatedSeriesIds || []).includes(seriesId))
+    }
+  } catch (error) {
+    console.error('加载系列详情配置失败:', error)
+    return {
+      images: [],
+      theme: null,
+      packages: [],
+      testimonials: [],
+      photographers: []
+    }
+  }
+}
+
 // 获取摄影师个人资料
 export async function getPhotographerProfile(): Promise<any> {
   try {
@@ -407,6 +456,45 @@ export async function getPackagesPageData(): Promise<{
       packages: [],
       schedule: null,
       testimonials: [],
+      consultButton: null
+    }
+  }
+}
+
+export async function getPackageDetailPageData(packageId: string): Promise<{
+  theme: Partial<ThemeContent> | null
+  packageItem: PackageItem | null
+  relatedSeries: PortfolioItem[]
+  testimonials: TestimonialItem[]
+  serviceFlow: Partial<ServiceFlowContent> | null
+  faq: Partial<FaqContent> | null
+  consultButton: Partial<ConsultButtonContent> | null
+}> {
+  try {
+    const config = await loadConfig()
+    const packageItem = getConfiguredPackages(config).find(item => item.id === packageId) || null
+    const relatedSeriesIds = packageItem?.relatedSeriesIds || []
+    const relatedSeries = generateImagesFromConfig(config)
+      .filter(item => item.isSeriesCover && item.seriesId && relatedSeriesIds.includes(item.seriesId))
+
+    return {
+      theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
+      packageItem,
+      relatedSeries,
+      testimonials: getConfiguredTestimonials(config).filter(item => item.relatedPackageId === packageId),
+      serviceFlow: isModuleEnabled(config, 'serviceFlow') ? config?.serviceFlow || null : null,
+      faq: isModuleEnabled(config, 'faq') ? config?.faq || null : null,
+      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : null
+    }
+  } catch (error) {
+    console.error('加载套餐详情配置失败:', error)
+    return {
+      theme: null,
+      packageItem: null,
+      relatedSeries: [],
+      testimonials: [],
+      serviceFlow: null,
+      faq: null,
       consultButton: null
     }
   }
