@@ -71,6 +71,9 @@ v1.1 新增字段包括：
 关联规则：
 
 - 作品系列 ID 格式为 `series-<主题ID>-<系列ID>`，例如 `series-sample-sample-series`
+- 作品系列的 `description`、`suitableFor`、`scenes`、`tags`、`relatedPackageIds`、`relatedPhotographerIds` 通过后台“编辑系列”维护，不需要手写 JSON
+- 作品系列的 `relatedPackageIds` 用来把指定套餐显示到作品详情页
+- 作品系列的 `relatedPhotographerIds` 用来把指定摄影师显示到作品详情页
 - 套餐的 `relatedSeriesIds` 用来关联作品详情和套餐详情里的作品
 - 客户评价的 `relatedSeriesId` 用来显示到对应作品详情
 - 客户评价的 `relatedPackageId` 用来显示到对应套餐详情

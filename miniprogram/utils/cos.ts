@@ -17,6 +17,12 @@ export interface PortfolioItem {
   isSeriesCover?: boolean
   photoCount?: number
   bannerDescription?: string
+  description?: string
+  suitableFor?: string[]
+  scenes?: string[]
+  tags?: string[]
+  relatedPackageIds?: string[]
+  relatedPhotographerIds?: string[]
   candidatePhotoNames?: string[]
   candidateIndex?: number
 }
@@ -144,6 +150,21 @@ export interface TeamPhotographerItem {
   enabled?: boolean
 }
 
+export interface SeriesInfo {
+  id: string
+  title: string
+  category: string
+  likes: number
+  photoCount: number
+  bannerDescription?: string
+  description?: string
+  suitableFor: string[]
+  scenes: string[]
+  tags: string[]
+  relatedPackageIds: string[]
+  relatedPhotographerIds: string[]
+}
+
 function isModuleEnabled(config: any, moduleName: string): boolean {
   return config?.modules?.[moduleName] !== false
 }
@@ -214,6 +235,56 @@ function getConfiguredPhotographers(config: any): TeamPhotographerItem[] {
     sort: 1,
     enabled: true
   }]
+}
+
+function normalizeStringList(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+
+  return value
+    .map(item => String(item || '').trim())
+    .filter(Boolean)
+}
+
+function findSeriesConfig(config: any, seriesId: string): { theme: any; series: any; normalizedId: string } | null {
+  if (!config?.themes) return null
+
+  for (const theme of config.themes) {
+    if (!theme?.series) continue
+
+    for (const series of theme.series) {
+      const normalizedId = `series-${theme.id}-${series.id}`
+      if (normalizedId === seriesId) {
+        return { theme, series, normalizedId }
+      }
+    }
+  }
+
+  return null
+}
+
+function buildSeriesInfo(config: any, seriesId: string, images: PortfolioItem[]): SeriesInfo | null {
+  const matched = findSeriesConfig(config, seriesId)
+  const firstImage = images[0]
+
+  if (!matched && !firstImage) return null
+
+  const theme = matched?.theme
+  const series = matched?.series
+
+  return {
+    id: seriesId,
+    title: series?.title || firstImage?.title || '',
+    category: theme?.name || firstImage?.category || '',
+    likes: Number(series?.likes ?? firstImage?.likes ?? 0),
+    photoCount: Array.isArray(series?.photos) ? series.photos.length : images.length,
+    bannerDescription: series?.bannerDescription || firstImage?.bannerDescription || '',
+    description: series?.description || firstImage?.description || '',
+    suitableFor: normalizeStringList(series?.suitableFor || firstImage?.suitableFor),
+    scenes: normalizeStringList(series?.scenes || firstImage?.scenes),
+    tags: normalizeStringList(series?.tags || firstImage?.tags),
+    relatedPackageIds: normalizeStringList(series?.relatedPackageIds || firstImage?.relatedPackageIds),
+    relatedPhotographerIds: normalizeStringList(series?.relatedPhotographerIds || firstImage?.relatedPhotographerIds)
+  }
 }
 
 // 获取COS图片完整URL
@@ -321,6 +392,7 @@ export async function getSeriesImages(seriesId: string): Promise<PortfolioItem[]
 
 export async function getSeriesPageData(seriesId: string): Promise<{
   images: PortfolioItem[]
+  seriesInfo: SeriesInfo | null
   theme: Partial<ThemeContent> | null
   packages: PackageItem[]
   testimonials: TestimonialItem[]
@@ -348,18 +420,27 @@ export async function getSeriesPageData(seriesId: string): Promise<{
           imageUrl: getCosUrl(path, { width: 1400, format: 'webp', quality: 90 })
         }
       })
+    const seriesInfo = buildSeriesInfo(config, seriesId, images)
+    const relatedPackageIds = seriesInfo?.relatedPackageIds || []
+    const relatedPhotographerIds = seriesInfo?.relatedPhotographerIds || []
 
     return {
       images,
+      seriesInfo,
       theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
-      packages: getConfiguredPackages(config).filter(item => (item.relatedSeriesIds || []).includes(seriesId)),
+      packages: getConfiguredPackages(config).filter(item => {
+        return (item.relatedSeriesIds || []).includes(seriesId) || relatedPackageIds.includes(item.id)
+      }),
       testimonials: getConfiguredTestimonials(config).filter(item => item.relatedSeriesId === seriesId),
-      photographers: getConfiguredPhotographers(config).filter(item => (item.relatedSeriesIds || []).includes(seriesId))
+      photographers: getConfiguredPhotographers(config).filter(item => {
+        return (item.relatedSeriesIds || []).includes(seriesId) || relatedPhotographerIds.includes(item.id)
+      })
     }
   } catch (error) {
     console.error('加载系列详情配置失败:', error)
     return {
       images: [],
+      seriesInfo: null,
       theme: null,
       packages: [],
       testimonials: [],
@@ -598,6 +679,12 @@ function generateImagesFromConfig(config: any): PortfolioItem[] {
           isSeriesCover: isFirstPhoto,
           photoCount: isFirstPhoto ? series.photos.length : undefined,
           bannerDescription: series.bannerDescription,
+          description: series.description,
+          suitableFor: normalizeStringList(series.suitableFor),
+          scenes: normalizeStringList(series.scenes),
+          tags: normalizeStringList(series.tags),
+          relatedPackageIds: normalizeStringList(series.relatedPackageIds),
+          relatedPhotographerIds: normalizeStringList(series.relatedPhotographerIds),
           candidatePhotoNames: isFirstPhoto ? [...series.photos] : undefined,
           candidateIndex: isFirstPhoto ? 0 : undefined
         })

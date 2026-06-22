@@ -131,6 +131,10 @@
           <text class="count-icon">📷</text>
           <text class="count-text">{{item.photoCount}}张</text>
         </view>
+        <view wx:if="{{item.description}}" class="item-description">{{item.description}}</view>
+        <view wx:if="{{item.tags && item.tags.length}}" class="item-tags">
+          <text wx:for="{{item.tags}}" wx:key="*this" class="item-tag">{{item}}</text>
+        </view>
       </view>
     </view>
   </view>

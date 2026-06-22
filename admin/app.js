@@ -292,6 +292,35 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;')
 }
 
+function parseListInput(value) {
+  return String(value || '')
+    .split(/\r?\n|[,，]/)
+    .map(item => item.trim())
+    .filter(Boolean)
+}
+
+function listToTextarea(value) {
+  return Array.isArray(value) ? value.join('\n') : ''
+}
+
+function setOptionalText(target, key, value) {
+  const normalized = String(value || '').trim()
+  if (normalized) {
+    target[key] = normalized
+  } else {
+    delete target[key]
+  }
+}
+
+function setOptionalList(target, key, value) {
+  const list = parseListInput(value)
+  if (list.length) {
+    target[key] = list
+  } else {
+    delete target[key]
+  }
+}
+
 function getPhotoThumbUrl(photoName, size = UI_CONFIG.photoThumbSize) {
   if (!CONFIG.cos.BaseUrl) {
     return ''
@@ -578,6 +607,16 @@ function renderSeriesList() {
               轮播描述：${escapeHtml(series.bannerDescription)}
             </div>
           ` : ''}
+          ${series.description ? `
+            <div style="font-size: 12px; color: #57534e; margin-top: 6px; line-height: 1.5;">
+              系列介绍：${escapeHtml(series.description)}
+            </div>
+          ` : ''}
+          ${Array.isArray(series.tags) && series.tags.length ? `
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;">
+              ${series.tags.map(tag => `<span style="font-size: 11px; color: #7c6a5d; background: #f5f5f4; padding: 3px 8px; border-radius: 999px;">${escapeHtml(tag)}</span>`).join('')}
+            </div>
+          ` : ''}
         </div>
         <div class="series-actions">
           <button class="icon-btn" onclick="openUploadModal(${index})" title="上传照片">📤</button>
@@ -723,6 +762,12 @@ function openEditSeriesModal(index) {
   document.getElementById('editSeriesTitle').value = series.title
   document.getElementById('editSeriesLikes').value = series.likes
   document.getElementById('editSeriesBannerDescription').value = series.bannerDescription || ''
+  document.getElementById('editSeriesDescription').value = series.description || ''
+  document.getElementById('editSeriesSuitableFor').value = listToTextarea(series.suitableFor)
+  document.getElementById('editSeriesScenes').value = listToTextarea(series.scenes)
+  document.getElementById('editSeriesTags').value = listToTextarea(series.tags)
+  document.getElementById('editSeriesRelatedPackageIds').value = listToTextarea(series.relatedPackageIds)
+  document.getElementById('editSeriesRelatedPhotographerIds').value = listToTextarea(series.relatedPhotographerIds)
   openModal('editSeriesModal')
 }
 
@@ -733,6 +778,12 @@ async function updateSeries() {
   const title = document.getElementById('editSeriesTitle').value.trim()
   const likes = parseInt(document.getElementById('editSeriesLikes').value) || 0
   const bannerDescription = document.getElementById('editSeriesBannerDescription').value.trim()
+  const description = document.getElementById('editSeriesDescription').value.trim()
+  const suitableFor = document.getElementById('editSeriesSuitableFor').value
+  const scenes = document.getElementById('editSeriesScenes').value
+  const tags = document.getElementById('editSeriesTags').value
+  const relatedPackageIds = document.getElementById('editSeriesRelatedPackageIds').value
+  const relatedPhotographerIds = document.getElementById('editSeriesRelatedPhotographerIds').value
 
   if (!title) {
     showToast('标题不能为空', 'error')
@@ -742,11 +793,13 @@ async function updateSeries() {
   const series = currentTheme.series[currentEditSeriesIndex]
   series.title = title
   series.likes = likes
-  if (bannerDescription) {
-    series.bannerDescription = bannerDescription
-  } else {
-    delete series.bannerDescription
-  }
+  setOptionalText(series, 'bannerDescription', bannerDescription)
+  setOptionalText(series, 'description', description)
+  setOptionalList(series, 'suitableFor', suitableFor)
+  setOptionalList(series, 'scenes', scenes)
+  setOptionalList(series, 'tags', tags)
+  setOptionalList(series, 'relatedPackageIds', relatedPackageIds)
+  setOptionalList(series, 'relatedPhotographerIds', relatedPhotographerIds)
 
   renderSeriesList()
   await saveConfig()
@@ -800,6 +853,12 @@ function openAddSeriesModal() {
   document.getElementById('seriesTitle').value = ''
   document.getElementById('seriesLikes').value = '100'
   document.getElementById('seriesBannerDescription').value = ''
+  document.getElementById('seriesDescription').value = ''
+  document.getElementById('seriesSuitableFor').value = ''
+  document.getElementById('seriesScenes').value = ''
+  document.getElementById('seriesTags').value = ''
+  document.getElementById('seriesRelatedPackageIds').value = ''
+  document.getElementById('seriesRelatedPhotographerIds').value = ''
   openModal('addSeriesModal')
 }
 
@@ -811,6 +870,12 @@ function addSeries() {
   const title = document.getElementById('seriesTitle').value.trim()
   const likes = parseInt(document.getElementById('seriesLikes').value) || 100
   const bannerDescription = document.getElementById('seriesBannerDescription').value.trim()
+  const description = document.getElementById('seriesDescription').value.trim()
+  const suitableFor = document.getElementById('seriesSuitableFor').value
+  const scenes = document.getElementById('seriesScenes').value
+  const tags = document.getElementById('seriesTags').value
+  const relatedPackageIds = document.getElementById('seriesRelatedPackageIds').value
+  const relatedPhotographerIds = document.getElementById('seriesRelatedPhotographerIds').value
 
   if (!id || !title) {
     showToast('请填写完整信息', 'error')
@@ -823,13 +888,22 @@ function addSeries() {
     return
   }
 
-  currentTheme.series.push({
+  const nextSeries = {
     id,
     title,
     likes,
-    photos: [],
-    ...(bannerDescription ? { bannerDescription } : {})
-  })
+    photos: []
+  }
+
+  setOptionalText(nextSeries, 'bannerDescription', bannerDescription)
+  setOptionalText(nextSeries, 'description', description)
+  setOptionalList(nextSeries, 'suitableFor', suitableFor)
+  setOptionalList(nextSeries, 'scenes', scenes)
+  setOptionalList(nextSeries, 'tags', tags)
+  setOptionalList(nextSeries, 'relatedPackageIds', relatedPackageIds)
+  setOptionalList(nextSeries, 'relatedPhotographerIds', relatedPhotographerIds)
+
+  currentTheme.series.push(nextSeries)
 
   renderSeriesList()
   updateStats()

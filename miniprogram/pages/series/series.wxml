@@ -7,6 +7,31 @@
       <text class="series-category">{{seriesCategory}}</text>
       <text class="series-count">共 {{images.length}} 张</text>
     </view>
+    <view wx:if="{{seriesInfo && seriesInfo.description}}" class="series-description">{{seriesInfo.description}}</view>
+  </view>
+
+  <view
+    wx:if="{{seriesInfo && (seriesInfo.suitableFor.length || seriesInfo.scenes.length || seriesInfo.tags.length)}}"
+    class="series-profile"
+  >
+    <view wx:if="{{seriesInfo.suitableFor.length}}" class="profile-block">
+      <view class="profile-label">适合人群</view>
+      <view class="profile-tags">
+        <text wx:for="{{seriesInfo.suitableFor}}" wx:key="*this" class="profile-tag">{{item}}</text>
+      </view>
+    </view>
+    <view wx:if="{{seriesInfo.scenes.length}}" class="profile-block">
+      <view class="profile-label">拍摄场景</view>
+      <view class="profile-tags">
+        <text wx:for="{{seriesInfo.scenes}}" wx:key="*this" class="profile-tag muted">{{item}}</text>
+      </view>
+    </view>
+    <view wx:if="{{seriesInfo.tags.length}}" class="profile-block">
+      <view class="profile-label">风格标签</view>
+      <view class="profile-tags">
+        <text wx:for="{{seriesInfo.tags}}" wx:key="*this" class="profile-tag outline">{{item}}</text>
+      </view>
+    </view>
   </view>
 
   <!-- 图片列表 -->

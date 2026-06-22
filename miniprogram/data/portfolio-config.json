@@ -35,6 +35,28 @@
           "title": "示例系列",
           "likes": 100,
           "bannerDescription": "这里填写首页轮播展示文案。",
+          "description": "这里填写作品系列介绍，会展示在作品列表和系列详情页。",
+          "suitableFor": [
+            "个人写真",
+            "生日纪念",
+            "情侣拍摄"
+          ],
+          "scenes": [
+            "棚拍布景",
+            "园林外景",
+            "夜景灯笼"
+          ],
+          "tags": [
+            "清冷",
+            "明制",
+            "武侠"
+          ],
+          "relatedPackageIds": [
+            "portrait-basic"
+          ],
+          "relatedPhotographerIds": [
+            "primary-photographer"
+          ],
           "photos": [
             "sample-cover.jpg",
             "sample-detail.jpg"

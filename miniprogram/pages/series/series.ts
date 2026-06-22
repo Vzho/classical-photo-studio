@@ -3,6 +3,7 @@ import {
   getSeriesPageData,
   PackageItem,
   PortfolioItem,
+  SeriesInfo,
   TeamPhotographerItem,
   TestimonialItem
 } from '../../utils/cos'
@@ -12,6 +13,7 @@ Page({
     themeStyle: '',
     seriesTitle: '',
     seriesCategory: '',
+    seriesInfo: null as SeriesInfo | null,
     images: [] as PortfolioItem[],
     packages: [] as PackageItem[],
     testimonials: [] as TestimonialItem[],
@@ -32,9 +34,15 @@ Page({
   },
 
   async loadSeriesImages(seriesId: string) {
-    const { images, theme, packages, testimonials, photographers } = await getSeriesPageData(seriesId)
+    const { images, seriesInfo, theme, packages, testimonials, photographers } = await getSeriesPageData(seriesId)
+    const seriesTitle = seriesInfo?.title || this.data.seriesTitle
+    const seriesCategory = seriesInfo?.category || this.data.seriesCategory
+
     this.setData({
       themeStyle: buildThemeStyle(theme),
+      seriesTitle,
+      seriesCategory,
+      seriesInfo,
       images,
       packages: packages.map(item => ({
         ...item,
@@ -72,14 +80,14 @@ Page({
   },
 
   consultSameStyle() {
-    wx.setStorageSync('prefillConsultation', { style: this.data.seriesCategory })
+    wx.setStorageSync('prefillConsultation', { style: this.data.seriesTitle || this.data.seriesCategory })
     wx.switchTab({ url: '/pages/booking/booking' })
   },
 
   consultPackage(e: WechatMiniprogram.TouchEvent) {
     const packageId = e.currentTarget.dataset.id as string
     wx.setStorageSync('prefillConsultation', {
-      style: this.data.seriesCategory,
+      style: this.data.seriesTitle || this.data.seriesCategory,
       packageId
     })
     wx.switchTab({ url: '/pages/booking/booking' })
