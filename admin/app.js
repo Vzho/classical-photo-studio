@@ -27,7 +27,8 @@ const DEFAULT_HOME_BANNER = {
   tagText: '精选作品',
   description: '展示摄影作品、服务风格和预约入口。'
 }
-const DEFAULT_BOOKING_CONFIG = {
+// CMS 配置缺失时的兜底值；真实客户配置通过“预约设置”保存到 booking.styleOptions。
+const FALLBACK_BOOKING_CONFIG = {
   styleOptions: ['写真', '古风', '婚纱', '亲子', '商业']
 }
 
@@ -929,7 +930,7 @@ function ensureBookingConfig() {
   const currentBooking = portfolioData.booking || {}
   const styleOptions = Array.isArray(currentBooking.styleOptions)
     ? currentBooking.styleOptions
-    : DEFAULT_BOOKING_CONFIG.styleOptions
+    : FALLBACK_BOOKING_CONFIG.styleOptions
 
   portfolioData.booking = {
     ...currentBooking,

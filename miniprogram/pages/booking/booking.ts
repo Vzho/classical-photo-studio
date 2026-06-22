@@ -1,4 +1,4 @@
-import { STYLE_OPTIONS, PHOTOGRAPHER } from '../../utils/constants'
+import { FALLBACK_STYLE_OPTIONS, PHOTOGRAPHER } from '../../utils/constants'
 import { getCosUrl, getBookingPageData } from '../../utils/cos'
 
 function normalizeStyleOptions(styleOptions?: string[]): string[] {
@@ -7,18 +7,19 @@ function normalizeStyleOptions(styleOptions?: string[]): string[] {
     .filter(item => item && item !== '其他')
 
   const uniqueOptions = Array.from(new Set(normalized))
-  return uniqueOptions.length > 0 ? uniqueOptions : STYLE_OPTIONS
+  return uniqueOptions.length > 0 ? uniqueOptions : FALLBACK_STYLE_OPTIONS
 }
 
 Page({
   data: {
     bannerUrl: '',
     photographer: PHOTOGRAPHER,
-    styleOptions: [...STYLE_OPTIONS, '其他'], // 添加“其他”选项
+    // 首屏兜底展示；loadData 会优先用 CMS 配置覆盖。
+    styleOptions: [...FALLBACK_STYLE_OPTIONS, '其他'],
     formData: {
       name: '',
       phone: '',
-      style: STYLE_OPTIONS[0] || '',
+      style: FALLBACK_STYLE_OPTIONS[0] || '',
       customStyle: '', // 新增自定义风格字段
       date: '',
       notes: ''

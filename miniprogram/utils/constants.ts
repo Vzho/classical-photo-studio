@@ -29,5 +29,6 @@ export const PHOTOGRAPHER = {
   }
 }
 
-// 拍摄风格选项
-export const STYLE_OPTIONS = ['写真', '古风', '婚纱', '亲子', '商业']
+// 预约风格兜底项：仅在 CMS 配置缺失或异常时使用。
+// 真实客户配置请通过后台“预约设置”维护 booking.styleOptions。
+export const FALLBACK_STYLE_OPTIONS = ['写真', '古风', '婚纱', '亲子', '商业']
