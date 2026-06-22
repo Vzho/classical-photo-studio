@@ -10,7 +10,7 @@
       <view class="hero-title">{{packageItem.name}}</view>
       <view class="hero-price">{{packageItem.priceText}}</view>
       <view class="hero-desc">{{packageItem.subtitle}}</view>
-      <button class="hero-consult-btn" bindtap="consultPackage">{{consultButton.text || '咨询此套餐'}}</button>
+      <button wx:if="{{consultButtonVisible}}" class="hero-consult-btn" bindtap="consultPackage">{{consultButton.text || '咨询此套餐'}}</button>
     </view>
 
     <view class="detail-section">
@@ -91,7 +91,7 @@
       </view>
     </view>
 
-    <view class="bottom-consult-bar">
+    <view wx:if="{{consultButtonVisible}}" class="bottom-consult-bar">
       <button class="bottom-consult-btn" bindtap="consultPackage">{{consultButton.text || '咨询此套餐'}}</button>
     </view>
   </view>

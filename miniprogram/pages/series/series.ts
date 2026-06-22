@@ -1,5 +1,6 @@
 import {
   buildThemeStyle,
+  ConsultButtonContent,
   getSeriesPageData,
   PackageItem,
   PortfolioItem,
@@ -7,6 +8,7 @@ import {
   TeamPhotographerItem,
   TestimonialItem
 } from '../../utils/cos'
+import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
 
 Page({
   data: {
@@ -18,6 +20,12 @@ Page({
     packages: [] as PackageItem[],
     testimonials: [] as TestimonialItem[],
     photographers: [] as TeamPhotographerItem[],
+    consultButton: {
+      enabled: true,
+      text: '咨询同款风格',
+      action: 'booking'
+    } as Partial<ConsultButtonContent>,
+    consultButtonVisible: true,
     currentIndex: 0
   },
 
@@ -34,7 +42,7 @@ Page({
   },
 
   async loadSeriesImages(seriesId: string) {
-    const { images, seriesInfo, theme, packages, testimonials, photographers } = await getSeriesPageData(seriesId)
+    const { images, seriesInfo, theme, consultButton, packages, testimonials, photographers } = await getSeriesPageData(seriesId)
     const seriesTitle = seriesInfo?.title || this.data.seriesTitle
     const seriesCategory = seriesInfo?.category || this.data.seriesCategory
 
@@ -50,7 +58,14 @@ Page({
         suitableFor: item.suitableFor || []
       })),
       testimonials,
-      photographers
+      photographers,
+      consultButton: {
+        enabled: true,
+        text: '咨询同款风格',
+        action: 'booking',
+        ...(consultButton || {})
+      },
+      consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'seriesDetail')
     })
   },
 
@@ -80,17 +95,15 @@ Page({
   },
 
   consultSameStyle() {
-    wx.setStorageSync('prefillConsultation', { style: this.data.seriesTitle || this.data.seriesCategory })
-    wx.switchTab({ url: '/pages/booking/booking' })
+    handleConsultButtonAction(this.data.consultButton, { style: this.data.seriesTitle || this.data.seriesCategory })
   },
 
   consultPackage(e: WechatMiniprogram.TouchEvent) {
     const packageId = e.currentTarget.dataset.id as string
-    wx.setStorageSync('prefillConsultation', {
+    handleConsultButtonAction(this.data.consultButton, {
       style: this.data.seriesTitle || this.data.seriesCategory,
       packageId
     })
-    wx.switchTab({ url: '/pages/booking/booking' })
   },
 
   onShareAppMessage() {

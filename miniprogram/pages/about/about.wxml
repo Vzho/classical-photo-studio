@@ -158,10 +158,10 @@
   </view>
 
   <!-- 底部预约按钮 -->
-  <view class="bottom-action">
+  <view wx:if="{{consultButtonVisible}}" class="bottom-action">
     <button class="booking-btn" bindtap="goBooking">
       <text class="btn-icon">📅</text>
-      <text>发起拍摄咨询</text>
+      <text>{{consultButton.text || '发起拍摄咨询'}}</text>
     </button>
   </view>
 </view>

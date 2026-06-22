@@ -6,6 +6,7 @@ import {
   ScheduleContent,
   TestimonialItem
 } from '../../utils/cos'
+import { handleConsultButtonAction } from '../../utils/consult-action'
 
 Page({
   data: {
@@ -51,8 +52,7 @@ Page({
 
   consultPackage(e: WechatMiniprogram.TouchEvent) {
     const packageId = e.currentTarget.dataset.id as string
-    wx.setStorageSync('prefillConsultation', { packageId })
-    wx.switchTab({ url: '/pages/booking/booking' })
+    handleConsultButtonAction(this.data.consultButton, { packageId })
   },
 
   openPackageDetail(e: WechatMiniprogram.TouchEvent) {
@@ -65,7 +65,7 @@ Page({
   },
 
   goBooking() {
-    wx.switchTab({ url: '/pages/booking/booking' })
+    handleConsultButtonAction(this.data.consultButton)
   },
 
   onShareAppMessage() {

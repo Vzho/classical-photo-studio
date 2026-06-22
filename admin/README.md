@@ -28,6 +28,17 @@
 - 套餐详情页、作品详情页和预约咨询页都优先读取 COS 上的 `config/portfolio-config.json`
 - 修改内容模块后点击“保存并同步”，不需要手动上传 JSON
 
+## 咨询按钮
+
+`consultButton` 通过后台“内容模块”维护。`action` 支持：
+
+- `booking`：进入咨询页并生成本地咨询内容
+- `copyWechat`：复制摄影师微信号
+- `contact`：弹出可用联系方式
+- `phone`：拨打门店或摄影师电话，失败时复制电话
+
+`showOnPages` 控制固定/底部按钮显示页面，可填 `portfolio`、`seriesDetail`、`packageDetail`、`about`。套餐卡片里的“咨询此套餐”属于套餐操作入口，会复用同一动作配置，但不作为固定按钮隐藏。
+
 ## 主题设置
 
 后台顶部的“主题设置”提供 5 套预设：极简高级风、复古胶片风、奶油婚纱风、儿童亲子风、国风雅致风。

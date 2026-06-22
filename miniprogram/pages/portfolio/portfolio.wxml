@@ -140,7 +140,7 @@
   </view>
 
   <!-- 悬浮预约按钮 -->
-  <view class="floating-booking-btn {{showFloatingBtn ? 'show' : ''}}" bindtap="goBooking">
+  <view class="floating-booking-btn {{consultButtonVisible && showFloatingBtn ? 'show' : ''}}" bindtap="goBooking">
     <text class="btn-icon">📅</text>
     <text class="btn-text">{{consultButton.text || '咨询拍摄'}}</text>
   </view>

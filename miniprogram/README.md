@@ -68,6 +68,13 @@ v1.1 新增字段包括：
 - `stores`：多门店展示
 - `modules`：模块开关
 
+`consultButton` 说明：
+
+- `enabled`：是否显示固定/底部咨询按钮
+- `text`：按钮文案
+- `action`：按钮动作，支持 `booking`（进入咨询页）、`copyWechat`（复制微信）、`contact`（弹出联系方式）、`phone`（拨打电话，失败时复制电话）
+- `showOnPages`：固定/底部按钮显示页面，支持 `portfolio`、`seriesDetail`、`packageDetail`、`about`
+
 关联规则：
 
 - 作品系列 ID 格式为 `series-<主题ID>-<系列ID>`，例如 `series-sample-sample-series`

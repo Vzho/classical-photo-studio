@@ -1,4 +1,5 @@
 import { CATEGORIES, Category } from '../../utils/constants'
+import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
 import {
   buildThemeStyle,
   ConsultButtonContent,
@@ -58,6 +59,7 @@ Page({
       text: '咨询拍摄',
       action: 'booking'
     } as Partial<ConsultButtonContent>,
+    consultButtonVisible: true,
     bannerUrl: '',
     showFloatingBtn: false // 控制悬浮按钮显示
   },
@@ -96,9 +98,7 @@ Page({
   
   // 跳转到预约页面
   goBooking() {
-    wx.switchTab({
-      url: '/pages/booking/booking'
-    })
+    handleConsultButtonAction(this.data.consultButton)
   },
 
   goPackages() {
@@ -109,8 +109,7 @@ Page({
 
   consultPackage(e: WechatMiniprogram.TouchEvent) {
     const packageId = e.currentTarget.dataset.id as string
-    wx.setStorageSync('prefillConsultation', { packageId })
-    this.goBooking()
+    handleConsultButtonAction(this.data.consultButton, { packageId })
   },
 
   async loadData() {
@@ -189,6 +188,7 @@ Page({
         action: 'booking',
         ...(consultButton || {})
       },
+      consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'portfolio'),
       filteredItems: activeCategory === '全部'
         ? portfolioItems
         : portfolioItems.filter(item => item.category === activeCategory),

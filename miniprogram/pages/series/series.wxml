@@ -79,7 +79,7 @@
     </view>
   </view>
 
-  <view class="series-consult-bar">
-    <button class="series-consult-btn" bindtap="consultSameStyle">咨询同款风格</button>
+  <view wx:if="{{consultButtonVisible}}" class="series-consult-bar">
+    <button class="series-consult-btn" bindtap="consultSameStyle">{{consultButton.text || '咨询同款风格'}}</button>
   </view>
 </view>

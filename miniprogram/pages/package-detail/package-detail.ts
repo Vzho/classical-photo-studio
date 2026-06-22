@@ -8,6 +8,7 @@ import {
   ServiceFlowContent,
   TestimonialItem
 } from '../../utils/cos'
+import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
 
 Page({
   data: {
@@ -21,7 +22,8 @@ Page({
       enabled: true,
       text: '咨询此套餐',
       action: 'booking'
-    } as Partial<ConsultButtonContent>
+    } as Partial<ConsultButtonContent>,
+    consultButtonVisible: true
   },
 
   onLoad(options: { id?: string }) {
@@ -62,17 +64,17 @@ Page({
         text: '咨询此套餐',
         action: 'booking',
         ...(consultButton || {})
-      }
+      },
+      consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'packageDetail')
     })
   },
 
   consultPackage() {
     if (!this.data.packageItem?.id) return
 
-    wx.setStorageSync('prefillConsultation', {
+    handleConsultButtonAction(this.data.consultButton, {
       packageId: this.data.packageItem.id
     })
-    wx.switchTab({ url: '/pages/booking/booking' })
   },
 
   openSeries(e: WechatMiniprogram.TouchEvent) {

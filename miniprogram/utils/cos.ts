@@ -342,7 +342,7 @@ export async function getPortfolioPageData(): Promise<{
       packages: getConfiguredPackages(config).filter(item => item.isRecommended).slice(0, 3),
       schedule: isModuleEnabled(config, 'schedule') ? config?.schedule || null : null,
       testimonials: getConfiguredTestimonials(config).slice(0, 3),
-      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : null
+      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : { enabled: false }
     }
   } catch (error) {
     console.error('加载首页配置失败:', error)
@@ -394,6 +394,7 @@ export async function getSeriesPageData(seriesId: string): Promise<{
   images: PortfolioItem[]
   seriesInfo: SeriesInfo | null
   theme: Partial<ThemeContent> | null
+  consultButton: Partial<ConsultButtonContent> | null
   packages: PackageItem[]
   testimonials: TestimonialItem[]
   photographers: TeamPhotographerItem[]
@@ -428,6 +429,7 @@ export async function getSeriesPageData(seriesId: string): Promise<{
       images,
       seriesInfo,
       theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
+      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : { enabled: false },
       packages: getConfiguredPackages(config).filter(item => {
         return (item.relatedSeriesIds || []).includes(seriesId) || relatedPackageIds.includes(item.id)
       }),
@@ -442,6 +444,7 @@ export async function getSeriesPageData(seriesId: string): Promise<{
       images: [],
       seriesInfo: null,
       theme: null,
+      consultButton: null,
       packages: [],
       testimonials: [],
       photographers: []
@@ -528,7 +531,7 @@ export async function getPackagesPageData(): Promise<{
       packages: getConfiguredPackages(config),
       schedule: isModuleEnabled(config, 'schedule') ? config?.schedule || null : null,
       testimonials: getConfiguredTestimonials(config),
-      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : null
+      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : { enabled: false }
     }
   } catch (error) {
     console.error('加载套餐页配置失败:', error)
@@ -565,7 +568,7 @@ export async function getPackageDetailPageData(packageId: string): Promise<{
       testimonials: getConfiguredTestimonials(config).filter(item => item.relatedPackageId === packageId),
       serviceFlow: isModuleEnabled(config, 'serviceFlow') ? config?.serviceFlow || null : null,
       faq: isModuleEnabled(config, 'faq') ? config?.faq || null : null,
-      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : null
+      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : { enabled: false }
     }
   } catch (error) {
     console.error('加载套餐详情配置失败:', error)
@@ -584,6 +587,7 @@ export async function getPackageDetailPageData(packageId: string): Promise<{
 export async function getAboutPageData(): Promise<{
   photographer: any | null
   theme: Partial<ThemeContent> | null
+  consultButton: Partial<ConsultButtonContent> | null
   stores: StoreItem[]
   photographers: TeamPhotographerItem[]
   testimonials: TestimonialItem[]
@@ -596,6 +600,7 @@ export async function getAboutPageData(): Promise<{
     return {
       photographer: config?.photographer || null,
       theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
+      consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : { enabled: false },
       stores: getConfiguredStores(config),
       photographers: getConfiguredPhotographers(config),
       testimonials: getConfiguredTestimonials(config),
@@ -607,6 +612,7 @@ export async function getAboutPageData(): Promise<{
     return {
       photographer: null,
       theme: null,
+      consultButton: null,
       stores: [],
       photographers: [],
       testimonials: [],

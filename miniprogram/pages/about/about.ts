@@ -1,5 +1,6 @@
 import { PHOTOGRAPHER } from '../../utils/constants'
-import { buildThemeStyle, getAboutPageData, getCosUrl } from '../../utils/cos'
+import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
+import { buildThemeStyle, ConsultButtonContent, getAboutPageData, getCosUrl } from '../../utils/cos'
 
 Page({
   data: {
@@ -12,12 +13,18 @@ Page({
     photographers: [] as any[],
     testimonials: [] as any[],
     serviceFlow: { enabled: false, steps: [] } as any,
-    faq: { enabled: false, items: [] } as any
+    faq: { enabled: false, items: [] } as any,
+    consultButton: {
+      enabled: true,
+      text: '发起拍摄咨询',
+      action: 'booking'
+    } as Partial<ConsultButtonContent>,
+    consultButtonVisible: true
   },
 
   async onLoad() {
     // 优先加载远程配置的摄影师信息
-    const { photographer: remoteProfile, theme, stores, photographers, testimonials, serviceFlow, faq } = await getAboutPageData()
+    const { photographer: remoteProfile, theme, consultButton, stores, photographers, testimonials, serviceFlow, faq } = await getAboutPageData()
     const profile = {
       ...PHOTOGRAPHER,
       ...(remoteProfile || {}),
@@ -67,7 +74,14 @@ Page({
         enabled: false,
         ...(faq || {}),
         items: faq?.items || []
-      }
+      },
+      consultButton: {
+        enabled: true,
+        text: '发起拍摄咨询',
+        action: 'booking',
+        ...(consultButton || {})
+      },
+      consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'about')
     })
   },
 
@@ -289,7 +303,7 @@ Page({
   },
 
   goBooking() {
-    wx.switchTab({ url: '/pages/booking/booking' })
+    handleConsultButtonAction(this.data.consultButton)
   },
 
   onShareAppMessage() {
