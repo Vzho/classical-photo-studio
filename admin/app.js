@@ -1386,6 +1386,251 @@ function requireArray(value, label) {
   }
 }
 
+function renderContentModuleStructuredEditors(config) {
+  renderPackageEditor(config.packages || [])
+  renderScheduleEditor(config.schedule || {})
+  renderTestimonialEditor(config.testimonials || [])
+}
+
+function renderPackageEditor(packages) {
+  const container = document.getElementById('packageEditorList')
+  if (!container) return
+
+  if (!packages.length) {
+    container.innerHTML = '<div style="color: #78716c; font-size: 13px;">暂无套餐，点击“新增套餐”。</div>'
+    return
+  }
+
+  container.innerHTML = packages.map((item, index) => `
+    <div data-index="${index}" style="background: #fff; border: 1px solid #e7e5e4; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+        <strong>${escapeHtml(item.name || item.id || `套餐 ${index + 1}`)}</strong>
+        <button class="btn btn-danger" type="button" onclick="removePackageEditorItem(${index})">删除</button>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+        ${editorInput('id', '套餐 ID', item.id, 'portrait-basic')}
+        ${editorInput('name', '套餐名称', item.name, '个人写真基础套餐')}
+        ${editorInput('priceText', '价格文案', item.priceText, '¥699 起')}
+        ${editorInput('subtitle', '副标题', item.subtitle, '适合头像、生日纪念')}
+        ${editorInput('duration', '拍摄时长', item.duration, '约 2 小时')}
+        ${editorInput('retouchCount', '精修数量', item.retouchCount, '6 张精修')}
+        ${editorInput('originalPhotos', '底片说明', item.originalPhotos, '底片精选交付')}
+        ${editorInput('makeupText', '妆造说明', item.makeupText, '含基础妆造')}
+        ${editorInput('sort', '排序', item.sort ?? index + 1, '1', 'number')}
+        <label style="display: flex; align-items: center; gap: 8px; margin-top: 24px;">
+          <input type="checkbox" data-field="enabled" ${item.enabled !== false ? 'checked' : ''}> 启用
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" data-field="isRecommended" ${item.isRecommended ? 'checked' : ''}> 首页推荐
+        </label>
+      </div>
+      ${editorTextarea('includes', '包含服务（一行一个）', item.includes)}
+      ${editorTextarea('suitableFor', '适合人群（一行一个）', item.suitableFor)}
+      ${editorTextarea('relatedSeriesIds', '关联作品系列 ID（一行一个）', item.relatedSeriesIds)}
+      ${editorTextarea('relatedPhotographerIds', '关联摄影师 ID（一行一个）', item.relatedPhotographerIds)}
+    </div>
+  `).join('')
+}
+
+function renderScheduleEditor(schedule) {
+  setCheckedValue('scheduleEnabled', schedule.enabled !== false)
+  setInputValue('scheduleTitle', schedule.title || '')
+  setInputValue('scheduleAvailableText', schedule.availableText || '')
+  setInputValue('scheduleNotice', schedule.notice || '')
+  setInputValue('scheduleRestDays', listToTextarea(schedule.restDays))
+  setInputValue('scheduleBusyDates', listToTextarea(schedule.busyDates))
+  setInputValue('scheduleSpecialNotes', listToTextarea(schedule.specialNotes))
+}
+
+function renderTestimonialEditor(testimonials) {
+  const container = document.getElementById('testimonialEditorList')
+  if (!container) return
+
+  if (!testimonials.length) {
+    container.innerHTML = '<div style="color: #78716c; font-size: 13px;">暂无评价，点击“新增评价”。</div>'
+    return
+  }
+
+  container.innerHTML = testimonials.map((item, index) => `
+    <div data-index="${index}" style="background: #fff; border: 1px solid #e7e5e4; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+        <strong>${escapeHtml(item.name || item.id || `评价 ${index + 1}`)}</strong>
+        <button class="btn btn-danger" type="button" onclick="removeTestimonialEditorItem(${index})">删除</button>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+        ${editorInput('id', '评价 ID', item.id, 'review-001')}
+        ${editorInput('name', '客户称呼', item.name, '示例客户')}
+        ${editorInput('shootType', '拍摄类型', item.shootType, '个人写真')}
+        ${editorInput('dateText', '时间文案', item.dateText, '2026 年 6 月')}
+        ${editorInput('relatedSeriesId', '关联作品系列 ID', item.relatedSeriesId, 'series-sample-sample-series')}
+        ${editorInput('relatedPackageId', '关联套餐 ID', item.relatedPackageId, 'portrait-basic')}
+        ${editorInput('imageUrl', '评价图片 URL / COS key', item.imageUrl, '')}
+        ${editorInput('sort', '排序', item.sort ?? index + 1, '1', 'number')}
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" data-field="enabled" ${item.enabled !== false ? 'checked' : ''}> 启用
+        </label>
+      </div>
+      ${editorTextarea('content', '评价内容', item.content ? [item.content] : [], 4)}
+    </div>
+  `).join('')
+}
+
+function editorInput(field, label, value = '', placeholder = '', type = 'text') {
+  return `
+    <label style="display: block;">
+      <span style="display: block; font-size: 12px; color: #57534e; margin-bottom: 4px;">${label}</span>
+      <input type="${type}" data-field="${field}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}">
+    </label>
+  `
+}
+
+function editorTextarea(field, label, value, rows = 3) {
+  return `
+    <label style="display: block; margin-top: 12px;">
+      <span style="display: block; font-size: 12px; color: #57534e; margin-bottom: 4px;">${label}</span>
+      <textarea data-field="${field}" rows="${rows}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">${escapeHtml(listToTextarea(value))}</textarea>
+    </label>
+  `
+}
+
+function setInputValue(id, value) {
+  const el = document.getElementById(id)
+  if (el) el.value = value
+}
+
+function setCheckedValue(id, value) {
+  const el = document.getElementById(id)
+  if (el) el.checked = Boolean(value)
+}
+
+function getFieldValue(card, field) {
+  const el = card.querySelector(`[data-field="${field}"]`)
+  return el ? String(el.value || '').trim() : ''
+}
+
+function getFieldChecked(card, field) {
+  const el = card.querySelector(`[data-field="${field}"]`)
+  return el ? Boolean(el.checked) : false
+}
+
+function readPackageEditor() {
+  return Array.from(document.querySelectorAll('#packageEditorList [data-index]')).map((card, index) => {
+    const id = getFieldValue(card, 'id')
+    const name = getFieldValue(card, 'name')
+
+    if (!id || !name) {
+      throw new Error(`第 ${index + 1} 个套餐必须填写 ID 和名称`)
+    }
+
+    return {
+      id,
+      name,
+      priceText: getFieldValue(card, 'priceText'),
+      subtitle: getFieldValue(card, 'subtitle'),
+      duration: getFieldValue(card, 'duration'),
+      retouchCount: getFieldValue(card, 'retouchCount'),
+      originalPhotos: getFieldValue(card, 'originalPhotos'),
+      makeupText: getFieldValue(card, 'makeupText'),
+      includes: parseListInput(getFieldValue(card, 'includes')),
+      suitableFor: parseListInput(getFieldValue(card, 'suitableFor')),
+      relatedSeriesIds: parseListInput(getFieldValue(card, 'relatedSeriesIds')),
+      relatedPhotographerIds: parseListInput(getFieldValue(card, 'relatedPhotographerIds')),
+      isRecommended: getFieldChecked(card, 'isRecommended'),
+      sort: Number(getFieldValue(card, 'sort')) || index + 1,
+      enabled: getFieldChecked(card, 'enabled')
+    }
+  })
+}
+
+function readScheduleEditor() {
+  return {
+    enabled: Boolean(document.getElementById('scheduleEnabled')?.checked),
+    title: document.getElementById('scheduleTitle')?.value.trim() || '',
+    availableText: document.getElementById('scheduleAvailableText')?.value.trim() || '',
+    notice: document.getElementById('scheduleNotice')?.value.trim() || '',
+    restDays: parseListInput(document.getElementById('scheduleRestDays')?.value || ''),
+    busyDates: parseListInput(document.getElementById('scheduleBusyDates')?.value || ''),
+    specialNotes: parseListInput(document.getElementById('scheduleSpecialNotes')?.value || '')
+  }
+}
+
+function readTestimonialEditor() {
+  return Array.from(document.querySelectorAll('#testimonialEditorList [data-index]')).map((card, index) => {
+    const id = getFieldValue(card, 'id')
+    const name = getFieldValue(card, 'name')
+    const content = getFieldValue(card, 'content')
+
+    if (!id || !name || !content) {
+      throw new Error(`第 ${index + 1} 条评价必须填写 ID、客户称呼和评价内容`)
+    }
+
+    return {
+      id,
+      name,
+      shootType: getFieldValue(card, 'shootType'),
+      content,
+      imageUrl: getFieldValue(card, 'imageUrl'),
+      relatedSeriesId: getFieldValue(card, 'relatedSeriesId'),
+      relatedPackageId: getFieldValue(card, 'relatedPackageId'),
+      dateText: getFieldValue(card, 'dateText'),
+      sort: Number(getFieldValue(card, 'sort')) || index + 1,
+      enabled: getFieldChecked(card, 'enabled')
+    }
+  })
+}
+
+function syncStructuredContentToJson() {
+  setJsonTextarea('v11PackagesJson', readPackageEditor())
+  setJsonTextarea('v11ScheduleJson', readScheduleEditor())
+  setJsonTextarea('v11TestimonialsJson', readTestimonialEditor())
+}
+
+function addPackageEditorItem() {
+  const packages = readPackageEditor()
+  packages.push({
+    id: `package-${packages.length + 1}`,
+    name: '新套餐',
+    priceText: '',
+    subtitle: '',
+    includes: [],
+    suitableFor: [],
+    relatedSeriesIds: [],
+    relatedPhotographerIds: [],
+    sort: packages.length + 1,
+    enabled: true
+  })
+  renderPackageEditor(packages)
+  setJsonTextarea('v11PackagesJson', packages)
+}
+
+function removePackageEditorItem(index) {
+  const packages = readPackageEditor()
+  packages.splice(index, 1)
+  renderPackageEditor(packages)
+  setJsonTextarea('v11PackagesJson', packages)
+}
+
+function addTestimonialEditorItem() {
+  const testimonials = readTestimonialEditor()
+  testimonials.push({
+    id: `review-${String(testimonials.length + 1).padStart(3, '0')}`,
+    name: '新客户',
+    shootType: '',
+    content: '这里填写客户评价内容。',
+    sort: testimonials.length + 1,
+    enabled: true
+  })
+  renderTestimonialEditor(testimonials)
+  setJsonTextarea('v11TestimonialsJson', testimonials)
+}
+
+function removeTestimonialEditorItem(index) {
+  const testimonials = readTestimonialEditor()
+  testimonials.splice(index, 1)
+  renderTestimonialEditor(testimonials)
+  setJsonTextarea('v11TestimonialsJson', testimonials)
+}
+
 function openContentModulesModal() {
   const config = ensureV11Config()
 
@@ -1399,6 +1644,7 @@ function openContentModulesModal() {
   setJsonTextarea('v11FaqJson', config.faq)
   setJsonTextarea('v11PhotographersJson', config.photographers)
   setJsonTextarea('v11StoresJson', config.stores)
+  renderContentModuleStructuredEditors(config)
 
   document.getElementById('v11ConsultationTitle').value = config.consultation.title || ''
   document.getElementById('v11ConsultationDescription').value = config.consultation.description || ''
@@ -1410,6 +1656,8 @@ function openContentModulesModal() {
 
 async function saveContentModules() {
   try {
+    syncStructuredContentToJson()
+
     const modules = parseJsonTextarea('v11ModulesJson', '模块开关')
     const theme = parseJsonTextarea('v11ThemeJson', '主题设置')
     const packages = parseJsonTextarea('v11PackagesJson', '套餐')

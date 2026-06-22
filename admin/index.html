@@ -1011,6 +1011,59 @@
         </div>
       </div>
 
+      <div style="padding: 16px; border: 1px solid #e7e5e4; border-radius: 8px; background: #fafaf9; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <h4 style="margin: 0 0 4px; color: #292524;">套餐结构化编辑</h4>
+            <p style="margin: 0; color: #78716c; font-size: 12px;">支持新增、删除、启用、推荐、排序和关联系列/摄影师，不需要手写 JSON。</p>
+          </div>
+          <button class="btn btn-secondary" type="button" onclick="addPackageEditorItem()">新增套餐</button>
+        </div>
+        <div id="packageEditorList"></div>
+      </div>
+
+      <div style="padding: 16px; border: 1px solid #e7e5e4; border-radius: 8px; background: #fafaf9; margin-bottom: 16px;">
+        <h4 style="margin: 0 0 12px; color: #292524;">档期结构化编辑</h4>
+        <div class="form-group">
+          <label><input type="checkbox" id="scheduleEnabled"> 启用档期模块</label>
+        </div>
+        <div class="form-group">
+          <label>标题</label>
+          <input type="text" id="scheduleTitle" placeholder="近期档期">
+        </div>
+        <div class="form-group">
+          <label>档期状态文案</label>
+          <input type="text" id="scheduleAvailableText" placeholder="本周还有少量可沟通档期">
+        </div>
+        <div class="form-group">
+          <label>提示说明</label>
+          <textarea id="scheduleNotice" rows="2" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>休息日（一行一个）</label>
+          <textarea id="scheduleRestDays" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Monday"></textarea>
+        </div>
+        <div class="form-group">
+          <label>忙碌日期（一行一个，YYYY-MM-DD）</label>
+          <textarea id="scheduleBusyDates" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="2026-07-06"></textarea>
+        </div>
+        <div class="form-group">
+          <label>特别说明（一行一个）</label>
+          <textarea id="scheduleSpecialNotes" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+        </div>
+      </div>
+
+      <div style="padding: 16px; border: 1px solid #e7e5e4; border-radius: 8px; background: #fafaf9; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <h4 style="margin: 0 0 4px; color: #292524;">客户评价结构化编辑</h4>
+            <p style="margin: 0; color: #78716c; font-size: 12px;">可关联作品系列或套餐详情页。</p>
+          </div>
+          <button class="btn btn-secondary" type="button" onclick="addTestimonialEditorItem()">新增评价</button>
+        </div>
+        <div id="testimonialEditorList"></div>
+      </div>
+
       <div class="form-group">
         <label>咨询页标题</label>
         <input type="text" id="v11ConsultationTitle" placeholder="预约咨询">
