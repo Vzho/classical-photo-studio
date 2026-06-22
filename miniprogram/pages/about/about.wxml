@@ -105,10 +105,15 @@
         <view class="store-main">
           <view class="store-name">{{item.name}}</view>
           <view class="store-address">{{item.address}}</view>
+          <view class="store-meta" wx:if="{{item.phone}}">{{item.phone}}</view>
           <view class="store-meta" wx:if="{{item.businessHours}}">{{item.businessHours}}</view>
           <view class="store-meta" wx:if="{{item.transportTips}}">{{item.transportTips}}</view>
         </view>
-        <button class="store-copy-btn" bindtap="copyStoreAddress" data-index="{{index}}">复制地址</button>
+        <view class="store-action-list">
+          <button class="store-copy-btn" wx:if="{{item.phone}}" bindtap="callStorePhone" data-index="{{index}}">电话</button>
+          <button class="store-copy-btn" bindtap="openStoreLocation" data-index="{{index}}">导航</button>
+          <button class="store-copy-btn muted" bindtap="copyStoreAddress" data-index="{{index}}">复制</button>
+        </view>
       </view>
     </view>
 

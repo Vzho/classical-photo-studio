@@ -197,6 +197,97 @@ Page({
     })
   },
 
+  getStoreCoordinates(store: any): { latitude: number; longitude: number } | null {
+    const rawLatitude = store?.latitude
+    const rawLongitude = store?.longitude
+    const hasCoordinates = rawLatitude !== null
+      && rawLatitude !== undefined
+      && rawLatitude !== ''
+      && rawLongitude !== null
+      && rawLongitude !== undefined
+      && rawLongitude !== ''
+    const latitude = hasCoordinates ? Number(rawLatitude) : NaN
+    const longitude = hasCoordinates ? Number(rawLongitude) : NaN
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return null
+    }
+
+    return { latitude, longitude }
+  },
+
+  showStoreNavigationFallback(store: any, message = '当前门店未配置可用地图坐标，请打开地图后粘贴已复制的地址进行搜索。') {
+    const address = [store?.name, store?.address].filter(Boolean).join('\n')
+
+    if (!address) {
+      wx.showToast({ title: '暂无门店地址', icon: 'none' })
+      return
+    }
+
+    wx.setClipboardData({
+      data: address,
+      success: () => {
+        wx.showModal({
+          title: '已复制门店地址',
+          content: message,
+          showCancel: false,
+          confirmText: '知道了'
+        })
+      }
+    })
+  },
+
+  openStoreLocation(e: WechatMiniprogram.TouchEvent) {
+    const index = Number(e.currentTarget.dataset.index)
+    const store = this.data.stores[index]
+    const coordinates = this.getStoreCoordinates(store)
+
+    if (!coordinates) {
+      this.showStoreNavigationFallback(store)
+      return
+    }
+
+    const platform = wx.getSystemInfoSync().platform
+    if (platform === 'devtools' || platform === 'windows' || platform === 'mac') {
+      this.showStoreNavigationFallback(store, '开发者工具或桌面端通常无法直接拉起地图导航，请在手机微信中打开小程序使用导航，或粘贴已复制的地址到地图中搜索。')
+      return
+    }
+
+    wx.openLocation({
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude,
+      scale: 18,
+      name: store?.name || '门店地址',
+      address: store?.address || '',
+      fail: () => {
+        this.showStoreNavigationFallback(store, '当前环境未能成功打开地图导航，请在手机微信中重试，或粘贴已复制的地址到地图中搜索。')
+      }
+    })
+  },
+
+  callStorePhone(e: WechatMiniprogram.TouchEvent) {
+    const index = Number(e.currentTarget.dataset.index)
+    const store = this.data.stores[index]
+    const phone = String(store?.phone || '').trim()
+
+    if (!phone) {
+      wx.showToast({ title: '暂未配置门店电话', icon: 'none' })
+      return
+    }
+
+    wx.makePhoneCall({
+      phoneNumber: phone,
+      fail: () => {
+        wx.setClipboardData({
+          data: phone,
+          success: () => {
+            wx.showToast({ title: '电话已复制', icon: 'success' })
+          }
+        })
+      }
+    })
+  },
+
   goBooking() {
     wx.switchTab({ url: '/pages/booking/booking' })
   },

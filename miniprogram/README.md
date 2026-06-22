@@ -75,6 +75,7 @@ v1.1 新增字段包括：
 - 客户评价的 `relatedSeriesId` 用来显示到对应作品详情
 - 客户评价的 `relatedPackageId` 用来显示到对应套餐详情
 - 摄影师列表的 `relatedSeriesIds` / `relatedPackageIds` 用于后续关联展示
+- 门店 `phone` 用于拨打电话；`latitude` 和 `longitude` 同时配置后支持地图导航；未配置坐标时仍支持复制地址
 
 正常使用后台管理即可，不需要手动维护两份配置。后台保存时会自动更新本地配置，并同步到 COS：
 

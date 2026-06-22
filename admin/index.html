@@ -650,6 +650,7 @@
       <div style="display: flex; align-items: center; gap: 20px;">
         <button class="btn btn-secondary" onclick="openProfileModal()" style="padding: 8px 16px; font-size: 14px;">👤 编辑资料</button>
         <button class="btn btn-secondary" onclick="openHomeBannerModal()" style="padding: 8px 16px; font-size: 14px;">📝 首页文案</button>
+        <button class="btn btn-secondary" onclick="openThemeSettingsModal()" style="padding: 8px 16px; font-size: 14px;">🎨 主题设置</button>
         <button class="btn btn-secondary" onclick="openBookingSettingsModal()" style="padding: 8px 16px; font-size: 14px;">📅 预约设置</button>
         <button class="btn btn-secondary" onclick="openContentModulesModal()" style="padding: 8px 16px; font-size: 14px;">🧩 内容模块</button>
         <button class="btn btn-secondary" onclick="openSettingsModal()" style="padding: 8px 16px; font-size: 14px;">⚙️ 系统设置</button>
@@ -827,6 +828,107 @@
       <div class="form-actions">
         <button class="btn btn-secondary" onclick="closeModal('homeBannerModal')">取消</button>
         <button class="btn btn-primary" onclick="saveHomeBanner()">保存并同步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑主题设置模态框 -->
+  <div class="modal" id="themeSettingsModal">
+    <div class="modal-content" style="max-width: 720px;">
+      <div class="modal-header">
+        <h3>🎨 主题设置</h3>
+        <button class="close-btn" onclick="closeModal('themeSettingsModal')">×</button>
+      </div>
+
+      <div style="background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 12px; color: #78716c; line-height: 1.6;">
+        主题设置会写入 JSON 的 <code>theme</code> 字段。小程序会读取主色、背景色和文字色；更多布局字段作为后续扩展保留。
+      </div>
+
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="themeEnabled" style="width: auto;">
+          启用主题配置
+        </label>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+        <div class="form-group">
+          <label>主题预设</label>
+          <select id="themePreset" onchange="applySelectedThemePreset()">
+            <option value="minimal">极简高级风</option>
+            <option value="film">复古胶片风</option>
+            <option value="bridal">奶油婚纱风</option>
+            <option value="family">儿童亲子风</option>
+            <option value="oriental">国风雅致风</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>品牌名称</label>
+          <input type="text" id="themeBrandName" placeholder="例如：某某摄影">
+        </div>
+        <div class="form-group">
+          <label>品牌主色</label>
+          <input type="color" id="themePrimaryColor">
+        </div>
+        <div class="form-group">
+          <label>页面背景色</label>
+          <input type="color" id="themeBackgroundColor">
+        </div>
+        <div class="form-group">
+          <label>文字主色</label>
+          <input type="color" id="themeTextColor">
+        </div>
+        <div class="form-group">
+          <label>卡片风格</label>
+          <select id="themeCardStyle">
+            <option value="soft">柔和</option>
+            <option value="minimal">极简</option>
+            <option value="film">胶片</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>按钮风格</label>
+          <select id="themeButtonStyle">
+            <option value="rounded">圆角</option>
+            <option value="square">直角</option>
+            <option value="pill">胶囊</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>图片圆角</label>
+          <select id="themeImageRadius">
+            <option value="small">小</option>
+            <option value="medium">中</option>
+            <option value="large">大</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>页面疏密</label>
+          <select id="themeLayoutDensity">
+            <option value="comfortable">舒适</option>
+            <option value="compact">紧凑</option>
+            <option value="spacious">留白</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>首页布局</label>
+          <select id="themeHomeLayout">
+            <option value="banner-first">首屏大图优先</option>
+            <option value="portfolio-first">作品优先</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="themeShowDecorations" style="width: auto;">
+          显示装饰元素
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="closeModal('themeSettingsModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveThemeSettings()">保存并同步</button>
       </div>
     </div>
   </div>

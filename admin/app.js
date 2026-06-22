@@ -147,6 +147,69 @@ const DEFAULT_V11_CONFIG = {
   stores: []
 }
 
+const THEME_PRESETS = {
+  minimal: {
+    preset: 'minimal',
+    primaryColor: '#1F1F1F',
+    backgroundColor: '#F7F4EF',
+    textColor: '#222222',
+    cardStyle: 'minimal',
+    buttonStyle: 'rounded',
+    imageRadius: 'medium',
+    layoutDensity: 'comfortable',
+    homeLayout: 'banner-first',
+    showDecorations: false
+  },
+  film: {
+    preset: 'film',
+    primaryColor: '#8A5A44',
+    backgroundColor: '#F4E9DD',
+    textColor: '#2F241F',
+    cardStyle: 'film',
+    buttonStyle: 'rounded',
+    imageRadius: 'small',
+    layoutDensity: 'comfortable',
+    homeLayout: 'banner-first',
+    showDecorations: true
+  },
+  bridal: {
+    preset: 'bridal',
+    primaryColor: '#B9897D',
+    backgroundColor: '#FFF7F2',
+    textColor: '#3C2F2C',
+    cardStyle: 'soft',
+    buttonStyle: 'pill',
+    imageRadius: 'large',
+    layoutDensity: 'spacious',
+    homeLayout: 'banner-first',
+    showDecorations: true
+  },
+  family: {
+    preset: 'family',
+    primaryColor: '#5F8D7A',
+    backgroundColor: '#F7FBF5',
+    textColor: '#25342E',
+    cardStyle: 'soft',
+    buttonStyle: 'pill',
+    imageRadius: 'large',
+    layoutDensity: 'comfortable',
+    homeLayout: 'banner-first',
+    showDecorations: true
+  },
+  oriental: {
+    preset: 'oriental',
+    primaryColor: '#7C3F35',
+    backgroundColor: '#F6F0E6',
+    textColor: '#2D241C',
+    cardStyle: 'minimal',
+    buttonStyle: 'rounded',
+    imageRadius: 'medium',
+    layoutDensity: 'spacious',
+    homeLayout: 'banner-first',
+    showDecorations: true
+  }
+}
+
 // 初始化
 async function init() {
   console.log('🚀 管理后台启动中...')
@@ -1038,6 +1101,86 @@ async function saveHomeBanner() {
   if (success) {
     closeModal('homeBannerModal')
     showToast('首页轮播文案已更新', 'success')
+  }
+}
+
+function setSelectValue(id, value) {
+  const element = document.getElementById(id)
+  if (!element) return
+
+  const hasOption = Array.from(element.options || []).some(option => option.value === value)
+  element.value = hasOption ? value : (element.options?.[0]?.value || '')
+}
+
+function openThemeSettingsModal() {
+  const config = ensureV11Config()
+  const theme = fillMissingObject(config.theme, DEFAULT_V11_CONFIG.theme)
+
+  document.getElementById('themeEnabled').checked = theme.enabled !== false
+  setSelectValue('themePreset', theme.preset || 'minimal')
+  document.getElementById('themeBrandName').value = theme.brandName || ''
+  document.getElementById('themePrimaryColor').value = theme.primaryColor || DEFAULT_V11_CONFIG.theme.primaryColor
+  document.getElementById('themeBackgroundColor').value = theme.backgroundColor || DEFAULT_V11_CONFIG.theme.backgroundColor
+  document.getElementById('themeTextColor').value = theme.textColor || DEFAULT_V11_CONFIG.theme.textColor
+  setSelectValue('themeCardStyle', theme.cardStyle || 'soft')
+  setSelectValue('themeButtonStyle', theme.buttonStyle || 'rounded')
+  setSelectValue('themeImageRadius', theme.imageRadius || 'medium')
+  setSelectValue('themeLayoutDensity', theme.layoutDensity || 'comfortable')
+  setSelectValue('themeHomeLayout', theme.homeLayout || 'banner-first')
+  document.getElementById('themeShowDecorations').checked = theme.showDecorations !== false
+
+  openModal('themeSettingsModal')
+}
+
+function applySelectedThemePreset() {
+  const presetKey = document.getElementById('themePreset').value
+  const preset = THEME_PRESETS[presetKey]
+  if (!preset) return
+
+  document.getElementById('themePrimaryColor').value = preset.primaryColor
+  document.getElementById('themeBackgroundColor').value = preset.backgroundColor
+  document.getElementById('themeTextColor').value = preset.textColor
+  setSelectValue('themeCardStyle', preset.cardStyle)
+  setSelectValue('themeButtonStyle', preset.buttonStyle)
+  setSelectValue('themeImageRadius', preset.imageRadius)
+  setSelectValue('themeLayoutDensity', preset.layoutDensity)
+  setSelectValue('themeHomeLayout', preset.homeLayout)
+  document.getElementById('themeShowDecorations').checked = preset.showDecorations !== false
+}
+
+async function saveThemeSettings() {
+  ensureV11Config()
+
+  const brandName = document.getElementById('themeBrandName').value.trim()
+
+  portfolioData.theme = {
+    ...(portfolioData.theme || {}),
+    enabled: document.getElementById('themeEnabled').checked,
+    preset: document.getElementById('themePreset').value,
+    brandName,
+    primaryColor: document.getElementById('themePrimaryColor').value,
+    backgroundColor: document.getElementById('themeBackgroundColor').value,
+    textColor: document.getElementById('themeTextColor').value,
+    cardStyle: document.getElementById('themeCardStyle').value,
+    buttonStyle: document.getElementById('themeButtonStyle').value,
+    imageRadius: document.getElementById('themeImageRadius').value,
+    layoutDensity: document.getElementById('themeLayoutDensity').value,
+    homeLayout: document.getElementById('themeHomeLayout').value,
+    showDecorations: document.getElementById('themeShowDecorations').checked
+  }
+  portfolioData.modules = {
+    ...(portfolioData.modules || {}),
+    theme: document.getElementById('themeEnabled').checked
+  }
+
+  if (brandName && portfolioData.homeBanner) {
+    portfolioData.homeBanner.logoText = brandName
+  }
+
+  const success = await saveConfig()
+  if (success) {
+    closeModal('themeSettingsModal')
+    showToast('主题设置已更新', 'success')
   }
 }
 
