@@ -74,8 +74,7 @@ async function getContactData(): Promise<ContactData> {
       email: String(profile.contact?.email || '').trim(),
       phone: String(profile.contact?.phone || profile.phone || primaryStore?.phone || '').trim()
     }
-  } catch (error) {
-    console.warn('加载联系信息失败:', error)
+  } catch {
     return {
       wechat: String(PHOTOGRAPHER.contact?.wechat || '').trim(),
       email: String(PHOTOGRAPHER.contact?.email || '').trim(),

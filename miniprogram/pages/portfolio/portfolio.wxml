@@ -1,169 +1,238 @@
-<!-- 作品集页面 -->
-<view class="portfolio-page" style="{{themeStyle}}">
-  <!-- Hero Banner Swiper -->
-  <view class="hero-banner">
-    <swiper 
-      class="banner-swiper" 
-      circular 
-      autoplay 
-      interval="5000" 
-      duration="800"
-      indicator-dots
-      indicator-color="rgba(255,255,255,0.4)"
-      indicator-active-color="#fff"
-    >
-      <swiper-item wx:for="{{bannerItems}}" wx:key="id" bindtap="onBannerTap" data-item="{{item}}">
-        <image class="banner-image" src="{{item.imageUrl}}" mode="aspectFill" binderror="onBannerImageError" data-id="{{item.id}}" />
-        <view class="banner-overlay">
-          <view class="banner-header">
-            <view class="logo">
-              <text class="logo-text">{{homeBanner.logoText}}</text>
-            </view>
-          </view>
-          <view class="banner-content">
-            <view class="banner-tag">{{homeBanner.tagText}}</view>
-            <text class="banner-season">{{item.category}}</text>
-            <view class="banner-title">{{item.title}}</view>
-            <view class="banner-desc">{{item.bannerDescription || homeBanner.description}}</view>
-            <view class="hero-actions">
-              <button class="hero-action primary" catchtap="scrollToWorks">查看作品</button>
-              <button class="hero-action secondary" catchtap="goBooking">{{consultButton.text || '预约咨询'}}</button>
-            </view>
-          </view>
-        </view>
-      </swiper-item>
-    </swiper>
-  </view>
-
-  <!-- 分类筛选 -->
-  <scroll-view class="category-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-    <view class="category-list">
-      <view 
-        wx:for="{{categories}}" 
-        wx:key="*this"
-        class="category-item {{activeCategory === item ? 'active' : ''}}"
-        bindtap="onCategoryTap"
-        data-category="{{item}}"
+<view
+  class="portfolio-page theme-{{themePreset}} hero-{{homeDecoration.heroVariant}} gallery-{{homeDecoration.galleryVariant}} columns-{{homeDecoration.galleryColumns}} ratio-{{homeDecoration.imageRatio}}"
+  style="{{themeStyle}}"
+>
+  <block wx:for="{{homeSections}}" wx:for-item="section" wx:key="id">
+    <view wx:if="{{section.enabled && section.type === 'hero'}}" class="hero-section">
+      <swiper
+        wx:if="{{bannerItems.length}}"
+        class="hero-swiper"
+        circular
+        autoplay
+        interval="5000"
+        duration="700"
+        indicator-dots="{{bannerItems.length > 1}}"
+        indicator-color="rgba(255,255,255,0.4)"
+        indicator-active-color="#ffffff"
       >
-        {{item}}
-      </view>
-    </view>
-  </scroll-view>
+        <swiper-item
+          wx:for="{{bannerItems}}"
+          wx:for-item="bannerItem"
+          wx:key="id"
+          bindtap="onBannerTap"
+          data-item="{{bannerItem}}"
+        >
+          <image
+            class="hero-image"
+            src="{{bannerItem.imageUrl}}"
+            mode="aspectFill"
+            binderror="onBannerImageError"
+            data-id="{{bannerItem.id}}"
+          />
+          <view class="hero-shade"></view>
+          <view class="hero-brand">{{homeBanner.logoText}}</view>
+          <view class="hero-content">
+            <view class="hero-kicker">
+              <view class="hero-kicker-line"></view>
+              <text>{{homeBanner.tagText}}</text>
+            </view>
+            <view class="hero-title">{{bannerItem.title}}</view>
+            <view class="hero-meta">{{bannerItem.category}}</view>
+            <view class="hero-description">{{bannerItem.bannerDescription || homeBanner.description}}</view>
+          </view>
+        </swiper-item>
+      </swiper>
 
-  <view class="home-module" wx:if="{{packages.length}}">
-    <view class="module-header">
-      <view>
-        <view class="module-title">推荐套餐</view>
-        <view class="module-desc">先了解价格范围，再发起拍摄咨询</view>
+      <view wx:else class="hero-fallback">
+        <image wx:if="{{bannerUrl}}" class="hero-image" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
+        <view class="hero-shade"></view>
+        <view class="hero-brand">{{homeBanner.logoText}}</view>
+        <view class="hero-content">
+          <view class="hero-kicker">
+            <view class="hero-kicker-line"></view>
+            <text>{{homeBanner.tagText}}</text>
+          </view>
+          <view class="hero-title">{{homeBanner.logoText}}</view>
+          <view class="hero-description">{{homeBanner.description}}</view>
+        </view>
       </view>
-      <view class="module-link" bindtap="goPackages">查看全部</view>
     </view>
-    <scroll-view scroll-x enhanced show-scrollbar="{{false}}">
-      <view class="package-row">
-        <view class="package-card" wx:for="{{packages}}" wx:key="id">
-          <view class="package-name">{{item.name}}</view>
-          <view class="package-price">{{item.priceText}}</view>
-          <view class="package-subtitle">{{item.subtitle}}</view>
-          <button class="package-consult" bindtap="consultPackage" data-id="{{item.id}}">咨询此套餐</button>
+
+    <scroll-view
+      wx:elif="{{section.enabled && section.type === 'categories' && categories.length > 1}}"
+      class="category-scroll"
+      scroll-x
+      enhanced
+      show-scrollbar="{{false}}"
+    >
+      <view class="category-list">
+        <view
+          wx:for="{{categories}}"
+          wx:for-item="categoryItem"
+          wx:key="*this"
+          class="category-item {{activeCategory === categoryItem ? 'active' : ''}}"
+          bindtap="onCategoryTap"
+          data-category="{{categoryItem}}"
+        >
+          {{categoryItem}}
         </view>
       </view>
     </scroll-view>
-  </view>
 
-  <view class="home-module" wx:if="{{schedule.enabled}}">
-    <view class="module-title">{{schedule.title || '近期档期'}}</view>
-    <view class="schedule-card">
-      <view class="schedule-main">{{schedule.availableText}}</view>
-      <view class="schedule-notice">{{schedule.notice || '档期仅供参考，具体拍摄时间请与摄影师确认。'}}</view>
-      <button class="schedule-consult" bindtap="goBooking">咨询档期</button>
-    </view>
-  </view>
-
-  <view class="home-module" wx:if="{{testimonials.length}}">
-    <view class="module-header">
-      <view>
-        <view class="module-title">精选评价</view>
-        <view class="module-desc">由摄影师在 CMS 中维护展示</view>
-      </view>
-    </view>
-    <view class="testimonial-list">
-      <view class="testimonial-card" wx:for="{{testimonials}}" wx:key="id">
-        <view class="testimonial-content">“{{item.content}}”</view>
-        <view class="testimonial-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
-      </view>
-    </view>
-  </view>
-
-  <view class="home-module" wx:if="{{serviceFlow.enabled && serviceFlow.steps.length}}">
-    <view class="module-header">
-      <view>
-        <view class="module-title">拍摄流程</view>
-        <view class="module-desc">先了解合作步骤，再发起拍摄咨询</view>
-      </view>
-    </view>
-    <view class="home-flow-list">
-      <view class="home-flow-item" wx:for="{{serviceFlow.steps}}" wx:key="title">
-        <view class="home-flow-number">{{index + 1}}</view>
-        <view>
-          <view class="home-flow-title">{{item.title}}</view>
-          <view class="home-flow-desc">{{item.description}}</view>
+    <view wx:elif="{{section.enabled && section.type === 'portfolio'}}" class="page-section portfolio-section">
+      <view class="section-heading" wx:if="{{section.title || section.subtitle}}">
+        <view class="section-heading-main">
+          <view class="section-title-row" wx:if="{{section.title}}">
+            <app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" />
+            <view class="section-title">{{section.title}}</view>
+          </view>
+          <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
         </view>
+        <view class="section-count">{{filteredItems.length}} 组</view>
       </view>
-    </view>
-  </view>
 
-  <view class="portfolio-grid">
-    <view 
-      wx:for="{{filteredItems}}" 
-      wx:key="id" 
-      class="portfolio-item"
-      bindtap="onItemTap"
-      data-item="{{item}}"
-    >
-      <view class="item-image-wrap">
-        <image 
-          class="item-image" 
-          src="{{item.imageUrl}}" 
-          mode="widthFix" 
-          lazy-load 
-          bindload="onImageLoad"
-          binderror="onItemImageError"
-          data-id="{{item.id}}"
-        />
-        <view class="item-overlay">
-          <text class="item-category-tag">{{item.category}}</text>
-        </view>
-        <!-- 系列标识 -->
-        <view wx:if="{{item.seriesId}}" class="series-badge">
-          <text class="series-icon">📷</text>
-          <text class="series-text">系列</text>
-        </view>
-      </view>
-      <view class="item-info">
-        <view class="item-title">{{item.title}}</view>
-        <view class="item-meta">
-          <text class="item-category">{{item.category}}</text>
-          <view class="item-likes">
-            <text class="like-icon">♥</text>
-            <text class="like-count">{{item.likes}}</text>
+      <view class="portfolio-grid">
+        <view
+          wx:for="{{filteredItems}}"
+          wx:for-item="portfolioItem"
+          wx:key="id"
+          class="portfolio-item"
+          bindtap="onItemTap"
+          data-item="{{portfolioItem}}"
+        >
+          <view class="item-image-wrap">
+            <image
+              class="item-image"
+              src="{{portfolioItem.imageUrl}}"
+              mode="{{homeDecoration.imageRatio === 'natural' ? 'widthFix' : 'aspectFill'}}"
+              lazy-load
+              bindload="onImageLoad"
+              binderror="onItemImageError"
+              data-id="{{portfolioItem.id}}"
+            />
+            <view wx:if="{{portfolioItem.seriesId}}" class="series-badge">
+              <app-icon name="images" size="22" tone="inverse" />
+              <text>{{terminology.workLabel}}集</text>
+            </view>
+          </view>
+          <view class="item-info">
+            <view class="item-title">{{portfolioItem.title}}</view>
+            <view class="item-meta">
+              <text class="item-category">{{portfolioItem.category}}</text>
+            </view>
+            <view wx:if="{{homePortfolioCard.showPhotoCount && portfolioItem.photoCount}}" class="photo-count">
+              <app-icon name="images" size="20" tone="muted" />
+              <text>{{portfolioItem.photoCount}} 张</text>
+            </view>
+            <view wx:if="{{homePortfolioCard.showDescription && portfolioItem.description}}" class="item-description">{{portfolioItem.description}}</view>
+            <view wx:if="{{homePortfolioCard.showTags && portfolioItem.tags && portfolioItem.tags.length}}" class="item-tags">
+              <text wx:for="{{portfolioItem.tags}}" wx:for-item="tag" wx:key="*this" class="item-tag">{{tag}}</text>
+            </view>
           </view>
         </view>
-        <!-- 系列照片数量 -->
-        <view wx:if="{{item.photoCount}}" class="photo-count">
-          <text class="count-icon">📷</text>
-          <text class="count-text">{{item.photoCount}}张</text>
+      </view>
+
+      <view wx:if="{{!filteredItems.length}}" class="empty-gallery">
+        <app-icon name="images" size="44" tone="muted" />
+        <text>当前分类还没有{{terminology.workLabel}}</text>
+      </view>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'packages' && packages.length}}" class="page-section package-section">
+      <view class="section-heading">
+        <view class="section-heading-main">
+          <view class="section-title-row">
+            <app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" />
+            <view class="section-title">{{section.title}}</view>
+          </view>
+          <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
         </view>
-        <view wx:if="{{item.description}}" class="item-description">{{item.description}}</view>
-        <view wx:if="{{item.tags && item.tags.length}}" class="item-tags">
-          <text wx:for="{{item.tags}}" wx:key="*this" class="item-tag">{{item}}</text>
+        <view class="section-link" bindtap="goPackages" wx:if="{{section.actionText}}">
+          <text>{{section.actionText}}</text>
+          <app-icon name="chevron-right" size="24" tone="primary" />
+        </view>
+      </view>
+      <scroll-view class="package-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="package-track">
+          <view class="package-card" wx:for="{{packages}}" wx:for-item="packageItem" wx:key="id">
+            <view class="package-card-head">
+              <view class="package-name">{{packageItem.name}}</view>
+              <view class="package-price">{{packageItem.priceText}}</view>
+            </view>
+            <view class="package-subtitle">{{packageItem.subtitle}}</view>
+            <view class="package-action" bindtap="consultPackage" data-id="{{packageItem.id}}">
+              <text>{{terminology.consultationLabel}}方案</text>
+              <app-icon name="arrow-right" size="25" tone="primary" />
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'schedule' && schedule.enabled}}" class="page-section schedule-section">
+      <view class="section-title-row">
+        <app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="28" tone="primary" />
+        <view class="schedule-label">{{section.title || schedule.title}}</view>
+      </view>
+      <view class="schedule-main">{{schedule.availableText}}</view>
+      <view class="schedule-notice">{{schedule.notice}}</view>
+      <view class="schedule-action" bindtap="goBooking">
+        <text>{{section.actionText}}</text>
+        <app-icon name="arrow-right" size="26" tone="primary" />
+      </view>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'testimonials' && testimonials.length}}" class="page-section testimonial-section">
+      <view class="section-heading">
+        <view class="section-heading-main">
+          <view class="section-title-row">
+            <app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" />
+            <view class="section-title">{{section.title}}</view>
+          </view>
+          <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
+        </view>
+      </view>
+      <view class="testimonial-list">
+        <view class="testimonial-item" wx:for="{{testimonials}}" wx:for-item="reviewItem" wx:key="id">
+          <view class="testimonial-mark">“</view>
+          <view class="testimonial-body">
+            <view class="testimonial-content">{{reviewItem.content}}</view>
+            <view class="testimonial-meta">{{reviewItem.name}} · {{reviewItem.shootType}} {{reviewItem.dateText}}</view>
+          </view>
         </view>
       </view>
     </view>
-  </view>
 
-  <!-- 悬浮预约按钮 -->
-  <view class="floating-booking-btn {{consultButtonVisible && showFloatingBtn ? 'show' : ''}}" bindtap="goBooking">
-    <text class="btn-icon">📅</text>
-    <text class="btn-text">{{consultButton.text || '咨询拍摄'}}</text>
-  </view>
+    <view wx:elif="{{section.enabled && section.type === 'serviceFlow' && serviceFlow.enabled && serviceFlow.steps.length}}" class="page-section flow-section">
+      <view class="section-heading">
+        <view class="section-heading-main">
+          <view class="section-title-row">
+            <app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" />
+            <view class="section-title">{{section.title}}</view>
+          </view>
+          <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
+        </view>
+      </view>
+      <view class="flow-list">
+        <view class="flow-item" wx:for="{{serviceFlow.steps}}" wx:for-item="flowItem" wx:key="title">
+          <view class="flow-index">0{{index + 1}}</view>
+          <view class="flow-copy">
+            <view class="flow-title">{{flowItem.title}}</view>
+            <view class="flow-description">{{flowItem.description}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <quick-jump
+    wx:if="{{quickJumpVisible}}"
+    current="portfolio"
+    booking-text="{{quickJump.bookingText}}"
+    portfolio-text="{{quickJump.portfolioText}}"
+    appearance="{{quickJump.appearance}}"
+    trigger-icon="{{quickJump.triggerIcon}}"
+    booking-icon="{{quickJump.bookingIcon}}"
+    portfolio-icon="{{quickJump.portfolioIcon}}"
+  />
 </view>

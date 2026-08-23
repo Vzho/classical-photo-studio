@@ -1,13 +1,50 @@
-App<IAppOption>({
-  globalData: {
-    // 腾讯云 COS 配置：交付客户前替换为客户自己的 Bucket/Region/BaseUrl。
-    cos: {
-      bucket: 'YOUR_COS_BUCKET',
-      region: 'YOUR_COS_REGION',
-      baseUrl: 'https://YOUR_COS_BUCKET.cos.YOUR_COS_REGION.myqcloud.com'
+interface ClientCosConfig {
+  bucket: string
+  region: string
+  baseUrl: string
+}
+
+interface ClientRuntimeConfig {
+  cos?: Partial<ClientCosConfig>
+}
+
+const DEFAULT_COS_CONFIG: ClientCosConfig = {
+  bucket: '',
+  region: '',
+  baseUrl: ''
+}
+
+function loadClientConfig(): { cos: ClientCosConfig } {
+  let clientConfig: ClientRuntimeConfig = {}
+
+  try {
+    const loaded = require('./config/client.config')
+    clientConfig = loaded?.default || loaded?.CLIENT_CONFIG || loaded || {}
+  } catch {
+    try {
+      const loaded = require('./client.config')
+      clientConfig = loaded?.default || loaded?.CLIENT_CONFIG || loaded || {}
+    } catch {
+      clientConfig = {}
     }
-  },
-  onLaunch() {
-    console.log('摄影作品合集小程序启动')
   }
+
+  const cos = clientConfig.cos || {}
+  const bucket = String(cos.bucket || '').trim()
+  const region = String(cos.region || '').trim()
+  const baseUrl = String(
+    cos.baseUrl || (bucket && region ? `https://${bucket}.cos.${region}.myqcloud.com` : '')
+  ).trim().replace(/\/+$/, '')
+
+  return {
+    cos: {
+      bucket,
+      region,
+      baseUrl
+    }
+  }
+}
+
+App<IAppOption>({
+  globalData: loadClientConfig()
 })

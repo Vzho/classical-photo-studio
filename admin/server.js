@@ -8,6 +8,13 @@ const fs = require('fs').promises
 const path = require('path')
 const multer = require('multer')
 const COS = require('cos-nodejs-sdk-v5')
+const {
+  collectReferencedPhotoNames,
+  removePhotoFromConfig,
+  removeSeriesFromConfig,
+  removeThemeFromConfig,
+  reconcileMissingPhotoReferences
+} = require('./portfolio-delete')
 
 const app = express()
 const PORT = process.env.PORT || 8080
@@ -16,11 +23,16 @@ const SLICE_SIZE = 5 * 1024 * 1024
 const CHUNK_SIZE = 2 * 1024 * 1024
 const MAX_UPLOAD_TASKS = 50
 const UPLOAD_TASK_TTL_MS = 15 * 60 * 1000
+const DEFAULT_SHARE_CONFIG = {
+  title: '妆造作品合集',
+  imagePath: ''
+}
 
 // 配置
 const CONFIG = {
   configPath: path.join(__dirname, '../miniprogram/data/portfolio-config.json'),
-  appTsPath: path.join(__dirname, '../miniprogram/app.ts'),
+  configModulePath: path.join(__dirname, '../miniprogram/data/portfolio-config.js'),
+  clientConfigPath: path.join(__dirname, '../miniprogram/config/client.config.js'),
   projectConfigPath: path.join(__dirname, '../miniprogram/project.config.json'),
   envPath: path.join(__dirname, '.env'),
   syncLogPath: path.join(__dirname, 'sync.log'),
@@ -44,6 +56,7 @@ let configMutationQueue = Promise.resolve()
 // 中间件
 app.use(cors())
 app.use(express.json())
+app.use('/mini-icons', express.static(path.join(__dirname, '../miniprogram/assets/icons')))
 app.use(express.static(path.join(__dirname)))
 
 // 配置文件上传
@@ -54,34 +67,161 @@ const upload = multer({ dest: CONFIG.uploadDir })
 // 获取配置
 app.get('/api/config', async (req, res) => {
   try {
-    res.json(await readConfig())
+    const { config, source } = await readConfigForAdmin()
+    res.set('X-Config-Source', source)
+    res.json(config)
   } catch (error) {
     console.error('读取配置失败:', error)
     res.status(500).json({ error: '读取配置失败' })
   }
 })
 
-async function readConfig() {
-  const data = await fs.readFile(CONFIG.configPath, 'utf-8')
-  return JSON.parse(data)
-}
+app.get('/api/config-diagnostics', async (req, res) => {
+  try {
+    const { config, source } = await readConfigForAdmin()
+    const firstTheme = (config.themes || [])[0] || null
+    const firstSeries = (firstTheme?.series || [])[0] || null
+    const photoCount = (config.themes || []).reduce((total, theme) => {
+      return total + (theme.series || []).reduce((seriesTotal, series) => {
+        return seriesTotal + (series.photos || []).length
+      }, 0)
+    }, 0)
 
-async function writeConfig(config) {
-  await fs.writeFile(CONFIG.configPath, JSON.stringify(config, null, 2), 'utf-8')
-}
-
-function collectReferencedPhotoNames(config) {
-  const referenced = new Set()
-
-  for (const theme of config.themes || []) {
-    for (const series of theme.series || []) {
-      for (const photo of series.photos || []) {
-        referenced.add(photo)
+    res.json({
+      success: true,
+      source,
+      sourceText: source === 'cos' ? '云端 COS 配置' : '本地兜底配置',
+      cos: {
+        configured: hasCosConfig(),
+        bucket: CONFIG.cos.Bucket || '',
+        region: CONFIG.cos.Region || '',
+        configKey: 'config/portfolio-config.json'
+      },
+      local: {
+        configPath: CONFIG.configPath,
+        envPath: CONFIG.envPath
+      },
+      currentData: {
+        themeCount: (config.themes || []).length,
+        seriesCount: (config.themes || []).reduce((total, theme) => total + (theme.series || []).length, 0),
+        photoCount,
+        firstThemeName: firstTheme?.name || '',
+        firstSeriesTitle: firstSeries?.title || ''
+      },
+      process: {
+        cwd: process.cwd(),
+        adminDir: __dirname
       }
+    })
+  } catch (error) {
+    console.error('获取配置诊断失败:', error)
+    res.status(500).json({ success: false, error: '获取配置诊断失败: ' + error.message })
+  }
+})
+
+async function readConfigForAdmin() {
+  const remoteConfig = await readConfigFromCos()
+
+  if (remoteConfig) {
+    const normalizedConfig = await writeConfig(remoteConfig)
+    return {
+      config: normalizedConfig,
+      source: 'cos'
     }
   }
 
-  return referenced
+  return {
+    config: await readConfig(),
+    source: 'local'
+  }
+}
+
+async function readConfig() {
+  const data = await fs.readFile(CONFIG.configPath, 'utf-8')
+  return normalizePortfolioConfig(JSON.parse(data))
+}
+
+async function readLatestConfigForMutation() {
+  const remoteConfig = await readConfigFromCos({ strict: true })
+  return remoteConfig ? normalizePortfolioConfig(remoteConfig) : readConfig()
+}
+
+function normalizePortfolioConfig(config) {
+  const normalized = config && typeof config === 'object' && !Array.isArray(config)
+    ? { ...config }
+    : { themes: [] }
+  const fallbackTitle = String(
+    normalized.theme?.brandName
+      || normalized.homeBanner?.logoText
+      || DEFAULT_SHARE_CONFIG.title
+  ).trim() || DEFAULT_SHARE_CONFIG.title
+
+  normalized.share = {
+    ...DEFAULT_SHARE_CONFIG,
+    ...(normalized.share || {}),
+    title: String(normalized.share?.title || fallbackTitle).trim() || fallbackTitle,
+    imagePath: String(normalized.share?.imagePath || '').trim()
+  }
+
+  return normalized
+}
+
+async function writeConfig(config) {
+  const normalizedConfig = normalizePortfolioConfig(config)
+  const json = JSON.stringify(normalizedConfig, null, 2)
+  await fs.writeFile(CONFIG.configPath, json, 'utf-8')
+  await fs.writeFile(
+    CONFIG.configModulePath,
+    `// This file is generated from portfolio-config.json for the mini program runtime fallback.\nmodule.exports = ${json}\n`,
+    'utf-8'
+  )
+  return normalizedConfig
+}
+
+function hasCosConfig() {
+  return Boolean(CONFIG.cos.SecretId && CONFIG.cos.SecretKey && CONFIG.cos.Bucket && CONFIG.cos.Region)
+}
+
+async function readConfigFromCos({ strict = false } = {}) {
+  if (!hasCosConfig()) return null
+
+  try {
+    const data = await new Promise((resolve, reject) => {
+      cos.getObject({
+        Bucket: CONFIG.cos.Bucket,
+        Region: CONFIG.cos.Region,
+        Key: 'config/portfolio-config.json'
+      }, (err, result) => {
+        if (err) reject(err)
+        else resolve(result)
+      })
+    })
+
+    const body = Buffer.isBuffer(data.Body) ? data.Body.toString('utf-8') : String(data.Body || '')
+    if (!body.trim()) return null
+
+    return JSON.parse(body)
+  } catch (error) {
+    const code = error?.code || error?.name
+    if (code === 'NoSuchKey' || code === 'NoSuchResource' || code === 'NotFound') {
+      return null
+    }
+
+    if (strict) throw error
+
+    console.error('读取 COS 配置失败，已回退本地配置:', error.message || error)
+    return null
+  }
+}
+
+function parseEnvContent(envContent) {
+  const envConfig = {}
+  String(envContent || '').split('\n').forEach(line => {
+    const [key, ...rest] = line.split('=')
+    if (!key || !rest.length) return
+    envConfig[key.trim()] = rest.join('=').trim()
+  })
+  return envConfig
 }
 
 async function listCosObjects(prefix) {
@@ -121,6 +261,67 @@ async function listPortfolioObjects() {
   }))
 }
 
+function parseGeneratedPortfolioFileName(fileName) {
+  const marker = '-series-'
+  const markerIndex = fileName.indexOf(marker)
+  const trailingMatch = fileName.match(/-(\d{10,})-\d+\.[^.]+$/)
+
+  if (markerIndex <= 0 || !trailingMatch) return null
+
+  const themeId = fileName.slice(0, markerIndex)
+  const seriesAndSuffix = fileName.slice(markerIndex + 1)
+  const seriesId = seriesAndSuffix.slice(0, seriesAndSuffix.length - trailingMatch[0].length)
+
+  if (!themeId || !seriesId) return null
+
+  return { themeId, seriesId }
+}
+
+function ensureThemeAndSeries(config, themeId, seriesId) {
+  if (!Array.isArray(config.themes)) config.themes = []
+
+  let theme = config.themes.find(item => item.id === themeId)
+  if (!theme) {
+    theme = {
+      id: themeId,
+      name: `恢复分类 ${config.themes.length + 1}`,
+      enabled: true,
+      series: []
+    }
+    config.themes.push(theme)
+  }
+
+  if (!Array.isArray(theme.series)) theme.series = []
+
+  let series = theme.series.find(item => item.id === seriesId)
+  if (!series) {
+    series = {
+      id: seriesId,
+      title: `恢复作品集 ${theme.series.length + 1}`,
+      likes: 100,
+      enabled: true,
+      description: '',
+      suitableFor: [],
+      scenes: [],
+      tags: [],
+      relatedPackageIds: [],
+      relatedPhotographerIds: [],
+      photos: []
+    }
+    theme.series.push(series)
+  }
+
+  if (!Array.isArray(series.photos)) series.photos = []
+
+  return { theme, series }
+}
+
+function hasVisiblePortfolioContent(config) {
+  return (config.themes || []).some(theme => {
+    return (theme.series || []).some(series => (series.photos || []).length > 0)
+  })
+}
+
 async function findOrphanPortfolioPhotos() {
   const config = await readConfig()
   const referenced = collectReferencedPhotoNames(config)
@@ -144,10 +345,50 @@ async function deleteCosObjects(keys) {
         Objects: objects
       }, (err, data) => {
         if (err) reject(err)
-        else resolve(data)
+        else if (Array.isArray(data?.Error) && data.Error.length > 0) {
+          const failedKeys = data.Error.map(item => item.Key).filter(Boolean).join(', ')
+          reject(new Error(`部分 COS 文件删除失败: ${failedKeys || '未知文件'}`))
+        } else resolve(data)
       })
     })
   }
+}
+
+async function persistConfigMutation(originalConfig, nextConfig) {
+  const normalizedConfig = await writeConfig(nextConfig)
+  const syncSuccess = await uploadConfigToCos(normalizedConfig)
+
+  if (!syncSuccess) {
+    await writeConfig(originalConfig)
+    throw new Error('配置同步到 COS 失败，删除操作已取消')
+  }
+
+  return normalizedConfig
+}
+
+async function deletePortfolioCosFiles(fileNames) {
+  if (!fileNames.length) return ''
+
+  try {
+    await deleteCosObjects(fileNames.map(fileName => `portfolio/${fileName}`))
+    return ''
+  } catch (error) {
+    console.error('配置已删除，但清理 COS 文件失败:', error)
+    return '后台记录已删除，但 COS 文件清理失败；可稍后在“云端设置”中扫描未引用照片。'
+  }
+}
+
+function sendPortfolioMutationError(res, error, fallbackMessage) {
+  const statusCode = Number(error?.statusCode) || 500
+  if (statusCode >= 500) {
+    console.error(fallbackMessage, error)
+  } else {
+    console.warn(`${fallbackMessage}: ${error.message}`)
+  }
+  res.status(statusCode).json({
+    success: false,
+    error: statusCode >= 500 ? `${fallbackMessage}: ${error.message}` : error.message
+  })
 }
 
 async function mapWithConcurrency(items, concurrency, mapper) {
@@ -480,10 +721,10 @@ async function uploadFileWithRetry(bucket, region, key, filePath, options = {}) 
 app.post('/api/config', async (req, res) => {
   try {
     await withConfigLock(async () => {
-      await writeConfig(req.body)
+      const normalizedConfig = await writeConfig(req.body)
       console.log('✅ 配置已保存到本地')
 
-      const syncSuccess = await uploadConfigToCos(req.body)
+      const syncSuccess = await uploadConfigToCos(normalizedConfig)
       if (!syncSuccess) {
         throw new Error('配置同步到 COS 失败')
       }
@@ -667,18 +908,27 @@ app.post('/api/upload/asset', upload.single('asset'), async (req, res) => {
   try {
     const file = req.file
     const folder = String(req.body.folder || '').replace(/[^a-zA-Z0-9_-]/g, '')
-    const allowedFolders = new Set(['avatar', 'testimonial'])
+    const allowedFolders = new Set(['avatar', 'testimonial', 'share'])
 
     if (!file || !folder || !allowedFolders.has(folder)) {
+      if (file?.path) await fs.unlink(file.path).catch(() => {})
       return res.status(400).json({ success: false, error: '缺少文件或目录不合法' })
     }
 
-    const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg'
+    if (folder === 'share' && !['image/jpeg', 'image/png'].includes(file.mimetype)) {
+      await fs.unlink(file.path).catch(() => {})
+      return res.status(400).json({ success: false, error: '分享封面只支持 JPG 或 PNG' })
+    }
+
+    const ext = folder === 'share'
+      ? (file.mimetype === 'image/png' ? '.png' : '.jpg')
+      : (path.extname(file.originalname || '').toLowerCase() || '.jpg')
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`
     const assetPath = `${folder}/${fileName}`
 
     await uploadFileWithRetry(CONFIG.cos.Bucket, CONFIG.cos.Region, assetPath, file.path, {
-      SliceSize: SLICE_SIZE
+      SliceSize: SLICE_SIZE,
+      ContentType: file.mimetype
     })
 
     await fs.unlink(file.path).catch(() => {})
@@ -690,37 +940,106 @@ app.post('/api/upload/asset', upload.single('asset'), async (req, res) => {
   }
 })
 
-// 删除 COS 文件
-app.delete('/api/photo/:fileName', async (req, res) => {
+// 永久删除作品分类：清理分类内全部作品集及关联，仅删除不再被其他分类使用的 COS 文件。
+app.delete('/api/portfolio/theme', async (req, res) => {
   try {
-    const { fileName } = req.params
-    await deleteCosObjects([`portfolio/${fileName}`])
+    let responseData
+    await withConfigLock(async () => {
+      const originalConfig = await readLatestConfigForMutation()
+      const result = removeThemeFromConfig(originalConfig, req.body || {})
+      await persistConfigMutation(originalConfig, result.config)
+      const warning = await deletePortfolioCosFiles(result.cosDeleteCandidates)
 
-    console.log(`✅ 删除成功: ${fileName}`)
-    res.json({ success: true, message: '删除成功' })
+      responseData = {
+        success: true,
+        message: `作品分类“${result.removedThemeName || result.removedThemeId}”已永久删除`,
+        deletedThemeId: result.removedThemeId,
+        removedSeriesCount: result.removedSeriesCount,
+        removedPhotoCount: result.removedPhotoNames.length,
+        cosDeletedPhotoCount: warning ? 0 : result.cosDeleteCandidates.length,
+        retainedSharedPhotoCount: result.removedPhotoNames.length - result.cosDeleteCandidates.length,
+        warning
+      }
+    })
+
+    console.log(`✅ 永久删除作品分类: ${responseData.deletedThemeId}`)
+    res.json(responseData)
   } catch (error) {
-    console.error('删除失败:', error)
-    res.status(500).json({ error: '删除失败: ' + error.message })
+    sendPortfolioMutationError(res, error, '永久删除作品分类失败')
   }
 })
 
-// 批量删除 COS 文件
-app.post('/api/photos/delete', async (req, res) => {
+// 永久删除单张照片：先删除配置引用并同步，再清理未被其他作品集使用的 COS 文件。
+app.delete('/api/portfolio/photo', async (req, res) => {
   try {
-    const { fileNames } = req.body
+    let responseData
+    await withConfigLock(async () => {
+      const originalConfig = await readLatestConfigForMutation()
+      const result = removePhotoFromConfig(originalConfig, req.body || {})
+      await persistConfigMutation(originalConfig, result.config)
+      const warning = await deletePortfolioCosFiles(result.cosDeleteCandidates)
 
-    if (!fileNames || fileNames.length === 0) {
-      return res.status(400).json({ error: '没有指定文件' })
-    }
+      responseData = {
+        success: true,
+        message: result.cosDeleteCandidates.length > 0
+          ? '照片已从后台和 COS 永久删除'
+          : '照片已从当前作品集删除；原文件仍被其他作品集使用',
+        deletedPhotoName: result.removedPhotoName,
+        cosDeleted: result.cosDeleteCandidates.length > 0 && !warning,
+        retainedSharedFile: result.cosDeleteCandidates.length === 0,
+        warning
+      }
+    })
 
-    await deleteCosObjects(fileNames.map(name => `portfolio/${name}`))
-
-    console.log(`✅ 批量删除成功: ${fileNames.length} 个文件`)
-    res.json({ success: true, message: `删除了 ${fileNames.length} 个文件` })
+    console.log(`✅ 永久删除照片: ${responseData.deletedPhotoName}`)
+    res.json(responseData)
   } catch (error) {
-    console.error('批量删除失败:', error)
-    res.status(500).json({ error: '批量删除失败: ' + error.message })
+    sendPortfolioMutationError(res, error, '永久删除照片失败')
   }
+})
+
+// 永久删除作品集：同步清理关联配置，并仅删除不再被其他作品集使用的 COS 文件。
+app.delete('/api/portfolio/series', async (req, res) => {
+  try {
+    let responseData
+    await withConfigLock(async () => {
+      const originalConfig = await readLatestConfigForMutation()
+      const result = removeSeriesFromConfig(originalConfig, req.body || {})
+      await persistConfigMutation(originalConfig, result.config)
+      const warning = await deletePortfolioCosFiles(result.cosDeleteCandidates)
+
+      responseData = {
+        success: true,
+        message: `作品集“${result.removedSeriesTitle || result.removedSeriesId}”已永久删除`,
+        deletedSeriesId: result.removedSeriesId,
+        removedPhotoCount: result.removedPhotoNames.length,
+        cosDeletedPhotoCount: warning ? 0 : result.cosDeleteCandidates.length,
+        retainedSharedPhotoCount: result.removedPhotoNames.length - result.cosDeleteCandidates.length,
+        warning
+      }
+    })
+
+    console.log(`✅ 永久删除作品集: ${responseData.deletedSeriesId}`)
+    res.json(responseData)
+  } catch (error) {
+    sendPortfolioMutationError(res, error, '永久删除作品集失败')
+  }
+})
+
+// 旧接口仅删除 COS 文件，不清理配置；保留兼容但禁止继续使用，避免制造失效引用。
+app.delete('/api/photo/:fileName', async (req, res) => {
+  res.status(410).json({
+    success: false,
+    error: '旧删除接口已停用，请在管理后台使用照片上的永久删除按钮。'
+  })
+})
+
+// 旧批量接口同样禁止绕过配置直接删除 COS 文件。
+app.post('/api/photos/delete', async (req, res) => {
+  res.status(410).json({
+    success: false,
+    error: '旧批量删除接口已停用，请使用配置一致性删除功能。'
+  })
 })
 
 // 从 COS 同步照片到配置
@@ -741,10 +1060,13 @@ app.post('/api/sync/cos', async (req, res) => {
       .filter(Boolean)
     addLog(`🔍 COS 中发现 ${cosFiles.length} 个文件`)
 
-    // 2. 读取当前配置
-    const config = await readConfig()
+    // 2. 读取当前后台配置。优先读取 COS 配置，避免用空本地配置覆盖云端。
+    const { config, source } = await readConfigForAdmin()
+    addLog(`当前配置来源: ${source === 'cos' ? 'COS config/portfolio-config.json' : '本地兜底 portfolio-config.json'}`)
 
     let updatedCount = 0
+    let createdThemeCount = 0
+    let createdSeriesCount = 0
 
     // 3. 遍历 COS 文件并尝试匹配系列
     cosFiles.forEach(fileName => {
@@ -773,8 +1095,8 @@ app.post('/api/sync/cos', async (req, res) => {
         // 策略：检查文件名是否包含 themeId 和 seriesId
         // 格式通常是: themeId-seriesId-...
 
-        for (const theme of config.themes) {
-          for (const series of theme.series) {
+        for (const theme of config.themes || []) {
+          for (const series of theme.series || []) {
             // 构造前缀
             const prefix = `${theme.id}-${series.id}`
             if (fileName.startsWith(prefix)) {
@@ -789,7 +1111,26 @@ app.post('/api/sync/cos', async (req, res) => {
         }
 
         if (!matched) {
-          addLog(`⚠️ 无法匹配照片: ${fileName} (跳过)`, 'warn')
+          const parsed = parseGeneratedPortfolioFileName(fileName)
+
+          if (parsed) {
+            const themeExists = (config.themes || []).some(item => item.id === parsed.themeId)
+            const seriesExists = (config.themes || []).some(theme => {
+              return theme.id === parsed.themeId && (theme.series || []).some(series => series.id === parsed.seriesId)
+            })
+            const { theme, series } = ensureThemeAndSeries(config, parsed.themeId, parsed.seriesId)
+
+            if (!themeExists) createdThemeCount++
+            if (!seriesExists) createdSeriesCount++
+
+            if (!series.photos.includes(fileName)) {
+              series.photos.push(fileName)
+              updatedCount++
+              addLog(`➕ 恢复照片: ${fileName} -> ${theme.name}/${series.title}`)
+            }
+          } else {
+            addLog(`⚠️ 无法匹配照片: ${fileName} (跳过)`, 'warn')
+          }
         }
       }
     })
@@ -797,6 +1138,9 @@ app.post('/api/sync/cos', async (req, res) => {
     if (updatedCount > 0) {
       // 保存配置
       await withConfigLock(() => writeConfig(config))
+      if (createdThemeCount > 0 || createdSeriesCount > 0) {
+        addLog(`✅ 已自动创建 ${createdThemeCount} 个分类、${createdSeriesCount} 个作品集，可在后台重命名`)
+      }
       addLog(`✅ 同步完成，恢复了 ${updatedCount} 张照片`)
 
       // 同步到 COS
@@ -809,13 +1153,17 @@ app.post('/api/sync/cos', async (req, res) => {
       }
     } else {
       addLog('ℹ️ 没有发现需要恢复的照片')
-      // 即使没有发现新照片，也尝试同步一次配置，确保 COS 上有文件
-      addLog('正在检查 COS 配置...')
-      const uploadSuccess = await uploadConfigToCos(config)
-      if (uploadSuccess) {
-        addLog('✅ 配置文件已同步到 COS')
+
+      if (source === 'local' && hasVisiblePortfolioContent(config)) {
+        addLog('当前使用本地配置且包含作品，正在同步到 COS...')
+        const uploadSuccess = await uploadConfigToCos(config)
+        if (uploadSuccess) {
+          addLog('✅ 配置文件已同步到 COS')
+        } else {
+          addLog('❌ 配置文件同步到 COS 失败', 'error')
+        }
       } else {
-        addLog('❌ 配置文件同步到 COS 失败', 'error')
+        addLog('未上传配置，避免用空配置覆盖云端')
       }
     }
 
@@ -850,9 +1198,72 @@ app.get('/api/photos/orphans', async (req, res) => {
   }
 })
 
+app.get('/api/photos/missing-references', async (req, res) => {
+  try {
+    const config = await readLatestConfigForMutation()
+    const existingPhotoNames = new Set(
+      (await listPortfolioObjects()).map(file => file.name).filter(Boolean)
+    )
+    const result = reconcileMissingPhotoReferences(config, existingPhotoNames)
+
+    res.json({
+      success: true,
+      count: result.removedReferenceCount,
+      photoNames: result.removedPhotoNames,
+      references: result.removedReferences
+    })
+  } catch (error) {
+    sendPortfolioMutationError(res, error, '扫描已删除照片失败')
+  }
+})
+
+app.post('/api/photos/reconcile-missing', async (req, res) => {
+  try {
+    if (req.body?.confirmClean !== 'CLEAN_MISSING_REFERENCES') {
+      return res.status(409).json({
+        success: false,
+        error: '请先扫描并确认需要清理的失效照片记录。'
+      })
+    }
+
+    let responseData
+    await withConfigLock(async () => {
+      const originalConfig = await readLatestConfigForMutation()
+      const existingPhotoNames = new Set(
+        (await listPortfolioObjects()).map(file => file.name).filter(Boolean)
+      )
+      const result = reconcileMissingPhotoReferences(originalConfig, existingPhotoNames)
+
+      if (result.removedReferenceCount > 0) {
+        await persistConfigMutation(originalConfig, result.config)
+      }
+
+      responseData = {
+        success: true,
+        removedReferenceCount: result.removedReferenceCount,
+        removedPhotoNames: result.removedPhotoNames
+      }
+    })
+
+    console.log(`✅ 已同步 COS 删除状态，清理 ${responseData.removedReferenceCount} 条失效照片记录`)
+    res.json(responseData)
+  } catch (error) {
+    sendPortfolioMutationError(res, error, '同步 COS 删除状态失败')
+  }
+})
+
 app.post('/api/photos/cleanup-orphans', async (req, res) => {
   try {
     const files = await findOrphanPortfolioPhotos()
+
+    if (req.body?.confirmDelete !== 'DELETE_ORPHAN_PHOTOS') {
+      return res.status(409).json({
+        success: false,
+        error: '为避免误删线上作品，清理接口默认禁用。请先使用 /api/photos/orphans 扫描，再到 COS 控制台人工确认处理。',
+        count: files.length,
+        files
+      })
+    }
 
     if (files.length === 0) {
       return res.json({ success: true, deletedCount: 0, files: [] })
@@ -896,11 +1307,7 @@ app.get('/api/settings', async (req, res) => {
   try {
     // 读取 .env 中的配置
     const envContent = await fs.readFile(CONFIG.envPath, 'utf-8').catch(() => '')
-    const envConfig = {}
-    envContent.split('\n').forEach(line => {
-      const [key, value] = line.split('=')
-      if (key && value) envConfig[key.trim()] = value.trim()
-    })
+    const envConfig = parseEnvContent(envContent)
 
     // 读取 project.config.json 中的 appid
     let appid = ''
@@ -941,20 +1348,62 @@ app.post('/api/settings', async (req, res) => {
 
     addLog('开始配置同步流程...')
 
-    // 1. 更新 .env 文件 (Admin 配置)
+    // 1. 读取并校验配置。先验证，成功后再写 .env，避免失败时把已有配置写空。
     let envContent = await fs.readFile(CONFIG.envPath, 'utf-8').catch(() => '')
+    const envConfig = parseEnvContent(envContent)
+    const nextSecretId = String(SecretId || '').trim()
+    const nextSecretKeyInput = String(SecretKey || '').trim()
+    const nextBucket = String(Bucket || '').trim()
+    const nextRegion = String(Region || '').trim()
+    const existingSecretId = envConfig.COS_SECRET_ID || process.env.COS_SECRET_ID || ''
+    const existingSecretKey = envConfig.COS_SECRET_KEY || process.env.COS_SECRET_KEY || ''
+    const canReuseSecretKey = Boolean(existingSecretId && existingSecretKey && nextSecretId === existingSecretId)
+    let nextSecretKey = nextSecretKeyInput
+
+    if (!nextSecretId) {
+      throw new Error('请填写腾讯云 SecretId')
+    }
+
+    if (!nextBucket) {
+      throw new Error('请填写存储桶 Bucket')
+    }
+
+    if (!nextRegion) {
+      throw new Error('请填写地域 Region，例如 ap-guangzhou')
+    }
+
+    if (!nextSecretKeyInput || nextSecretKeyInput === '******') {
+      if (!canReuseSecretKey) {
+        throw new Error('请填写腾讯云 SecretKey；如果更换 SecretId，必须填写对应的新 SecretKey')
+      }
+      nextSecretKey = existingSecretKey
+    }
+
     const newEnv = {
-      COS_SECRET_ID: SecretId,
-      COS_SECRET_KEY: SecretKey === '******' ? process.env.COS_SECRET_KEY : SecretKey, // 如果是掩码则保持原值
-      COS_BUCKET: Bucket,
-      COS_REGION: Region,
+      COS_SECRET_ID: nextSecretId,
+      COS_SECRET_KEY: nextSecretKey,
+      COS_BUCKET: nextBucket,
+      COS_REGION: nextRegion,
       PORT: process.env.PORT || 8080
     }
 
-    // 如果没有传 Key 且原值也不存在，报错
-    if (!newEnv.COS_SECRET_KEY) {
-      throw new Error('SecretKey 不能为空')
-    }
+    // 2. 验证 COS 连接 (双向验证之一)
+    addLog('正在验证 COS 连接...')
+    const tempCos = new COS({
+      SecretId: newEnv.COS_SECRET_ID,
+      SecretKey: newEnv.COS_SECRET_KEY
+    })
+
+    await new Promise((resolve, reject) => {
+      tempCos.headBucket({
+        Bucket: newEnv.COS_BUCKET,
+        Region: newEnv.COS_REGION
+      }, (err, data) => {
+        if (err) reject(err)
+        else resolve(data)
+      })
+    })
+    addLog('✅ COS API 调用验证通过 (headBucket)')
 
     let newEnvContent = ''
     for (const [key, value] of Object.entries(newEnv)) {
@@ -976,29 +1425,6 @@ app.post('/api/settings', async (req, res) => {
     CONFIG.cos.Bucket = newEnv.COS_BUCKET
     CONFIG.cos.Region = newEnv.COS_REGION
 
-    // 重新初始化全局 cos 实例
-    // 注意：server.js 开头的 cos 实例是 const 定义的，无法重新赋值。
-    // 但我们可以修改它的 options (如果 SDK 支持) 或者后续都使用临时实例。
-    // 简单起见，我们在验证时使用新实例。
-
-    // 2. 验证 COS 连接 (双向验证之一)
-    addLog('正在验证 COS 连接...')
-    const tempCos = new COS({
-      SecretId: newEnv.COS_SECRET_ID,
-      SecretKey: newEnv.COS_SECRET_KEY
-    })
-
-    await new Promise((resolve, reject) => {
-      tempCos.headBucket({
-        Bucket: newEnv.COS_BUCKET,
-        Region: newEnv.COS_REGION
-      }, (err, data) => {
-        if (err) reject(err)
-        else resolve(data)
-      })
-    })
-    addLog('✅ COS API 调用验证通过 (headBucket)')
-
     // 重新初始化全局 cos 实例（修复 bug：使用新密钥）
     cos = new COS({
       SecretId: newEnv.COS_SECRET_ID,
@@ -1006,24 +1432,20 @@ app.post('/api/settings', async (req, res) => {
     })
     addLog('✅ 全局 COS 实例已重新初始化')
 
-    // 3. 同步到小程序配置 (miniprogram/app.ts)
-    let appTsContent = await fs.readFile(CONFIG.appTsPath, 'utf-8')
-    // 使用正则替换 globalData 中的 cos 配置
-    // 匹配 pattern: cos: { ... }
-    const cosConfigRegex = /cos:\s*\{[\s\S]*?\}/
-    const newCosConfigStr = `cos: {
-      bucket: '${newEnv.COS_BUCKET}',
-      region: '${newEnv.COS_REGION}',
-      baseUrl: 'https://${newEnv.COS_BUCKET}.cos.${newEnv.COS_REGION}.myqcloud.com'
-    }`
-
-    if (cosConfigRegex.test(appTsContent)) {
-      appTsContent = appTsContent.replace(cosConfigRegex, newCosConfigStr)
-      await fs.writeFile(CONFIG.appTsPath, appTsContent)
-      addLog('✅ 小程序配置 (app.ts) 已同步更新')
-    } else {
-      addLog('⚠️ 未能在 app.ts 中找到 cos 配置块，跳过更新', 'warn')
-    }
+    // 3. 同步到小程序客户配置。真实客户 COS 信息只写入本地生成文件，不写进 app.ts。
+    await fs.mkdir(path.dirname(CONFIG.clientConfigPath), { recursive: true })
+    const clientConfigContent = `// This file is generated by the CMS "云端设置" page.
+// It is customer-specific and should not be committed.
+module.exports = {
+  cos: {
+    bucket: '${newEnv.COS_BUCKET}',
+    region: '${newEnv.COS_REGION}',
+    baseUrl: 'https://${newEnv.COS_BUCKET}.cos.${newEnv.COS_REGION}.myqcloud.com'
+  }
+}
+`
+    await fs.writeFile(CONFIG.clientConfigPath, clientConfigContent, 'utf-8')
+    addLog('✅ 小程序客户配置 (config/client.config.js) 已生成')
 
     // 4. 同步 AppID (project.config.json)
     if (AppID) {

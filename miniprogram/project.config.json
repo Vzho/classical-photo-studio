@@ -1,59 +1,75 @@
 {
-  "miniprogramRoot": "./",
-  "projectname": "photo-portfolio-miniprogram",
-  "description": "摄影作品合集小程序",
-  "appid": "touristappid",
-  "setting": {
-    "urlCheck": true,
-    "es6": true,
-    "enhance": true,
-    "postcss": true,
-    "preloadBackgroundData": false,
-    "minified": true,
-    "newFeature": true,
-    "coverView": true,
-    "nodeModules": false,
-    "autoAudits": false,
-    "showShadowRootInWxmlPanel": true,
-    "scopeDataCheck": false,
-    "uglifyFileName": false,
-    "checkInvalidKey": true,
-    "checkSiteMap": true,
-    "uploadWithSourceMap": true,
-    "compileHotReLoad": false,
-    "lazyloadPlaceholderEnable": false,
-    "useMultiFrameRuntime": true,
-    "useApiHook": true,
-    "useApiHostProcess": true,
-    "babelSetting": {
-      "ignore": [],
-      "disablePlugins": [],
-      "outputPath": ""
-    },
-    "useIsolateContext": true,
-    "userConfirmedBundleSwitch": false,
-    "packNpmManually": false,
-    "packNpmRelationList": [],
-    "minifyWXSS": true,
-    "disableUseStrict": false,
-    "minifyWXML": true,
-    "showES6CompileOption": false,
-    "useCompilerPlugins": [
-      "typescript"
-    ],
-    "compileWorklet": false,
-    "localPlugins": false,
-    "condition": false,
-    "swc": false,
-    "disableSWC": true
-  },
-  "compileType": "miniprogram",
-  "condition": {},
-  "simulatorPluginLibVersion": {},
-  "packOptions": {
-    "ignore": [],
-    "include": []
-  },
-  "editorSetting": {},
-  "libVersion": "3.13.2"
+    "miniprogramRoot":  "./",
+    "projectname":  "photo-portfolio-miniprogram",
+    "description":  "作品合集小程序源码模板",
+    "appid":  "touristappid",
+    "setting":  {
+                    "urlCheck":  true,
+                    "es6":  true,
+                    "enhance":  true,
+                    "postcss":  true,
+                    "preloadBackgroundData":  false,
+                    "minified":  true,
+                    "newFeature":  true,
+                    "coverView":  true,
+                    "nodeModules":  false,
+                    "autoAudits":  false,
+                    "showShadowRootInWxmlPanel":  true,
+                    "scopeDataCheck":  false,
+                    "uglifyFileName":  false,
+                    "checkInvalidKey":  true,
+                    "checkSiteMap":  true,
+                    "uploadWithSourceMap":  true,
+                    "compileHotReLoad":  false,
+                    "lazyloadPlaceholderEnable":  false,
+                    "useMultiFrameRuntime":  true,
+                    "useApiHook":  true,
+                    "useApiHostProcess":  true,
+                    "babelSetting":  {
+                                         "ignore":  [
+
+                                                    ],
+                                         "disablePlugins":  [
+
+                                                            ],
+                                         "outputPath":  ""
+                                     },
+                    "useIsolateContext":  true,
+                    "userConfirmedBundleSwitch":  false,
+                    "packNpmManually":  false,
+                    "packNpmRelationList":  [
+
+                                            ],
+                    "minifyWXSS":  true,
+                    "disableUseStrict":  false,
+                    "minifyWXML":  true,
+                    "showES6CompileOption":  false,
+                    "useCompilerPlugins":  [
+                                               "typescript"
+                                           ],
+                    "compileWorklet":  false,
+                    "localPlugins":  false,
+                    "condition":  false,
+                    "swc":  false,
+                    "disableSWC":  true
+                },
+    "compileType":  "miniprogram",
+    "condition":  {
+
+                  },
+    "simulatorPluginLibVersion":  {
+
+                                  },
+    "packOptions":  {
+                        "ignore":  [
+
+                                   ],
+                        "include":  [
+
+                                    ]
+                    },
+    "editorSetting":  {
+
+                      },
+    "libVersion":  "3.13.2"
 }

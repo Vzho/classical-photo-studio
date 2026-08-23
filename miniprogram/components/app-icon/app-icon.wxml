@@ -1,0 +1,6 @@
+<image
+  class="app-icon tone-{{tone}}"
+  style="width: {{size}}rpx; height: {{size}}rpx;"
+  src="/assets/icons/{{name}}.svg"
+  mode="aspectFit"
+/>

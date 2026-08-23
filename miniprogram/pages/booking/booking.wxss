@@ -1,302 +1,345 @@
-/* 预约页面样式 */
 .booking-page {
   min-height: 100vh;
+  padding-bottom: calc(var(--tab-bar-height, 108rpx) + env(safe-area-inset-bottom) + 56rpx);
   background: var(--bg-light);
-  padding-bottom: 280rpx;
+  color: var(--text-main);
+  font-family: var(--font-family);
 }
 
-.booking-banner {
+.booking-hero {
   position: relative;
-  height: 320rpx;
+  height: 500rpx;
   overflow: hidden;
+  background: var(--surface-muted);
 }
 
-.banner-img {
+.header-image .booking-hero {
+  height: 620rpx;
+}
+
+.header-compact .booking-hero {
+  height: 360rpx;
+}
+
+.booking-hero-image,
+.booking-hero-fallback {
   width: 100%;
   height: 100%;
-  opacity: 0.7;
 }
 
-.banner-overlay {
+.booking-hero-fallback {
+  background: var(--surface-muted);
+}
+
+.booking-hero-shade {
   position: absolute;
+  top: 0;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
-  padding: 32rpx;
-  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+  background: linear-gradient(180deg, rgba(20, 19, 17, 0.12) 0%, rgba(20, 19, 17, 0.74) 100%);
 }
 
-.banner-tag {
-  display: inline-block;
-  background: rgba(124,106,93,0.8);
-  color: #fff;
-  font-size: 20rpx;
-  padding: 8rpx 16rpx;
-  border-radius: 8rpx;
-  margin-bottom: 12rpx;
+.booking-hero-content {
+  position: absolute;
+  right: var(--page-padding);
+  bottom: 52rpx;
+  left: var(--page-padding);
+  color: var(--on-media);
 }
 
-.banner-title {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #fff;
+.booking-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 14rpx;
+  font-size: 22rpx;
+  font-weight: 600;
 }
 
-.banner-desc {
-  margin-top: 10rpx;
+.booking-kicker::before {
+  width: 36rpx;
+  height: 2rpx;
+  background: var(--accent);
+  content: '';
+}
+
+.booking-title {
+  max-width: 620rpx;
+  font-family: var(--title-font-family);
+  font-size: 50rpx;
+  font-weight: var(--title-weight);
+  line-height: 1.15;
+}
+
+.booking-description {
+  max-width: 620rpx;
+  margin-top: 14rpx;
+  color: rgba(255, 255, 255, 0.82);
   font-size: 24rpx;
-  color: rgba(255,255,255,0.9);
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
-.notice-card,
-.info-card,
-.content-module {
-  margin: 28rpx 32rpx 0;
-  padding: var(--card-padding, 28rpx);
-  background: #fff;
-  border: 2rpx solid var(--card-border, #f5f5f4);
-  border-radius: var(--card-radius, 20rpx);
-  box-shadow: var(--card-shadow, none);
+.header-compact .booking-description {
+  display: none;
 }
 
-.notice-title,
-.info-card-title,
-.module-title {
-  font-size: 30rpx;
-  font-weight: bold;
+.header-compact .booking-title {
+  font-size: 42rpx;
+}
+
+.booking-section {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 54rpx var(--page-padding) 28rpx;
+}
+
+.booking-section + .booking-section {
+  border-top: 1rpx solid var(--divider);
+}
+
+.notice-section {
+  display: grid;
+  grid-template-columns: 48rpx minmax(0, 1fr);
+  gap: 18rpx;
+  padding-top: 30rpx;
+  padding-bottom: 30rpx;
+  background: var(--surface-muted);
+}
+
+.notice-icon {
+  padding-top: 2rpx;
+}
+
+.notice-title {
   color: var(--text-main);
-  margin-bottom: 12rpx;
+  font-size: 25rpx;
+  font-weight: 600;
 }
 
-.notice-text,
-.schedule-notice,
-.flow-desc,
-.faq-answer {
-  font-size: 24rpx;
+.notice-text {
+  margin-top: 6rpx;
   color: var(--text-muted);
-  line-height: 1.7;
+  font-size: 22rpx;
+  line-height: 1.55;
 }
 
 .schedule-available {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: var(--primary);
-  margin-bottom: 10rpx;
+  color: var(--text-main);
+  font-family: var(--title-font-family);
+  font-size: 34rpx;
+  font-weight: var(--title-weight);
+  line-height: 1.35;
 }
 
-.note-list {
-  margin-top: 16rpx;
+.schedule-notice {
+  margin-top: 12rpx;
+  color: var(--text-muted);
+  font-size: 23rpx;
+  line-height: 1.55;
+}
+
+.schedule-notes {
   display: flex;
-  flex-direction: column;
-  gap: 10rpx;
+  flex-wrap: wrap;
+  gap: 10rpx 20rpx;
+  margin-top: 18rpx;
 }
 
-.note-item {
-  padding: 14rpx 18rpx;
-  border-radius: 12rpx;
-  background: #fafaf9;
-  font-size: 24rpx;
-  color: #57534e;
+.schedule-note {
+  color: var(--secondary);
+  font-size: 21rpx;
 }
 
-/* 表单区域 */
-.form-section {
-  padding: 32rpx;
+.form-fields {
+  border-top: 1rpx solid var(--divider);
 }
 
 .form-item {
-  margin-bottom: 40rpx;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid var(--divider);
 }
 
 .form-label {
   display: flex;
   align-items: center;
-  gap: 12rpx;
-  font-size: 28rpx;
-  font-weight: bold;
-  margin-bottom: 16rpx;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-bottom: 14rpx;
 }
 
-.label-icon {
-  font-size: 32rpx;
+.label-main {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  color: var(--text-main);
+  font-size: 25rpx;
+  font-weight: 600;
+}
+
+.required-mark {
+  color: var(--secondary);
+  font-size: 19rpx;
+}
+
+.form-input,
+.form-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 28rpx;
+  line-height: 1.45;
 }
 
 .form-input {
-  width: 100%;
-  height: 100rpx;
-  padding: 0 28rpx;
-  background: #fafaf9;
-  border: 2rpx solid #e7e5e4;
-  border-radius: var(--button-radius, 20rpx);
-  font-size: 28rpx;
-  box-sizing: border-box;
-}
-
-.form-input:focus {
-  border-color: var(--primary);
-}
-
-.date-picker {
-  display: flex;
-  align-items: center;
-}
-
-.date-picker.placeholder {
-  color: #a8a29e;
+  height: 78rpx;
+  padding: 0;
 }
 
 .form-textarea {
-  width: 100%;
-  height: 200rpx;
-  padding: 24rpx 28rpx;
-  background: #fafaf9;
-  border: 2rpx solid #e7e5e4;
-  border-radius: var(--button-radius, 20rpx);
-  font-size: 28rpx;
-  box-sizing: border-box;
+  min-height: 190rpx;
+  padding: 12rpx 0;
 }
 
-/* 风格选择 */
-.style-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--section-gap, 20rpx);
+.form-soft .form-input,
+.form-soft .form-textarea {
+  padding-right: 20rpx;
+  padding-left: 20rpx;
+  background: var(--surface-muted);
+  border-radius: var(--button-radius);
 }
 
-.style-item {
-  padding: var(--card-padding, 28rpx);
-  text-align: center;
-  background: #fafaf9;
-  border: 2rpx solid #e7e5e4;
-  border-radius: var(--button-radius, 20rpx);
-  font-size: 28rpx;
-  color: #78716c;
+.form-soft .form-textarea {
+  padding-top: 20rpx;
+  padding-bottom: 20rpx;
 }
 
-.style-item.active {
-  background: rgba(124,106,93,0.1);
-  border-color: var(--primary);
-  color: var(--primary);
-  font-weight: bold;
-}
-
-.custom-style-input-wrap {
-  margin-top: 20rpx;
-  animation: fadeIn 0.3s ease;
-}
-
-.custom-style-input {
-  background: #fff;
-  border-color: var(--primary);
-}
-
-.flow-list,
-.faq-list {
+.picker-input {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   gap: 20rpx;
 }
 
-.flow-item {
-  display: flex;
-  gap: 18rpx;
-}
-
-.flow-number {
-  width: 44rpx;
-  height: 44rpx;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(124,106,93,0.12);
-  color: var(--primary);
-  font-size: 22rpx;
-  font-weight: bold;
-}
-
-.flow-title,
-.faq-question {
-  font-size: 26rpx;
-  font-weight: bold;
-  color: var(--text-main);
-  margin-bottom: 6rpx;
-}
-
-.faq-item {
-  padding: 20rpx;
-  border-radius: var(--card-radius, 16rpx);
-  background: #fafaf9;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10rpx); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* 底部提交 */
-.submit-section {
-  position: fixed;
-  bottom: calc(120rpx + env(safe-area-inset-bottom)); /* 抬高以避开自定义 TabBar */
-  left: 0;
-  right: 0;
-  padding: 24rpx 32rpx;
-  /* 移除原本的 padding-bottom，因为已经在 bottom 中处理了 safe-area */
-  background: #fff;
-  box-shadow: 0 -8rpx 32rpx rgba(0,0,0,0.05);
-  z-index: 100; 
-  transform: translateY(100%);
-  opacity: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-}
-
-.submit-section.show {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.tips-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
-}
-
-.tip-item {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  font-size: 20rpx;
+.picker-input.placeholder {
   color: var(--text-muted);
 }
 
-.tip-icon {
-  color: var(--primary);
+.style-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 26rpx;
+}
+
+.style-item {
+  position: relative;
+  min-height: 76rpx;
+  padding: 23rpx 4rpx 18rpx;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 25rpx;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-bottom: 1rpx solid var(--divider);
+}
+
+.style-item::after {
+  position: absolute;
+  right: 0;
+  bottom: -1rpx;
+  left: 0;
+  height: 3rpx;
+  background: transparent;
+  content: '';
+}
+
+.style-item.active {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.style-item.active::after {
+  background: var(--primary);
+}
+
+.custom-style-input {
+  margin-top: 18rpx;
+  border-bottom: 1rpx solid var(--divider);
+}
+
+.form-assurance {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18rpx;
+  margin-top: 28rpx;
+  color: var(--text-muted);
+  font-size: 20rpx;
+}
+
+.form-assurance > view {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  min-width: 0;
 }
 
 .submit-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12rpx;
+  gap: 14rpx;
   width: 100%;
-  height: 112rpx;
-  background: var(--primary);
-  color: #fff;
-  font-size: 34rpx;
-  font-weight: bold;
-  border-radius: var(--button-radius, 24rpx);
-  box-shadow: var(--card-shadow, 0 16rpx 40rpx rgba(124,106,93,0.2));
-  border: none;
+  height: var(--button-height);
+  margin-top: 30rpx;
+  padding: 0 var(--button-padding-x);
+  background: var(--button-bg);
+  border: var(--button-border);
+  border-color: var(--button-bg);
+  border-radius: var(--button-radius);
+  color: var(--button-text);
+  font-size: 29rpx;
+  font-weight: var(--button-font-weight);
+  line-height: 1.2;
 }
 
-.submit-btn::after {
-  border: none;
+.flow-list,
+.faq-list {
+  border-top: 1rpx solid var(--divider);
 }
 
-.btn-arrow {
-  font-size: 36rpx;
+.flow-item {
+  display: grid;
+  grid-template-columns: 58rpx minmax(0, 1fr);
+  gap: 18rpx;
+  padding: 26rpx 0;
+  border-bottom: 1rpx solid var(--divider);
+}
+
+.flow-index {
+  color: var(--accent);
+  font-size: 21rpx;
+  font-weight: 600;
+}
+
+.flow-title,
+.faq-question {
+  color: var(--text-main);
+  font-size: 27rpx;
+  font-weight: 600;
+}
+
+.flow-description,
+.faq-answer {
+  margin-top: 7rpx;
+  color: var(--text-muted);
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.faq-item {
+  padding: 26rpx 0;
+  border-bottom: 1rpx solid var(--divider);
 }

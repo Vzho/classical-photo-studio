@@ -1,68 +1,101 @@
-<view class="packages-page" style="{{themeStyle}}">
-  <view class="page-header">
-    <view class="page-kicker">Packages</view>
-    <view class="page-title">拍摄套餐</view>
-    <view class="page-desc">价格和服务内容仅作咨询参考，最终方案以双方沟通确认为准。</view>
-  </view>
-
-  <view class="schedule-card" wx:if="{{schedule.enabled}}">
-    <view class="schedule-title">{{schedule.title || '近期档期'}}</view>
-    <view class="schedule-main">{{schedule.availableText}}</view>
-    <view class="schedule-notice">{{schedule.notice || '档期仅供参考，具体拍摄时间请与摄影师确认。'}}</view>
-  </view>
-
-  <view class="empty-card" wx:if="{{!packages.length}}">
-    <view class="empty-title">暂未配置套餐</view>
-    <view class="empty-desc">摄影师可以在 CMS 的内容模块里维护套餐和价格说明。</view>
-    <button class="consult-btn" bindtap="goBooking">先发起拍摄咨询</button>
-  </view>
-
-  <view class="package-list">
-    <view class="package-card" wx:for="{{packages}}" wx:key="id">
-      <view class="package-header">
-        <view>
-          <view class="package-badge" wx:if="{{item.isRecommended}}">推荐</view>
-          <view class="package-name">{{item.name}}</view>
-          <view class="package-subtitle">{{item.subtitle}}</view>
-        </view>
-        <view class="package-price">{{item.priceText}}</view>
+<view class="packages-page theme-{{themePreset}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}}">
+  <block wx:for="{{decoration.sections}}" wx:key="id" wx:for-item="section">
+    <block wx:if="{{section.enabled}}">
+      <view class="page-header" wx:if="{{section.type === 'header'}}">
+        <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="34" tone="primary" /><view class="page-title">{{section.title}}</view></view>
+        <view class="page-desc" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
       </view>
 
-      <view class="package-meta">
-        <view wx:if="{{item.duration}}">{{item.duration}}</view>
-        <view wx:if="{{item.retouchCount}}">{{item.retouchCount}}</view>
-        <view wx:if="{{item.originalPhotos}}">{{item.originalPhotos}}</view>
-        <view wx:if="{{item.makeupText}}">{{item.makeupText}}</view>
-      </view>
-
-      <view class="section-block" wx:if="{{item.suitableFor.length}}">
-        <view class="section-title">适合</view>
-        <view class="tag-list">
-          <view class="tag" wx:for="{{item.suitableFor}}" wx:key="*this">{{item}}</view>
+      <view class="schedule-notice" wx:if="{{section.type === 'schedule' && schedule.enabled}}">
+        <app-icon name="{{section.icon || 'calendar-days'}}" size="34" tone="primary" />
+        <view class="schedule-copy">
+          <view class="schedule-title">{{section.title || schedule.title}}</view>
+          <view class="schedule-main">{{schedule.availableText}}</view>
+          <view class="schedule-desc">{{section.subtitle || schedule.notice}}</view>
         </view>
       </view>
 
-      <view class="section-block" wx:if="{{item.includes.length}}">
-        <view class="section-title">包含服务</view>
-        <view class="include-list">
-          <view class="include-item" wx:for="{{item.includes}}" wx:key="*this">{{item}}</view>
+      <block wx:if="{{section.type === 'list'}}">
+        <view class="section-heading" wx:if="{{section.title || section.subtitle}}">
+          <view class="section-heading-main">
+            <view class="section-title-row" wx:if="{{section.title}}"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+            <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
+          </view>
+        </view>
+
+        <view class="empty-state" wx:if="{{!packages.length}}">
+          <app-icon name="briefcase-business" size="44" tone="muted" />
+          <view class="empty-title">{{terminology.packageLabel}}正在整理</view>
+          <view class="empty-desc">你可以先联系{{terminology.customerServiceLabel}}，说明预算和需求，我们会为你推荐方案。</view>
+          <view class="btn-primary empty-action" bindtap="goBooking">
+            <text>发起{{terminology.consultationLabel}}</text>
+            <app-icon name="arrow-right" size="28" tone="inverse" />
+          </view>
+        </view>
+
+        <view class="package-list" wx:if="{{packages.length}}">
+          <view class="package-card" wx:for="{{packages}}" wx:key="id" wx:for-item="packageItem">
+            <view class="package-heading">
+              <view class="package-heading-main">
+                <view class="package-badge" wx:if="{{packageItem.isRecommended}}">推荐{{terminology.packageLabel}}</view>
+                <view class="package-name">{{packageItem.name}}</view>
+              </view>
+              <view class="package-price">{{packageItem.priceText}}</view>
+            </view>
+            <view class="package-subtitle">{{packageItem.subtitle}}</view>
+
+            <view class="package-meta" wx:if="{{packageItem.duration || packageItem.retouchCount || packageItem.originalPhotos || packageItem.makeupText}}">
+              <view class="meta-item" wx:if="{{packageItem.duration}}"><app-icon name="clock-3" size="26" tone="muted" /><text>{{packageItem.duration}}</text></view>
+              <view class="meta-item" wx:if="{{packageItem.retouchCount}}"><app-icon name="image" size="26" tone="muted" /><text>{{packageItem.retouchCount}}</text></view>
+              <view class="meta-item" wx:if="{{packageItem.originalPhotos}}"><app-icon name="images" size="26" tone="muted" /><text>{{packageItem.originalPhotos}}</text></view>
+              <view class="meta-item" wx:if="{{packageItem.makeupText}}"><app-icon name="sparkles" size="26" tone="muted" /><text>{{packageItem.makeupText}}</text></view>
+            </view>
+
+            <view class="package-block" wx:if="{{packageItem.suitableFor.length}}">
+              <view class="package-block-title">适合</view>
+              <view class="tag-list">
+                <view class="tag" wx:for="{{packageItem.suitableFor}}" wx:key="*this" wx:for-item="tagItem">{{tagItem}}</view>
+              </view>
+            </view>
+
+            <view class="package-block" wx:if="{{packageItem.includes.length}}">
+              <view class="package-block-title">包含服务</view>
+              <view class="include-list">
+                <view class="include-item" wx:for="{{packageItem.includes}}" wx:key="*this" wx:for-item="includeItem">
+                  <app-icon name="circle-check" size="26" tone="primary" />
+                  <text>{{includeItem}}</text>
+                </view>
+              </view>
+            </view>
+
+            <view class="package-actions">
+              <view class="package-detail-link" bindtap="openPackageDetail" data-id="{{packageItem.id}}">
+                <text>查看详情</text>
+                <app-icon name="chevron-right" size="28" />
+              </view>
+              <view class="btn-primary package-action package-consult-action" bindtap="consultPackage" data-id="{{packageItem.id}}">
+                <app-icon name="message-circle" size="28" tone="inverse" />
+                <text>{{consultButton.text || terminology.consultationLabel}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <view class="testimonial-section" wx:if="{{section.type === 'testimonials' && testimonials.length}}">
+        <view class="section-heading">
+          <view class="section-heading-main">
+            <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+            <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
+          </view>
+        </view>
+        <view class="testimonial-item" wx:for="{{testimonials}}" wx:key="id">
+          <view class="testimonial-content">“{{item.content}}”</view>
+          <view class="testimonial-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
         </view>
       </view>
+    </block>
+  </block>
 
-      <view class="package-actions">
-        <button class="detail-btn" bindtap="openPackageDetail" data-id="{{item.id}}">查看详情</button>
-        <button class="consult-btn" bindtap="consultPackage" data-id="{{item.id}}">
-          {{consultButton.text || '咨询此套餐'}}
-        </button>
-      </view>
-    </view>
-  </view>
-
-  <view class="testimonial-section" wx:if="{{testimonials.length}}">
-    <view class="module-title">客户评价</view>
-    <view class="testimonial-card" wx:for="{{testimonials}}" wx:key="id">
-      <view class="testimonial-content">“{{item.content}}”</view>
-      <view class="testimonial-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
-    </view>
-  </view>
+  <quick-jump wx:if="{{quickJumpVisible}}" current="packages" booking-text="{{quickJump.bookingText}}" portfolio-text="{{quickJump.portfolioText}}" appearance="{{quickJump.appearance}}" trigger-icon="{{quickJump.triggerIcon}}" booking-icon="{{quickJump.bookingIcon}}" portfolio-icon="{{quickJump.portfolioIcon}}" />
 </view>

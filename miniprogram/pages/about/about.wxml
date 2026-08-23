@@ -1,187 +1,199 @@
-<!-- 摄影师简介页面 -->
-<view class="about-page" style="{{themeStyle}}">
-  <!-- 头部背景 -->
-  <view class="profile-header">
-    <image wx:if="{{bannerUrl}}" class="header-bg-img" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
-    <view wx:if="{{bannerUrl}}" class="header-overlay"></view>
-    <view wx:else class="header-bg"></view>
-    
-    <!-- 头像 -->
-    <view class="avatar-wrap">
-      <image class="avatar" src="{{avatarUrl}}" mode="aspectFill" />
-      <view class="verified-badge">✓</view>
-    </view>
-
-    <!-- 基本信息 -->
-    <view class="profile-info">
-      <view class="name">{{photographer.name}}</view>
-      <view class="title">{{photographer.title}}</view>
-      <view class="location">
-        <text class="location-icon">📍</text>
-        <text>{{photographer.location}}</text>
+<view class="about-page theme-{{themePreset}} header-{{aboutDecoration.headerVariant}}" style="{{themeStyle}}">
+  <block wx:for="{{aboutSections}}" wx:for-item="section" wx:key="id">
+    <view wx:if="{{section.enabled && section.type === 'profile'}}" class="profile-section">
+      <view class="profile-media">
+        <image wx:if="{{bannerUrl}}" class="profile-cover" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
+        <view wx:else class="profile-cover-fallback"></view>
+        <view class="profile-cover-shade"></view>
       </view>
-    </view>
-
-    <!-- 数据统计 -->
-    <view class="stats-row">
-      <view class="stat-item" wx:for="{{photographer.stats}}" wx:key="label">
-        <view class="stat-value">{{item.value}}</view>
-        <view class="stat-label">{{item.label}}</view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 内容区域 -->
-  <view class="content-section">
-    <!-- 艺术见解 -->
-    <view class="card bio-card">
-      <view class="card-header">
-        <text class="card-icon">✨</text>
-        <text class="card-title">艺术见解</text>
-      </view>
-      <view class="bio-text">{{photographer.bio}}</view>
-    </view>
-
-    <!-- 专业技能 -->
-    <view class="skills-section">
-      <view class="section-title">专业技能</view>
-      <view class="skills-list">
-        <view class="skill-tag" wx:for="{{photographer.skills}}" wx:key="*this">
-          {{item}}
-        </view>
-      </view>
-    </view>
-
-    <!-- 联系方式 -->
-    <view class="contact-section">
-      <view class="section-title">联系我</view>
-      
-      <view class="contact-item" bindtap="copyWechat">
-        <view class="contact-icon-wrap">
-          <text class="contact-icon">💬</text>
-        </view>
-        <view class="contact-info">
-          <view class="contact-label">WeChat</view>
-          <view class="contact-value">{{photographer.contact.wechat}}</view>
-        </view>
-        <view class="copy-btn">复制</view>
-      </view>
-
-      <view class="contact-item" bindtap="copyEmail">
-        <view class="contact-icon-wrap">
-          <text class="contact-icon">📧</text>
-        </view>
-        <view class="contact-info">
-          <view class="contact-label">Email</view>
-          <view class="contact-value">{{photographer.contact.email}}</view>
-        </view>
-        <view class="copy-btn">复制</view>
-      </view>
-    </view>
-
-    <!-- 到店地址 -->
-    <view class="contact-section" wx:if="{{photographer.studio.name || photographer.studio.address}}">
-      <view class="section-title">到店地址</view>
-
-      <view class="contact-item studio-item" bindtap="openStudioLocation">
-        <view class="contact-icon-wrap">
-          <text class="contact-icon">📍</text>
-        </view>
-        <view class="contact-info">
-          <view class="contact-label">Studio</view>
-          <view class="contact-value studio-name">{{photographer.studio.name || '门店地址'}}</view>
-          <view class="studio-address">{{photographer.studio.address || '请在后台补充完整门店地址'}}</view>
-        </view>
-        <view class="contact-actions">
-          <view class="copy-btn nav-btn">{{canOpenStudioLocation ? '导航' : '未配置'}}</view>
-          <view class="copy-btn" catchtap="copyStudioAddress">复制</view>
-        </view>
-      </view>
-    </view>
-
-    <view class="content-section-card" wx:if="{{stores.length}}">
-      <view class="section-title">门店信息</view>
-      <view class="store-card" wx:for="{{stores}}" wx:key="id" bindtap="openStoreDetail" data-index="{{index}}">
-        <view class="store-main">
-          <view class="store-name">{{item.name}}</view>
-          <view class="store-address">{{item.address}}</view>
-          <view class="store-meta" wx:if="{{item.phone}}">{{item.phone}}</view>
-          <view class="store-meta" wx:if="{{item.businessHours}}">{{item.businessHours}}</view>
-          <view class="store-meta" wx:if="{{item.transportTips}}">{{item.transportTips}}</view>
-        </view>
-        <view class="store-action-list">
-          <button class="store-copy-btn" wx:if="{{item.phone}}" catchtap="callStorePhone" data-index="{{index}}">电话</button>
-          <button class="store-copy-btn" catchtap="openStoreLocation" data-index="{{index}}">导航</button>
-          <button class="store-copy-btn muted" catchtap="copyStoreAddress" data-index="{{index}}">复制</button>
-        </view>
-      </view>
-    </view>
-
-    <view class="content-section-card" wx:if="{{photographers.length}}">
-      <view class="section-title">摄影师团队</view>
-      <view class="team-card" wx:for="{{photographers}}" wx:key="id">
-        <image wx:if="{{item.avatar}}" class="team-avatar" src="{{item.avatar}}" mode="aspectFill" />
-        <view class="team-info">
-          <view class="team-name">{{item.name}}</view>
-          <view class="team-title">{{item.title}}</view>
-          <view class="team-bio">{{item.bio}}</view>
-        </view>
-      </view>
-    </view>
-
-    <view class="content-section-card" wx:if="{{packages.length}}">
-      <view class="section-title">服务价格</view>
-      <view class="about-package-card" wx:for="{{packages}}" wx:key="id">
-        <view class="about-package-main">
-          <view class="about-package-name">{{item.name}}</view>
-          <view class="about-package-desc">{{item.subtitle}}</view>
-          <view class="about-package-meta">
-            <text wx:if="{{item.duration}}">{{item.duration}}</text>
-            <text wx:if="{{item.retouchCount}}">{{item.retouchCount}}</text>
+      <view class="profile-card">
+        <view class="avatar-wrap">
+          <image class="avatar" src="{{avatarUrl}}" mode="aspectFill" />
+          <view class="verified-badge">
+            <app-icon name="circle-check" size="30" tone="inverse" />
           </view>
         </view>
-        <view class="about-package-side">
-          <view class="about-package-price">{{item.priceText}}</view>
-          <button class="about-package-btn" bindtap="openPackageDetail" data-id="{{item.id}}">详情</button>
-          <button class="about-package-btn primary" bindtap="consultPackage" data-id="{{item.id}}">咨询</button>
+        <view class="profile-copy">
+          <view class="profile-name">{{photographer.name}}</view>
+          <view class="profile-title">{{photographer.title}}</view>
+          <view class="profile-location" wx:if="{{photographer.location}}">
+            <app-icon name="{{icons.contact.location}}" size="24" tone="muted" />
+            <text>{{photographer.location}}</text>
+          </view>
+        </view>
+        <view class="stats-row" wx:if="{{photographer.stats && photographer.stats.length}}">
+          <view class="stat-item" wx:for="{{photographer.stats}}" wx:for-item="stat" wx:key="label">
+            <view class="stat-value">{{stat.value}}</view>
+            <view class="stat-label">{{stat.label}}</view>
+          </view>
         </view>
       </view>
     </view>
 
-    <view class="content-section-card" wx:if="{{serviceFlow.enabled && serviceFlow.steps.length}}">
-      <view class="section-title">服务流程</view>
-      <view class="flow-item" wx:for="{{serviceFlow.steps}}" wx:key="title">
-        <view class="flow-number">{{index + 1}}</view>
-        <view>
-          <view class="flow-title">{{item.title}}</view>
-          <view class="flow-desc">{{item.description}}</view>
+    <view wx:elif="{{section.enabled && section.type === 'bio' && photographer.bio}}" class="about-section bio-section">
+      <view class="section-heading">
+        <view class="section-heading-main">
+          <view class="section-title-row">
+            <app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" />
+            <view class="section-title">{{section.title}}</view>
+          </view>
+          <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
+        </view>
+      </view>
+      <view class="bio-layout">
+        <view class="bio-mark"></view>
+        <view class="bio-text">{{photographer.bio}}</view>
+      </view>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'skills' && photographer.skills && photographer.skills.length}}" class="about-section skills-section">
+      <view class="section-heading">
+        <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+      </view>
+      <view class="skills-list">
+        <view class="skill-item" wx:for="{{photographer.skills}}" wx:for-item="skill" wx:key="*this">
+          <view class="skill-line"></view>
+          <text>{{skill}}</text>
         </view>
       </view>
     </view>
 
-    <view class="content-section-card" wx:if="{{faq.enabled && faq.items.length}}">
-      <view class="section-title">常见问题</view>
-      <view class="faq-item" wx:for="{{faq.items}}" wx:key="question">
-        <view class="faq-question">{{item.question}}</view>
-        <view class="faq-answer">{{item.answer}}</view>
+    <view wx:elif="{{section.enabled && section.type === 'contact'}}" class="about-section contact-section">
+      <view class="section-heading">
+        <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+      </view>
+      <view class="contact-list">
+        <view wx:if="{{photographer.contact.wechat}}" class="contact-row" bindtap="copyWechat">
+          <view class="contact-icon"><app-icon name="{{icons.contact.wechat}}" size="34" tone="primary" /></view>
+          <view class="contact-copy">
+            <view class="contact-label">微信</view>
+            <view class="contact-value">{{photographer.contact.wechat}}</view>
+          </view>
+          <app-icon name="copy" size="28" tone="muted" />
+        </view>
+        <view wx:if="{{photographer.contact.email}}" class="contact-row" bindtap="copyEmail">
+          <view class="contact-icon"><app-icon name="{{icons.contact.email}}" size="34" tone="primary" /></view>
+          <view class="contact-copy">
+            <view class="contact-label">邮箱</view>
+            <view class="contact-value">{{photographer.contact.email}}</view>
+          </view>
+          <app-icon name="copy" size="28" tone="muted" />
+        </view>
+        <view wx:if="{{photographer.studio.name || photographer.studio.address}}" class="contact-row studio-row" bindtap="openStudioLocation">
+          <view class="contact-icon"><app-icon name="{{icons.contact.location}}" size="34" tone="primary" /></view>
+          <view class="contact-copy">
+            <view class="contact-label">到店地址</view>
+            <view class="contact-value">{{photographer.studio.name || '门店地址'}}</view>
+            <view class="contact-note">{{photographer.studio.address}}</view>
+          </view>
+          <view class="contact-row-actions">
+            <app-icon name="navigation" size="28" tone="muted" />
+            <view class="row-divider"></view>
+            <view catchtap="copyStudioAddress"><app-icon name="copy" size="28" tone="muted" /></view>
+          </view>
+        </view>
       </view>
     </view>
 
-    <view class="content-section-card" wx:if="{{testimonials.length}}">
-      <view class="section-title">客户评价</view>
-      <view class="review-card" wx:for="{{testimonials}}" wx:key="id">
-        <view class="review-content">“{{item.content}}”</view>
-        <view class="review-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
+    <view wx:elif="{{section.enabled && section.type === 'stores' && stores.length}}" class="about-section stores-section">
+      <view class="section-heading">
+        <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+      </view>
+      <view class="store-list">
+        <view class="store-item" wx:for="{{stores}}" wx:for-item="store" wx:key="id" bindtap="openStoreDetail" data-index="{{index}}">
+          <view class="store-index">0{{index + 1}}</view>
+          <view class="store-main">
+            <view class="store-name">{{store.name}}</view>
+            <view class="store-address">{{store.address}}</view>
+            <view class="store-meta" wx:if="{{store.businessHours}}">{{store.businessHours}}</view>
+          </view>
+          <app-icon name="chevron-right" size="28" tone="muted" />
+        </view>
       </view>
     </view>
-  </view>
 
-  <!-- 底部预约按钮 -->
-  <view wx:if="{{consultButtonVisible}}" class="bottom-action">
-    <button class="booking-btn" bindtap="goBooking">
-      <text class="btn-icon">📅</text>
-      <text>{{consultButton.text || '发起拍摄咨询'}}</text>
-    </button>
+    <view wx:elif="{{section.enabled && section.type === 'team' && photographers.length}}" class="about-section team-section">
+      <view class="section-heading">
+        <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+      </view>
+      <scroll-view class="team-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="team-track">
+          <view class="team-item" wx:for="{{photographers}}" wx:for-item="member" wx:key="id">
+            <image wx:if="{{member.avatar}}" class="team-avatar" src="{{member.avatar}}" mode="aspectFill" />
+            <view wx:else class="team-avatar-placeholder"><app-icon name="user-round" size="42" tone="muted" /></view>
+            <view class="team-name">{{member.name}}</view>
+            <view class="team-title">{{member.title}}</view>
+            <view class="team-bio">{{member.bio}}</view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'packages' && packages.length}}" class="about-section packages-section">
+      <view class="section-heading">
+        <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+      </view>
+      <view class="about-package-list">
+        <view class="about-package-item" wx:for="{{packages}}" wx:for-item="packageItem" wx:key="id">
+          <view class="about-package-copy" bindtap="openPackageDetail" data-id="{{packageItem.id}}">
+            <view class="about-package-name">{{packageItem.name}}</view>
+            <view class="about-package-description">{{packageItem.subtitle}}</view>
+            <view class="about-package-meta">
+              <text wx:if="{{packageItem.duration}}">{{packageItem.duration}}</text>
+              <text wx:if="{{packageItem.retouchCount}}">{{packageItem.retouchCount}}</text>
+            </view>
+          </view>
+          <view class="about-package-side">
+            <view class="about-package-price">{{packageItem.priceText}}</view>
+            <view class="about-package-action" bindtap="consultPackage" data-id="{{packageItem.id}}">
+              <text>{{section.actionText || terminology.consultationLabel}}</text>
+              <app-icon name="arrow-right" size="24" tone="primary" />
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'serviceFlow' && serviceFlow.enabled && serviceFlow.steps.length}}" class="about-section flow-section">
+      <view class="section-heading"><view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view></view>
+      <view class="flow-list">
+        <view class="flow-item" wx:for="{{serviceFlow.steps}}" wx:for-item="flowItem" wx:key="title">
+          <view class="flow-index">0{{index + 1}}</view>
+          <view>
+            <view class="flow-title">{{flowItem.title}}</view>
+            <view class="flow-description">{{flowItem.description}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'faq' && faq.enabled && faq.items.length}}" class="about-section faq-section">
+      <view class="section-heading"><view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view></view>
+      <view class="faq-list">
+        <view class="faq-item" wx:for="{{faq.items}}" wx:for-item="faqItem" wx:key="question">
+          <view class="faq-question">{{faqItem.question}}</view>
+          <view class="faq-answer">{{faqItem.answer}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'testimonials' && testimonials.length}}" class="about-section review-section">
+      <view class="section-heading"><view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view></view>
+      <view class="review-list">
+        <view class="review-item" wx:for="{{testimonials}}" wx:for-item="review" wx:key="id">
+          <view class="review-content">“{{review.content}}”</view>
+          <view class="review-meta">{{review.name}} · {{review.shootType}} {{review.dateText}}</view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view wx:if="{{consultButtonVisible && !quickJumpVisible}}" class="bottom-action">
+    <view class="booking-btn" bindtap="goBooking">
+      <app-icon name="calendar-days" size="30" tone="inverse" />
+      <text wx:if="{{consultButton.text}}">{{consultButton.text}}</text>
+      <text wx:else>发起{{terminology.serviceLabel}}{{terminology.consultationLabel}}</text>
+    </view>
   </view>
 
   <view wx:if="{{selectedStore}}" class="store-modal-mask" bindtap="closeStoreDetail">
@@ -191,14 +203,14 @@
           <view class="store-modal-title">{{selectedStore.name}}</view>
           <view class="store-modal-subtitle">{{selectedStore.businessHours}}</view>
         </view>
-        <button class="store-modal-close" bindtap="closeStoreDetail">×</button>
+        <view class="store-modal-close" bindtap="closeStoreDetail"><app-icon name="x" size="30" tone="muted" /></view>
       </view>
       <view class="store-modal-row" wx:if="{{selectedStore.address}}">
-        <view class="store-modal-label">地址</view>
+        <view class="store-modal-label section-title-row"><app-icon name="{{icons.contact.location}}" size="24" tone="primary" /><text>地址</text></view>
         <view class="store-modal-value">{{selectedStore.address}}</view>
       </view>
       <view class="store-modal-row" wx:if="{{selectedStore.phone}}">
-        <view class="store-modal-label">电话</view>
+        <view class="store-modal-label section-title-row"><app-icon name="{{icons.contact.phone}}" size="24" tone="primary" /><text>电话</text></view>
         <view class="store-modal-value">{{selectedStore.phone}}</view>
       </view>
       <view class="store-modal-row" wx:if="{{selectedStore.transportTips}}">
@@ -206,9 +218,20 @@
         <view class="store-modal-value">{{selectedStore.transportTips}}</view>
       </view>
       <view class="store-modal-actions">
-        <button class="store-modal-btn" bindtap="copySelectedStoreAddress">复制地址</button>
-        <button class="store-modal-btn primary" bindtap="closeStoreDetail">知道了</button>
+        <view class="store-modal-btn" bindtap="copySelectedStoreAddress">复制地址</view>
+        <view class="store-modal-btn primary" bindtap="closeStoreDetail">知道了</view>
       </view>
     </view>
   </view>
+
+  <quick-jump
+    wx:if="{{quickJumpVisible}}"
+    current="about"
+    booking-text="{{quickJump.bookingText}}"
+    portfolio-text="{{quickJump.portfolioText}}"
+    appearance="{{quickJump.appearance}}"
+    trigger-icon="{{quickJump.triggerIcon}}"
+    booking-icon="{{quickJump.bookingIcon}}"
+    portfolio-icon="{{quickJump.portfolioIcon}}"
+  />
 </view>
