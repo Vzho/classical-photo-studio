@@ -11,7 +11,7 @@ export const PHOTOGRAPHER = {
   location: '所在城市 / 服务范围',
   avatar: 'avatar/photographer.jpg', // COS路径
   stats: [
-    { value: '0+', label: '年摄影经验' },
+    { value: '0+', label: '摄影经验' },
     { value: '0+', label: '交付客片' },
     { value: '0%', label: '好评率' }
   ],

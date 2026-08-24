@@ -1,0 +1,7 @@
+<image
+  wx:if="{{src || name}}"
+  class="app-icon tone-{{tone}}"
+  style="width: {{size}}rpx; height: {{size}}rpx;"
+  src="{{src ? src : '/assets/icons/' + name + '.svg'}}"
+  mode="aspectFit"
+/>

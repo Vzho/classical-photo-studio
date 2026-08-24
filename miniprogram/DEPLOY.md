@@ -27,12 +27,12 @@ https://客户 COS Bucket.cos.客户 COS Region.myqcloud.com
 
 确认这些文件已替换为客户信息：
 
-- `project.config.json`：AppID、项目名、描述
+- `project.private.config.json`：本机使用的真实 AppID，由后台“云端设置”自动生成，不提交 Git
 - `app.json`：导航栏标题
-- `app.ts`：COS Bucket、Region、BaseUrl
-- `data/portfolio-config.json`：作品数据、首页文案、预约咨询风格、摄影师资料、套餐、档期、评价、服务流程、FAQ、门店和咨询模板
+- `config/client.config.js`：客户 COS Bucket、Region、BaseUrl，由后台自动生成，不提交 Git
+- COS `config/portfolio-config.json`：作品数据、首页文案、预约咨询风格、摄影师资料、套餐、档期、评价、服务流程、FAQ、门店和咨询模板
 
-后台会自动上传头像、Banner、作品图，并同步 `config/portfolio-config.json` 到 COS；不需要手动创建 COS 目录。
+仓库里的 `project.config.json` 和 `data/portfolio-config.json` 是通用开发模板。配置 COS 后，后台会自动上传头像、Banner、作品图，并只更新 COS 配置；不需要手动创建 COS 目录。
 
 ## 4. 本地预览
 
@@ -52,7 +52,7 @@ npm run compile
 - 摄影师简介正常
 - 微信号、邮箱、门店地址正确
 - 套餐、档期、评价、服务流程和 FAQ 展示正常
-- 主题设置保存后，主色、背景色、文字色在小程序中生效
+- 页面装修保存后，商业皮肤会同步应用到作品、简介、预约、门店、套餐和详情页面，以及底部导航与快捷入口；旧版皮肤配置仍可继续读取
 - 多门店复制地址、拨打电话、地图导航或地址复制兜底正常
 - 咨询页心仪风格和客户需求一致
 - 咨询页点击后进入“咨询信息已生成”页面

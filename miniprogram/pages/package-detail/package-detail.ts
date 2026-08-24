@@ -1,20 +1,29 @@
 import {
   buildThemeStyle,
   ConsultButtonContent,
+  DEFAULT_SHARE_CONTENT,
   FaqContent,
   getCosUrl,
   getPackageDetailPageData,
+  getThemePreset,
   PackageItem,
   PortfolioItem,
+  QuickJumpContent,
   ServiceFlowContent,
+  ShareContent,
+  shouldShowQuickJump,
   TeamPhotographerItem,
   TestimonialItem
 } from '../../utils/cos'
 import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
+import { DEFAULT_DECORATION, PackageDetailDecoration, TerminologyDecoration } from '../../utils/decoration'
+import { setPageNavigationTitle } from '../../utils/navigation'
+import { createShareMessage } from '../../utils/share'
 
 Page({
   data: {
     themeStyle: '',
+    themePreset: 'minimal',
     packageItem: null as PackageItem | null,
     relatedSeries: [] as PortfolioItem[],
     photographers: [] as TeamPhotographerItem[],
@@ -26,7 +35,16 @@ Page({
       text: '咨询此套餐',
       action: 'booking'
     } as Partial<ConsultButtonContent>,
-    consultButtonVisible: true
+    consultButtonVisible: true,
+    quickJump: {
+      enabled: true,
+      bookingText: '咨询',
+      portfolioText: '作品集'
+    } as Partial<QuickJumpContent>,
+    quickJumpVisible: true,
+    share: { ...DEFAULT_SHARE_CONTENT } as ShareContent,
+    terminology: { ...DEFAULT_DECORATION.terminology } as TerminologyDecoration,
+    decoration: { ...DEFAULT_DECORATION.packageDetail } as PackageDetailDecoration
   },
 
   onLoad(options: { id?: string }) {
@@ -39,10 +57,11 @@ Page({
   },
 
   async loadData(packageId: string) {
-    const { theme, packageItem, relatedSeries, photographers, testimonials, serviceFlow, faq, consultButton } = await getPackageDetailPageData(packageId)
+    const { theme, packageItem, relatedSeries, photographers, testimonials, serviceFlow, faq, consultButton, quickJump, share, terminology, decoration } = await getPackageDetailPageData(packageId)
 
     this.setData({
       themeStyle: buildThemeStyle(theme),
+      themePreset: getThemePreset(theme),
       packageItem: packageItem
         ? {
             ...packageItem,
@@ -72,8 +91,20 @@ Page({
         action: 'booking',
         ...(consultButton || {})
       },
-      consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'packageDetail')
+      consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'packageDetail'),
+      quickJump: {
+        enabled: true,
+        bookingText: '咨询',
+        portfolioText: '作品集',
+        ...(quickJump || {})
+      },
+      quickJumpVisible: shouldShowQuickJump(quickJump, 'packageDetail'),
+      share,
+      terminology,
+      decoration
     })
+
+    setPageNavigationTitle(packageItem?.name, `${terminology.packageLabel}详情`)
   },
 
   consultPackage() {
@@ -94,9 +125,13 @@ Page({
   },
 
   onShareAppMessage() {
-    return {
-      title: `${this.data.packageItem?.name || '拍摄套餐'} - 摄影作品合集`,
-      path: `/pages/package-detail/package-detail?id=${this.data.packageItem?.id || ''}`
-    }
+    return createShareMessage({
+      pageType: 'package-detail',
+      share: this.data.share,
+      contentTitle: this.data.packageItem?.name || this.data.terminology.packageLabel,
+      path: `/pages/package-detail/package-detail?id=${encodeURIComponent(this.data.packageItem?.id || '')}`,
+      contentImageUrl: this.data.share.fallbackImageUrl,
+      imagePriority: 'global-first'
+    })
   }
 })

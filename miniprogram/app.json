@@ -1,5 +1,9 @@
 {
   "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {
+    "quick-jump": "/components/quick-jump/quick-jump",
+    "app-icon": "/components/app-icon/app-icon"
+  },
   "pages": [
     "pages/portfolio/portfolio",
     "pages/about/about",
@@ -7,11 +11,12 @@
     "pages/success/success",
     "pages/packages/packages",
     "pages/package-detail/package-detail",
-    "pages/series/series"
+    "pages/series/series",
+    "pages/stores/stores"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",
-    "navigationBarTitleText": "摄影作品合集",
+    "navigationBarTitleText": "作品集",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f5f5f4",
     "backgroundTextStyle": "dark"
@@ -32,8 +37,16 @@
         "text": "简介"
       },
       {
+        "pagePath": "pages/packages/packages",
+        "text": "套餐"
+      },
+      {
         "pagePath": "pages/booking/booking",
         "text": "咨询"
+      },
+      {
+        "pagePath": "pages/stores/stores",
+        "text": "门店"
       }
     ]
   },

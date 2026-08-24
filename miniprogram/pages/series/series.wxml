@@ -1,85 +1,87 @@
-<!-- 系列详情页 -->
-<view class="series-page" style="{{themeStyle}}">
-  <!-- 头部信息 -->
-  <view class="series-header">
-    <view class="series-title">{{seriesTitle}}</view>
-    <view class="series-meta">
-      <text class="series-category">{{seriesCategory}}</text>
-      <text class="series-count">共 {{images.length}} 张</text>
-    </view>
-    <view wx:if="{{seriesInfo && seriesInfo.description}}" class="series-description">{{seriesInfo.description}}</view>
-  </view>
-
-  <view
-    wx:if="{{seriesInfo && (seriesInfo.suitableFor.length || seriesInfo.scenes.length || seriesInfo.tags.length)}}"
-    class="series-profile"
-  >
-    <view wx:if="{{seriesInfo.suitableFor.length}}" class="profile-block">
-      <view class="profile-label">适合人群</view>
-      <view class="profile-tags">
-        <text wx:for="{{seriesInfo.suitableFor}}" wx:key="*this" class="profile-tag">{{item}}</text>
+<view class="series-page theme-{{themePreset}} gallery-{{decoration.galleryVariant}}" style="{{themeStyle}}">
+  <block wx:for="{{decoration.sections}}" wx:key="id" wx:for-item="section">
+    <block wx:if="{{section.enabled}}">
+      <view class="series-header" wx:if="{{section.type === 'hero'}}">
+        <view class="series-category">{{seriesCategory}}</view>
+        <view class="series-title">{{seriesTitle}}</view>
+        <view class="series-count">共 {{images.length}} 张{{terminology.workLabel}}</view>
+        <view wx:if="{{seriesInfo && seriesInfo.description}}" class="series-description">{{seriesInfo.description}}</view>
       </view>
-    </view>
-    <view wx:if="{{seriesInfo.scenes.length}}" class="profile-block">
-      <view class="profile-label">拍摄场景</view>
-      <view class="profile-tags">
-        <text wx:for="{{seriesInfo.scenes}}" wx:key="*this" class="profile-tag muted">{{item}}</text>
+
+      <view
+        wx:if="{{section.type === 'profile' && seriesInfo && (seriesInfo.suitableFor.length || seriesInfo.scenes.length || seriesInfo.tags.length)}}"
+        class="series-profile"
+      >
+        <view class="section-title-row" wx:if="{{section.title}}"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+        <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
+        <view wx:if="{{seriesInfo.suitableFor.length}}" class="profile-block">
+          <view class="profile-label">适合</view>
+          <view class="profile-tags"><text wx:for="{{seriesInfo.suitableFor}}" wx:key="*this" class="profile-tag">{{item}}</text></view>
+        </view>
+        <view wx:if="{{seriesInfo.scenes.length}}" class="profile-block">
+          <view class="profile-label">场景</view>
+          <view class="profile-tags"><text wx:for="{{seriesInfo.scenes}}" wx:key="*this" class="profile-tag">{{item}}</text></view>
+        </view>
+        <view wx:if="{{seriesInfo.tags.length}}" class="profile-block">
+          <view class="profile-label">风格</view>
+          <view class="profile-tags"><text wx:for="{{seriesInfo.tags}}" wx:key="*this" class="profile-tag">{{item}}</text></view>
+        </view>
       </view>
-    </view>
-    <view wx:if="{{seriesInfo.tags.length}}" class="profile-block">
-      <view class="profile-label">风格标签</view>
-      <view class="profile-tags">
-        <text wx:for="{{seriesInfo.tags}}" wx:key="*this" class="profile-tag outline">{{item}}</text>
+
+      <view class="images-list" wx:if="{{section.type === 'gallery'}}">
+        <view class="section-title-row" wx:if="{{section.title}}"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+        <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
+        <view wx:for="{{images}}" wx:key="id" wx:for-item="imageItem" class="image-item" bindtap="onImageTap" data-index="{{index}}">
+          <image class="image" src="{{imageItem.imageUrl}}" mode="widthFix" lazy-load binderror="onSeriesImageError" data-id="{{imageItem.id}}" />
+          <view class="image-number">{{index + 1}} / {{images.length}}</view>
+        </view>
       </view>
-    </view>
-  </view>
 
-  <!-- 图片列表 -->
-  <view class="images-grid">
-    <view 
-      wx:for="{{images}}" 
-      wx:key="id" 
-      class="image-item"
-      bindtap="onImageTap"
-      data-index="{{index}}"
-    >
-      <image class="image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load binderror="onSeriesImageError" data-id="{{item.id}}" />
-      <view class="image-number">{{index + 1}}/{{images.length}}</view>
-    </view>
-  </view>
-
-  <view class="detail-module" wx:if="{{packages.length}}">
-    <view class="module-title">推荐套餐</view>
-    <view class="related-package" wx:for="{{packages}}" wx:key="id">
-      <view class="related-package-main">
-        <view class="related-package-name">{{item.name}}</view>
-        <view class="related-package-desc">{{item.subtitle}}</view>
+      <view class="detail-module" wx:if="{{section.type === 'packages' && packages.length}}">
+        <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+        <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
+        <view class="related-package" wx:for="{{packages}}" wx:key="id" wx:for-item="packageItem">
+          <view class="related-package-main">
+            <view class="related-package-name">{{packageItem.name}}</view>
+            <view class="related-package-desc">{{packageItem.subtitle}}</view>
+          </view>
+          <view class="related-package-side">
+            <view class="related-package-price">{{packageItem.priceText}}</view>
+            <view class="small-action" bindtap="consultPackage" data-id="{{packageItem.id}}">
+              <app-icon name="message-circle" size="25" tone="inverse" />
+              <text>{{terminology.consultationLabel}}</text>
+            </view>
+          </view>
+        </view>
       </view>
-      <view class="related-package-side">
-        <view class="related-package-price">{{item.priceText}}</view>
-        <button class="small-consult-btn" bindtap="consultPackage" data-id="{{item.id}}">咨询此套餐</button>
+
+      <view class="detail-module" wx:if="{{section.type === 'team' && photographers.length}}">
+        <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+        <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
+        <view class="person-item" wx:for="{{photographers}}" wx:key="id">
+          <view class="person-name">{{item.name}}</view>
+          <view class="person-title">{{item.title}}</view>
+          <view class="person-bio">{{item.bio}}</view>
+        </view>
       </view>
-    </view>
-  </view>
 
-  <view class="detail-module" wx:if="{{photographers.length}}">
-    <view class="module-title">关联摄影师</view>
-    <view class="photographer-card" wx:for="{{photographers}}" wx:key="id">
-      <view class="photographer-name">{{item.name}}</view>
-      <view class="photographer-title">{{item.title}}</view>
-      <view class="photographer-bio">{{item.bio}}</view>
-    </view>
-  </view>
+      <view class="detail-module" wx:if="{{section.type === 'testimonials' && testimonials.length}}">
+        <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
+        <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
+        <view class="testimonial-item" wx:for="{{testimonials}}" wx:key="id">
+          <view class="testimonial-content">“{{item.content}}”</view>
+          <view class="testimonial-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
+        </view>
+      </view>
 
-  <view class="detail-module" wx:if="{{testimonials.length}}">
-    <view class="module-title">相关评价</view>
-    <view class="testimonial-card" wx:for="{{testimonials}}" wx:key="id">
-      <view class="testimonial-content">“{{item.content}}”</view>
-      <view class="testimonial-meta">{{item.name}} · {{item.shootType}} {{item.dateText}}</view>
-    </view>
-  </view>
+      <view wx:if="{{section.type === 'action' && consultButtonVisible}}" class="series-action">
+        <view class="btn-primary" bindtap="consultSameStyle">
+          <app-icon name="message-circle" size="30" tone="inverse" />
+          <text>{{section.actionText || consultButton.text || terminology.consultationLabel}}</text>
+        </view>
+      </view>
+    </block>
+  </block>
 
-  <view wx:if="{{consultButtonVisible}}" class="series-consult-bar">
-    <button class="series-consult-btn" bindtap="consultSameStyle">{{consultButton.text || '咨询同款风格'}}</button>
-  </view>
+  <quick-jump wx:if="{{quickJumpVisible}}" current="series" booking-text="{{quickJump.bookingText}}" portfolio-text="{{quickJump.portfolioText}}" appearance="{{quickJump.appearance}}" trigger-icon="{{quickJump.triggerIcon}}" booking-icon="{{quickJump.bookingIcon}}" portfolio-icon="{{quickJump.portfolioIcon}}" />
 </view>

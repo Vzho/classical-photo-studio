@@ -2,15 +2,23 @@ import { FALLBACK_STYLE_OPTIONS, PHOTOGRAPHER } from '../../utils/constants'
 import {
   buildThemeStyle,
   ConsultationContent,
+  DEFAULT_SHARE_CONTENT,
   FaqContent,
   getBookingPageData,
   getCosUrl,
+  getThemePreset,
   PackageItem,
+  QuickJumpContent,
   ScheduleContent,
   ServiceFlowContent,
+  ShareContent,
+  shouldShowQuickJump,
   StoreItem,
   TeamPhotographerItem
 } from '../../utils/cos'
+import { BookingDecoration, BookingFieldDecoration, DEFAULT_DECORATION, TerminologyDecoration } from '../../utils/decoration'
+import { setPageNavigationTitle } from '../../utils/navigation'
+import { createShareMessage } from '../../utils/share'
 
 const DEFAULT_CONSULTATION: Required<ConsultationContent> = {
   title: '预约咨询',
@@ -42,7 +50,13 @@ function renderTemplate(template: string, values: Record<string, string>): strin
 Page({
   data: {
     bannerUrl: '',
+    bannerFallbackUrl: '',
     themeStyle: '',
+    themePreset: 'minimal',
+    bookingDecoration: DEFAULT_DECORATION.booking as BookingDecoration,
+    bookingSections: DEFAULT_DECORATION.booking.sections,
+    bookingFields: DEFAULT_DECORATION.booking.fields as BookingFieldDecoration[],
+    terminology: { ...DEFAULT_DECORATION.terminology } as TerminologyDecoration,
     photographer: PHOTOGRAPHER,
     styleOptions: [...FALLBACK_STYLE_OPTIONS, '其他'],
     packages: [] as PackageItem[],
@@ -62,6 +76,13 @@ Page({
     consultation: DEFAULT_CONSULTATION,
     serviceFlow: { enabled: false, steps: [] } as Partial<ServiceFlowContent>,
     faq: { enabled: false, items: [] } as Partial<FaqContent>,
+    quickJump: {
+      enabled: true,
+      bookingText: '咨询',
+      portfolioText: '作品集'
+    } as Partial<QuickJumpContent>,
+    quickJumpVisible: true,
+    share: { ...DEFAULT_SHARE_CONTENT } as ShareContent,
     formData: {
       name: '',
       contact: '',
@@ -78,16 +99,8 @@ Page({
     showSubmitBtn: false
   },
 
-  async onLoad() {
+  async onShow() {
     await this.loadData()
-  },
-
-  onShow() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 2 })
-    }
-
-    this.applyPrefillFromStorage()
   },
 
   async loadData() {
@@ -104,7 +117,11 @@ Page({
       serviceFlow,
       faq,
       stores,
-      photographers
+      photographers,
+      quickJump,
+      share,
+      decoration,
+      terminology
     } = await getBookingPageData()
 
     const styleOptions = normalizeStyleOptions(booking?.styleOptions)
@@ -114,7 +131,13 @@ Page({
 
     this.setData({
       bannerUrl: getCosUrl('banner/booking-banner.jpg'),
+      bannerFallbackUrl: share.fallbackImageUrl || getCosUrl(photographer?.avatar || ''),
       themeStyle: buildThemeStyle(theme),
+      themePreset: getThemePreset(theme),
+      bookingDecoration: decoration,
+      bookingSections: decoration.sections,
+      bookingFields: decoration.fields,
+      terminology,
       photographer: photographer || PHOTOGRAPHER,
       styleOptions: [...styleOptions, '其他'],
       packages,
@@ -145,10 +168,19 @@ Page({
         ...(faq || {}),
         items: faq?.items || []
       },
+      quickJump: {
+        enabled: true,
+        bookingText: '咨询',
+        portfolioText: '作品集',
+        ...(quickJump || {})
+      },
+      quickJumpVisible: shouldShowQuickJump(quickJump, 'booking'),
+      share,
       'formData.style': selectedStyle,
       minDate
     })
 
+    setPageNavigationTitle(consultation?.title || `预约${terminology.consultationLabel}`, '预约咨询')
     this.applyPrefillFromStorage()
   },
 
@@ -201,8 +233,12 @@ Page({
   },
 
   onBannerError() {
-    console.warn('Banner 加载失败，使用默认背景')
-    this.setData({ bannerUrl: '' })
+    const bannerFallbackUrl = this.data.bannerFallbackUrl
+    this.setData({
+      bannerUrl: bannerFallbackUrl && this.data.bannerUrl !== bannerFallbackUrl
+        ? bannerFallbackUrl
+        : ''
+    })
   },
 
   onInputChange(e: WechatMiniprogram.Input) {
@@ -259,25 +295,28 @@ Page({
   },
 
   validateForm(): boolean {
-    const { name, contact, date, style, customStyle } = this.data.formData
-
-    if (!name.trim()) {
-      wx.showToast({ title: '请输入您的称呼', icon: 'none' })
-      return false
+    const { name, contact, date, style, customStyle, packageId, storeId, photographerId, notes } = this.data.formData
+    const values: Record<string, string> = {
+      name,
+      contact,
+      date,
+      style: style === '其他' ? customStyle : style,
+      package: packageId,
+      store: storeId,
+      photographer: photographerId,
+      notes
     }
 
-    if (!contact.trim()) {
-      wx.showToast({ title: '请输入联系方式', icon: 'none' })
-      return false
-    }
+    const missingField = this.data.bookingFields.find(field => {
+      return field.enabled !== false && field.required === true && !String(values[field.id] || '').trim()
+    })
 
-    if (style === '其他' && !customStyle.trim()) {
-      wx.showToast({ title: '请输入您的心仪风格', icon: 'none' })
-      return false
-    }
-
-    if (!date) {
-      wx.showToast({ title: '请选择期望日期', icon: 'none' })
+    if (missingField) {
+      const selectFieldIds = ['style', 'package', 'date', 'store', 'photographer']
+      wx.showToast({
+        title: `${selectFieldIds.includes(missingField.id) ? '请选择' : '请填写'}${missingField.label}`,
+        icon: 'none'
+      })
       return false
     }
 
@@ -346,9 +385,12 @@ Page({
   },
 
   onShareAppMessage() {
-    return {
-      title: '摄影作品合集 - 预约咨询',
-      path: '/pages/booking/booking'
-    }
+    return createShareMessage({
+      pageType: 'booking',
+      share: this.data.share,
+      path: '/pages/booking/booking',
+      contentImageUrl: this.data.share.fallbackImageUrl,
+      imagePriority: 'global-first'
+    })
   }
 })

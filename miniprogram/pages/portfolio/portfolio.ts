@@ -3,20 +3,63 @@ import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/
 import {
   buildThemeStyle,
   ConsultButtonContent,
+  DEFAULT_SHARE_CONTENT,
   getPortfolioPageData,
   getCosUrl,
+  getThemePreset,
+  HomePortfolioCardContent,
   HomeBannerContent,
   PackageItem,
   PortfolioItem,
+  QuickJumpContent,
   ScheduleContent,
   ServiceFlowContent,
+  ShareContent,
+  shouldShowQuickJump,
   TestimonialItem
 } from '../../utils/cos'
+import { DEFAULT_DECORATION, HomeDecoration, TerminologyDecoration } from '../../utils/decoration'
+import { setPageNavigationTitle } from '../../utils/navigation'
+import { createShareMessage } from '../../utils/share'
 
 const DEFAULT_HOME_BANNER: HomeBannerContent = {
   logoText: '摄影作品合集',
   tagText: '精选作品',
-  description: '展示摄影作品、服务风格和预约入口。'
+  description: ''
+}
+
+interface HomeShortcutItem {
+  key: 'schedule' | 'testimonials'
+  text: string
+  icon: string
+}
+
+function buildHomeShortcuts(
+  decoration: HomeDecoration,
+  schedule: Partial<ScheduleContent>,
+  testimonials: TestimonialItem[]
+): HomeShortcutItem[] {
+  const shortcuts: HomeShortcutItem[] = []
+  const scheduleSection = decoration.sections.find(item => item.type === 'schedule')
+  const testimonialSection = decoration.sections.find(item => item.type === 'testimonials')
+
+  if (scheduleSection?.enabled !== false && schedule.enabled !== false && schedule.availableText) {
+    shortcuts.push({
+      key: 'schedule',
+      text: scheduleSection?.title || schedule.title || '近期档期',
+      icon: scheduleSection?.icon || 'calendar-days'
+    })
+  }
+
+  if (testimonialSection?.enabled !== false && testimonials.length) {
+    shortcuts.push({
+      key: 'testimonials',
+      text: testimonialSection?.title || '客户评价',
+      icon: testimonialSection?.icon || 'message-circle'
+    })
+  }
+
+  return shortcuts
 }
 
 function getNextRenderableCoverItem(item: PortfolioItem, width: number): PortfolioItem {
@@ -51,7 +94,17 @@ Page({
     filteredItems: [] as PortfolioItem[],
     bannerItems: [] as PortfolioItem[], // 轮播图数据
     homeBanner: DEFAULT_HOME_BANNER,
+    homePortfolioCard: {
+      showPhotoCount: false,
+      showDescription: false,
+      showTags: false
+    } as HomePortfolioCardContent,
     themeStyle: '',
+    themePreset: 'minimal',
+    homeDecoration: DEFAULT_DECORATION.home as HomeDecoration,
+    homeSections: DEFAULT_DECORATION.home.sections,
+    homeShortcuts: [] as HomeShortcutItem[],
+    terminology: { ...DEFAULT_DECORATION.terminology } as TerminologyDecoration,
     packages: [] as PackageItem[],
     schedule: { enabled: false } as Partial<ScheduleContent>,
     testimonials: [] as TestimonialItem[],
@@ -62,40 +115,18 @@ Page({
       action: 'booking'
     } as Partial<ConsultButtonContent>,
     consultButtonVisible: true,
+    quickJump: {
+      enabled: true,
+      bookingText: '咨询',
+      portfolioText: '作品集'
+    } as Partial<QuickJumpContent>,
+    quickJumpVisible: true,
     bannerUrl: '',
-    showFloatingBtn: false // 控制悬浮按钮显示
+    share: { ...DEFAULT_SHARE_CONTENT } as ShareContent
   },
 
-  onLoad() {
-    this.loadData()
-  },
-
-  onShow() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 0 })
-    }
-  },
-  
-  // 监听页面滚动
-  onPageScroll() {
-    // 获取页面高度信息，判断是否接近底部
-    const query = wx.createSelectorQuery()
-    query.select('.portfolio-page').boundingClientRect()
-    query.selectViewport().scrollOffset()
-    query.exec((res) => {
-      if (res[0] && res[1]) {
-        const pageHeight = res[0].height
-        const scrollTop = res[1].scrollTop
-        const windowHeight = wx.getSystemInfoSync().windowHeight
-        
-        // 距离底部 300px 时显示 (比 100px 稍微提前一点，体验更好)
-        const isNearBottom = scrollTop + windowHeight > pageHeight - 300
-        
-        if (this.data.showFloatingBtn !== isNearBottom) {
-          this.setData({ showFloatingBtn: isNearBottom })
-        }
-      }
-    })
+  async onShow() {
+    await this.loadData()
   },
   
   // 跳转到预约页面
@@ -104,15 +135,18 @@ Page({
   },
 
   goPackages() {
-    wx.navigateTo({
+    wx.switchTab({
       url: '/pages/packages/packages'
     })
   },
 
-  scrollToWorks() {
+  onHomeShortcutTap(e: WechatMiniprogram.TouchEvent) {
+    const key = String(e.currentTarget.dataset.key || '')
+    if (key !== 'schedule' && key !== 'testimonials') return
+
     wx.pageScrollTo({
-      selector: '.portfolio-grid',
-      duration: 300
+      selector: `#home-section-${key}`,
+      duration: 280
     })
   },
 
@@ -123,17 +157,34 @@ Page({
 
   async loadData() {
     const bannerUrl = getCosUrl('banner/main-banner.jpg')
-    const { portfolioItems, homeBanner, theme, packages, schedule, testimonials, serviceFlow, consultButton } = await getPortfolioPageData()
+    const { portfolioItems, homeFeaturedItems, homeBanner, homePortfolioCard, theme, packages, schedule, testimonials, serviceFlow, consultButton, quickJump, share, decoration, terminology } = await getPortfolioPageData()
+    const resolvedHomeBanner = {
+      ...DEFAULT_HOME_BANNER,
+      ...(homeBanner || {})
+    }
     const categories = ['全部', ...Array.from(new Set(portfolioItems.map(item => item.category)))]
     const activeCategory = categories.includes(this.data.activeCategory) ? this.data.activeCategory : '全部'
     
-    // 筛选出系列作品作为轮播图候选（只要是系列封面的）
+    // 首页大图优先使用后台逐张选择的精选照片；未选择时按系列封面和点赞数兜底。
     const seriesItems = portfolioItems.filter(item => item.isSeriesCover && item.seriesId)
+    const selectedHomePhotos = Array.isArray(homeFeaturedItems) ? homeFeaturedItems : []
+    const bannerCandidates = (selectedHomePhotos.length ? selectedHomePhotos : seriesItems)
     
-    // 按点赞数排序，取前6个
-    const bannerItems = seriesItems
-      .sort((a, b) => b.likes - a.likes)
-      .slice(0, 6)
+    const bannerItems = bannerCandidates
+      .sort((a, b) => {
+        if (selectedHomePhotos.length) {
+          const sortA = Number.isFinite(a.homeSort) ? Number(a.homeSort) : Number.MAX_SAFE_INTEGER
+          const sortB = Number.isFinite(b.homeSort) ? Number(b.homeSort) : Number.MAX_SAFE_INTEGER
+          if (sortA !== sortB) return sortA - sortB
+          if (a.seriesId === b.seriesId) {
+            const photoSortA = Number.isFinite(a.homePhotoSort) ? Number(a.homePhotoSort) : Number.MAX_SAFE_INTEGER
+            const photoSortB = Number.isFinite(b.homePhotoSort) ? Number(b.homePhotoSort) : Number.MAX_SAFE_INTEGER
+            if (photoSortA !== photoSortB) return photoSortA - photoSortB
+          }
+        }
+        return b.likes - a.likes
+      })
+      .slice(0, 12)
       // 为轮播图加载更高质量的图片
       .map(item => {
         // 修复: 确保替换后的路径正确保留斜杠
@@ -175,11 +226,23 @@ Page({
       activeCategory,
       bannerUrl,
       portfolioItems,
-      homeBanner: {
-        ...DEFAULT_HOME_BANNER,
-        ...(homeBanner || {})
+      homeBanner: resolvedHomeBanner,
+      homePortfolioCard: {
+        showPhotoCount: false,
+        showDescription: false,
+        showTags: false,
+        ...(homePortfolioCard || {})
       },
       themeStyle: buildThemeStyle(theme),
+      themePreset: getThemePreset(theme),
+      homeDecoration: decoration,
+      homeSections: decoration.sections,
+      homeShortcuts: buildHomeShortcuts(
+        decoration,
+        { enabled: false, ...(schedule || {}) },
+        testimonials
+      ),
+      terminology,
       packages: packages.map(item => ({
         ...item,
         includes: item.includes || [],
@@ -203,11 +266,21 @@ Page({
         ...(consultButton || {})
       },
       consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'portfolio'),
+      quickJump: {
+        enabled: true,
+        bookingText: '咨询',
+        portfolioText: '作品集',
+        ...(quickJump || {})
+      },
+      quickJumpVisible: shouldShowQuickJump(quickJump, 'portfolio'),
+      share,
       filteredItems: activeCategory === '全部'
         ? portfolioItems
         : portfolioItems.filter(item => item.category === activeCategory),
       bannerItems
     })
+
+    setPageNavigationTitle(theme?.brandName || resolvedHomeBanner.logoText, '作品集')
   },
   
   // 轮播图点击跳转
@@ -222,7 +295,6 @@ Page({
   
   onBannerError() {
     // Banner 加载失败时的兜底图 (可以使用本地图片或纯色背景)
-    console.warn('Banner 加载失败，使用默认图')
     // 这里我们不做处理，让它显示空白或者默认背景色
     // 或者可以 setData 设置一个本地路径
   },
@@ -304,10 +376,12 @@ Page({
   },
 
   onShareAppMessage() {
-    return {
-      title: '摄影作品合集',
+    return createShareMessage({
+      pageType: 'portfolio',
+      share: this.data.share,
       path: '/pages/portfolio/portfolio',
-      imageUrl: this.data.bannerUrl
-    }
+      contentImageUrl: this.data.share.fallbackImageUrl,
+      imagePriority: 'global-first'
+    })
   }
 })

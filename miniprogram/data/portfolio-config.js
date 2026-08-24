@@ -1,0 +1,744 @@
+// This file is generated from portfolio-config.json for the mini program runtime fallback.
+module.exports = {
+  "configVersion": "2.5.0",
+  "modules": {
+    "theme": true,
+    "packages": true,
+    "schedule": true,
+    "testimonials": true,
+    "photographers": false,
+    "stores": true,
+    "serviceFlow": true,
+    "faq": true,
+    "consultButton": true,
+    "quickJump": true
+  },
+  "theme": {
+    "enabled": true,
+    "preset": "editorial-studio",
+    "brandName": "摄影作品合集",
+    "primaryColor": "#111111",
+    "secondaryColor": "#3159D9",
+    "accentColor": "#D4F238",
+    "backgroundColor": "#F3F3EF",
+    "surfaceColor": "#FFFFFF",
+    "surfaceMutedColor": "#E7E8E2",
+    "textColor": "#111111",
+    "mutedTextColor": "#62635F",
+    "dividerColor": "#D4D5CF",
+    "buttonTextColor": "#FFFFFF",
+    "cardStyle": "minimal",
+    "buttonStyle": "square",
+    "fontStyle": "clean",
+    "headingStyle": "editorial",
+    "quickJumpStyle": "solid",
+    "imageRadius": "small",
+    "layoutDensity": "compact",
+    "homeLayout": "portfolio-first",
+    "showDecorations": true
+  },
+  "homeBanner": {
+    "logoText": "摄影作品合集",
+    "tagText": "精选作品",
+    "description": "展示摄影作品、服务风格和咨询入口。",
+    "mainImage": "",
+    "bookingImage": "",
+    "aboutImage": ""
+  },
+  "share": {
+    "title": "妆造作品合集",
+    "imagePath": ""
+  },
+  "themes": [],
+  "booking": {
+    "styleOptions": [
+      "写真",
+      "古风",
+      "婚纱",
+      "亲子",
+      "商业"
+    ]
+  },
+  "packages": [],
+  "schedule": {
+    "enabled": false,
+    "title": "近期档期",
+    "availableText": "",
+    "notice": "档期仅供参考，具体拍摄时间请与摄影师确认。",
+    "restDays": [],
+    "busyDates": [],
+    "specialNotes": []
+  },
+  "testimonials": [],
+  "consultButton": {
+    "enabled": false,
+    "text": "咨询拍摄",
+    "action": "booking",
+    "showOnPages": [
+      "portfolio",
+      "seriesDetail",
+      "packageDetail",
+      "about"
+    ]
+  },
+  "quickJump": {
+    "enabled": true,
+    "bookingText": "咨询",
+    "portfolioText": "作品集"
+  },
+  "homePortfolioCard": {
+    "showPhotoCount": false,
+    "showDescription": false,
+    "showTags": false
+  },
+  "consultation": {
+    "title": "预约咨询",
+    "description": "填写信息后可生成咨询内容，发送给摄影师确认档期和方案。",
+    "template": "你好，我想咨询拍摄：\n\n称呼：{{name}}\n联系方式：{{contact}}\n拍摄风格：{{style}}\n意向套餐：{{package}}\n期望日期：{{date}}\n门店：{{store}}\n摄影师：{{photographer}}\n备注：{{note}}\n\n我是在小程序中看到作品后联系你的，想进一步确认档期和拍摄方案。",
+    "privacyTip": "你填写的信息仅用于生成咨询内容，请复制后发送给摄影师确认档期和拍摄方案。"
+  },
+  "serviceFlow": {
+    "enabled": false,
+    "steps": []
+  },
+  "faq": {
+    "enabled": false,
+    "items": []
+  },
+  "photographers": [],
+  "stores": [],
+  "photographer": {
+    "name": "摄影师名称",
+    "title": "摄影师简介标题",
+    "location": "所在城市 / 服务范围",
+    "avatar": "",
+    "stats": [
+      {
+        "value": "0+",
+        "label": "摄影经验"
+      },
+      {
+        "value": "0+",
+        "label": "交付客片"
+      },
+      {
+        "value": "0%",
+        "label": "好评率"
+      }
+    ],
+    "bio": "这里填写摄影师介绍、拍摄理念和服务特色。",
+    "skills": [],
+    "contact": {
+      "wechat": "",
+      "email": ""
+    },
+    "studio": {
+      "name": "",
+      "address": "",
+      "latitude": null,
+      "longitude": null
+    }
+  },
+  "decoration": {
+    "terminology": {
+      "workLabel": "作品",
+      "packageLabel": "套餐",
+      "consultationLabel": "咨询",
+      "professionalLabel": "摄影师",
+      "serviceLabel": "拍摄",
+      "customerServiceLabel": "客服"
+    },
+    "navigation": {
+      "portfolioText": "作品集",
+      "aboutText": "简介",
+      "packagesText": "套餐",
+      "bookingText": "咨询",
+      "storesText": "门店",
+      "style": "line",
+      "items": [
+        { "key": "portfolio", "enabled": true },
+        { "key": "about", "enabled": true },
+        { "key": "booking", "enabled": true },
+        { "key": "packages", "enabled": false },
+        { "key": "stores", "enabled": false }
+      ]
+    },
+    "icons": {
+      "navigation": {
+        "portfolio": "images",
+        "about": "user-round",
+        "packages": "briefcase-business",
+        "booking": "calendar-days",
+        "stores": "map-pin"
+      },
+      "navigationCustom": {
+        "portfolio": "",
+        "about": "",
+        "packages": "",
+        "booking": "",
+        "stores": ""
+      },
+      "quickJump": {
+        "trigger": "navigation",
+        "portfolio": "images",
+        "booking": "calendar-days"
+      },
+      "contact": {
+        "wechat": "message-circle",
+        "email": "mail",
+        "location": "map-pin",
+        "phone": "phone"
+      }
+    },
+    "home": {
+      "template": "editorial-cover",
+      "heroVariant": "editorial",
+      "galleryVariant": "editorial",
+      "galleryColumns": 2,
+      "imageRatio": "natural",
+      "cardContent": "full",
+      "galleryGap": "standard",
+      "sections": [
+        {
+          "id": "hero",
+          "type": "hero",
+          "enabled": true,
+          "title": "",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "shortcuts",
+          "type": "shortcuts",
+          "enabled": true,
+          "icon": "",
+          "title": "快捷入口",
+          "subtitle": "快速查看档期和客户评价",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "categories",
+          "type": "categories",
+          "enabled": true,
+          "title": "",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "portfolio",
+          "type": "portfolio",
+          "enabled": true,
+          "title": "作品精选",
+          "subtitle": "点击作品，查看完整系列",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "packages",
+          "type": "packages",
+          "enabled": true,
+          "title": "拍摄方案",
+          "subtitle": "先了解服务内容，再选择适合你的方案",
+          "actionText": "查看全部",
+          "variant": "strip"
+        },
+        {
+          "id": "schedule",
+          "type": "schedule",
+          "enabled": true,
+          "title": "近期档期",
+          "subtitle": "",
+          "actionText": "咨询档期",
+          "variant": "notice"
+        },
+        {
+          "id": "testimonials",
+          "type": "testimonials",
+          "enabled": true,
+          "title": "客户反馈",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "quotes"
+        },
+        {
+          "id": "serviceFlow",
+          "type": "serviceFlow",
+          "enabled": true,
+          "title": "服务流程",
+          "subtitle": "从沟通到交付，每一步都清晰",
+          "actionText": "",
+          "variant": "steps"
+        }
+      ]
+    },
+    "about": {
+      "headerVariant": "editorial",
+      "sections": [
+        {
+          "id": "profile",
+          "type": "profile",
+          "enabled": true,
+          "title": "",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "bio",
+          "type": "bio",
+          "enabled": true,
+          "title": "关于我们",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "skills",
+          "type": "skills",
+          "enabled": true,
+          "title": "擅长风格",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "contact",
+          "type": "contact",
+          "enabled": true,
+          "title": "联系门店",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "stores",
+          "type": "stores",
+          "enabled": true,
+          "title": "门店信息",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "team",
+          "type": "team",
+          "enabled": true,
+          "title": "服务团队",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "packages",
+          "type": "packages",
+          "enabled": true,
+          "title": "服务价格",
+          "subtitle": "",
+          "actionText": "咨询",
+          "variant": "default"
+        },
+        {
+          "id": "serviceFlow",
+          "type": "serviceFlow",
+          "enabled": true,
+          "title": "服务流程",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "faq",
+          "type": "faq",
+          "enabled": true,
+          "title": "常见问题",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "testimonials",
+          "type": "testimonials",
+          "enabled": true,
+          "title": "客户评价",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        }
+      ]
+    },
+    "booking": {
+      "headerVariant": "compact",
+      "formVariant": "lines",
+      "sections": [
+        {
+          "id": "hero",
+          "type": "hero",
+          "enabled": true,
+          "title": "",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "notice",
+          "type": "notice",
+          "enabled": true,
+          "title": "预约说明",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "schedule",
+          "type": "schedule",
+          "enabled": true,
+          "title": "近期档期",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "form",
+          "type": "form",
+          "enabled": true,
+          "title": "告诉我们你的拍摄需求",
+          "subtitle": "填写后会生成一段咨询内容，不会自动提交个人信息",
+          "actionText": "生成咨询内容",
+          "variant": "default"
+        },
+        {
+          "id": "serviceFlow",
+          "type": "serviceFlow",
+          "enabled": true,
+          "title": "服务流程",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "faq",
+          "type": "faq",
+          "enabled": true,
+          "title": "常见问题",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        }
+      ],
+      "fields": [
+        {
+          "id": "name",
+          "enabled": true,
+          "required": true,
+          "label": "您的称呼",
+          "placeholder": "怎么称呼您？",
+          "icon": "user-round"
+        },
+        {
+          "id": "contact",
+          "enabled": true,
+          "required": true,
+          "label": "联系方式",
+          "placeholder": "手机号或微信号，方便客服联系您",
+          "icon": "phone"
+        },
+        {
+          "id": "style",
+          "enabled": true,
+          "required": true,
+          "label": "心仪风格",
+          "placeholder": "请选择风格",
+          "icon": "palette"
+        },
+        {
+          "id": "package",
+          "enabled": true,
+          "required": false,
+          "label": "意向套餐",
+          "placeholder": "暂不选择套餐",
+          "icon": "briefcase-business"
+        },
+        {
+          "id": "date",
+          "enabled": true,
+          "required": true,
+          "label": "期望拍摄日期",
+          "placeholder": "请选择日期",
+          "icon": "calendar-days"
+        },
+        {
+          "id": "store",
+          "enabled": true,
+          "required": false,
+          "label": "意向门店",
+          "placeholder": "暂不选择门店",
+          "icon": "map-pin"
+        },
+        {
+          "id": "photographer",
+          "enabled": true,
+          "required": false,
+          "label": "意向摄影师",
+          "placeholder": "暂不选择摄影师",
+          "icon": "camera"
+        },
+        {
+          "id": "notes",
+          "enabled": true,
+          "required": false,
+          "label": "备注说明",
+          "placeholder": "人数、场景、服装、预算或其他需要提前沟通的信息",
+          "icon": "message-square"
+        }
+      ]
+    },
+    "packages": {
+      "layoutVariant": "list",
+      "sections": [
+        {
+          "id": "header",
+          "type": "header",
+          "enabled": true,
+          "title": "服务套餐",
+          "subtitle": "了解价格范围和服务内容，再联系客服确认适合你的方案。",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "schedule",
+          "type": "schedule",
+          "enabled": true,
+          "title": "近期档期",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "list",
+          "type": "list",
+          "enabled": true,
+          "title": "",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "testimonials",
+          "type": "testimonials",
+          "enabled": true,
+          "title": "客户评价",
+          "subtitle": "来自真实服务体验的反馈",
+          "actionText": "",
+          "variant": "default"
+        }
+      ]
+    },
+    "packageDetail": {
+      "layoutVariant": "compact",
+      "sections": [
+        {
+          "id": "hero",
+          "type": "hero",
+          "enabled": true,
+          "title": "服务方案",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "info",
+          "type": "info",
+          "enabled": true,
+          "title": "套餐信息",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "suitable",
+          "type": "suitable",
+          "enabled": true,
+          "title": "适合",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "includes",
+          "type": "includes",
+          "enabled": true,
+          "title": "包含服务",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "relatedSeries",
+          "type": "relatedSeries",
+          "enabled": true,
+          "title": "相关作品",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "team",
+          "type": "team",
+          "enabled": true,
+          "title": "服务团队",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "testimonials",
+          "type": "testimonials",
+          "enabled": true,
+          "title": "客户评价",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "serviceFlow",
+          "type": "serviceFlow",
+          "enabled": true,
+          "title": "服务流程",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "faq",
+          "type": "faq",
+          "enabled": true,
+          "title": "常见问题",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        }
+      ]
+    },
+    "series": {
+      "galleryVariant": "immersive",
+      "sections": [
+        {
+          "id": "hero",
+          "type": "hero",
+          "enabled": true,
+          "title": "",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "profile",
+          "type": "profile",
+          "enabled": true,
+          "title": "",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "gallery",
+          "type": "gallery",
+          "enabled": true,
+          "title": "",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "packages",
+          "type": "packages",
+          "enabled": true,
+          "title": "相关套餐",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "team",
+          "type": "team",
+          "enabled": true,
+          "title": "服务团队",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "testimonials",
+          "type": "testimonials",
+          "enabled": true,
+          "title": "客户评价",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "action",
+          "type": "action",
+          "enabled": true,
+          "title": "",
+          "subtitle": "",
+          "actionText": "咨询同款风格",
+          "variant": "default"
+        }
+      ]
+    },
+    "success": {
+      "layoutVariant": "compact",
+      "sections": [
+        {
+          "id": "hero",
+          "type": "hero",
+          "enabled": true,
+          "title": "咨询内容已生成",
+          "subtitle": "请复制并发送给客服。最终日期和服务方案以双方沟通确认为准。",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "summary",
+          "type": "summary",
+          "enabled": true,
+          "title": "咨询摘要",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "content",
+          "type": "content",
+          "enabled": true,
+          "title": "完整咨询内容",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "contact",
+          "type": "contact",
+          "enabled": true,
+          "title": "客服微信",
+          "subtitle": "",
+          "actionText": "",
+          "variant": "default"
+        },
+        {
+          "id": "actions",
+          "type": "actions",
+          "enabled": true,
+          "title": "",
+          "subtitle": "",
+          "actionText": "复制咨询内容",
+          "variant": "default"
+        }
+      ]
+    }
+  }
+}

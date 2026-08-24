@@ -1,18 +1,27 @@
 import {
   buildThemeStyle,
   ConsultButtonContent,
+  DEFAULT_SHARE_CONTENT,
   getSeriesPageData,
+  getThemePreset,
   PackageItem,
   PortfolioItem,
+  QuickJumpContent,
   SeriesInfo,
+  ShareContent,
+  shouldShowQuickJump,
   TeamPhotographerItem,
   TestimonialItem
 } from '../../utils/cos'
 import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
+import { DEFAULT_DECORATION, SeriesDecoration, TerminologyDecoration } from '../../utils/decoration'
+import { setPageNavigationTitle } from '../../utils/navigation'
+import { createShareMessage } from '../../utils/share'
 
 Page({
   data: {
     themeStyle: '',
+    themePreset: 'minimal',
     seriesTitle: '',
     seriesCategory: '',
     seriesInfo: null as SeriesInfo | null,
@@ -26,7 +35,16 @@ Page({
       action: 'booking'
     } as Partial<ConsultButtonContent>,
     consultButtonVisible: true,
-    currentIndex: 0
+    quickJump: {
+      enabled: true,
+      bookingText: '咨询',
+      portfolioText: '作品集'
+    } as Partial<QuickJumpContent>,
+    quickJumpVisible: true,
+    currentIndex: 0,
+    share: { ...DEFAULT_SHARE_CONTENT } as ShareContent,
+    terminology: { ...DEFAULT_DECORATION.terminology } as TerminologyDecoration,
+    decoration: { ...DEFAULT_DECORATION.series } as SeriesDecoration
   },
 
   onLoad(options: { seriesId?: string; title?: string; category?: string }) {
@@ -42,12 +60,13 @@ Page({
   },
 
   async loadSeriesImages(seriesId: string) {
-    const { images, seriesInfo, theme, consultButton, packages, testimonials, photographers } = await getSeriesPageData(seriesId)
+    const { images, seriesInfo, theme, consultButton, packages, testimonials, photographers, quickJump, share, terminology, decoration } = await getSeriesPageData(seriesId)
     const seriesTitle = seriesInfo?.title || this.data.seriesTitle
     const seriesCategory = seriesInfo?.category || this.data.seriesCategory
 
     this.setData({
       themeStyle: buildThemeStyle(theme),
+      themePreset: getThemePreset(theme),
       seriesTitle,
       seriesCategory,
       seriesInfo,
@@ -65,8 +84,20 @@ Page({
         action: 'booking',
         ...(consultButton || {})
       },
-      consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'seriesDetail')
+      consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'seriesDetail'),
+      quickJump: {
+        enabled: true,
+        bookingText: '咨询',
+        portfolioText: '作品集',
+        ...(quickJump || {})
+      },
+      quickJumpVisible: shouldShowQuickJump(quickJump, 'seriesDetail'),
+      share,
+      terminology,
+      decoration
     })
+
+    setPageNavigationTitle(seriesTitle, `${terminology.workLabel}详情`)
   },
 
   onImageTap(e: WechatMiniprogram.TouchEvent) {
@@ -107,9 +138,15 @@ Page({
   },
 
   onShareAppMessage() {
-    return {
-      title: `${this.data.seriesTitle} - 摄影作品合集`,
-      path: `/pages/series/series?seriesId=${this.data.images[0]?.seriesId}`
-    }
+    const seriesId = this.data.seriesInfo?.id || this.data.images[0]?.seriesId || ''
+
+    return createShareMessage({
+      pageType: 'series',
+      share: this.data.share,
+      contentTitle: this.data.seriesTitle,
+      path: `/pages/series/series?seriesId=${encodeURIComponent(seriesId)}&title=${encodeURIComponent(this.data.seriesTitle)}&category=${encodeURIComponent(this.data.seriesCategory)}`,
+      contentImageUrl: this.data.images.find(item => item.originalUrl)?.originalUrl,
+      imagePriority: 'content-first'
+    })
   }
 })

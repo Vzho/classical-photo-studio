@@ -1,0 +1,29 @@
+<view class="quick-jump {{open ? 'is-open' : ''}}">
+  <view wx:if="{{open}}" class="quick-jump-menu">
+    <view
+      class="quick-jump-item {{current === 'booking' ? 'active' : ''}}"
+      hover-class="quick-jump-hover"
+      bindtap="goBooking"
+    >
+      <app-icon name="{{bookingIcon}}" size="27" tone="{{current === 'booking' ? 'primary' : 'muted'}}" />
+      <text>{{bookingText || '咨询'}}</text>
+    </view>
+    <view
+      class="quick-jump-item {{current === 'portfolio' ? 'active' : ''}}"
+      hover-class="quick-jump-hover"
+      bindtap="goPortfolio"
+    >
+      <app-icon name="{{portfolioIcon}}" size="27" tone="{{current === 'portfolio' ? 'primary' : 'muted'}}" />
+      <text>{{portfolioText || '作品集'}}</text>
+    </view>
+  </view>
+
+  <view
+    class="quick-jump-trigger"
+    hover-class="quick-jump-hover"
+    aria-label="快速跳转"
+    bindtap="toggleOpen"
+  >
+    <app-icon name="{{open ? 'x' : triggerIcon}}" size="29" tone="{{appearance === 'outline' ? 'default' : 'inverse'}}" />
+  </view>
+</view>

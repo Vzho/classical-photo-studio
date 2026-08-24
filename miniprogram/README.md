@@ -6,13 +6,15 @@
 
 ### AppID
 
-编辑 `project.config.json`：
+推荐在管理后台“云端设置”中填写；也可以新建仅供本机使用的 `project.private.config.json`：
 
 ```json
 {
   "appid": "客户小程序 AppID"
 }
 ```
+
+`project.private.config.json` 已被 Git 忽略。仓库里的 `project.config.json` 保留 `touristappid`。
 
 ### 小程序名称
 
@@ -26,24 +28,17 @@
 }
 ```
 
-同步检查页面分享标题：
-
-- `pages/portfolio/portfolio.ts`
-- `pages/about/about.ts`
-- `pages/booking/booking.ts`
-- `pages/series/series.ts`
+微信分享标题和封面不需要逐页修改代码。启动后台后，点击顶部“首页”，在“微信分享卡片”中填写标题并上传 5:4 的 JPG 或 PNG 横图即可。作品详情、简介、套餐和咨询页会自动组合当前页面名称。
 
 ### COS
 
-编辑 `app.ts`：
+客户自己的 COS 不写在 `app.ts`。使用后台 CMS 顶部“云端”保存后，会自动生成：
 
-```ts
-cos: {
-  bucket: '客户 COS Bucket',
-  region: '客户 COS Region',
-  baseUrl: 'https://客户 COS Bucket.cos.客户 COS Region.myqcloud.com'
-}
+```text
+miniprogram/config/client.config.js
 ```
+
+这个文件只保存在本地，不提交到 Git。仓库里保留了 `miniprogram/config/client.config.example.js`，需要手动配置时可以复制一份改名为 `client.config.js`。
 
 ## 数据配置
 
@@ -55,7 +50,7 @@ data/portfolio-config.json
 
 其中 `booking.styleOptions` 控制咨询页“心仪风格”选项；正常使用后台的“预约设置”维护即可。源码中的风格数组只作为 CMS 配置缺失时的兜底，不作为客户业务配置入口。
 
-v1.1 新增字段包括：
+当前配置版本为 `2.3.0`。主要字段包括：
 
 - `packages`：套餐和价格说明
 - `schedule`：近期档期说明
@@ -67,6 +62,10 @@ v1.1 新增字段包括：
 - `photographers`：多摄影师展示
 - `stores`：多门店展示
 - `modules`：模块开关
+- `share`：微信分享标题和封面；正常通过后台“首页”维护
+- `decoration`：页面装修；包含门店常用称呼、2–5 个底部导航入口、独立门店页、档期/评价快捷入口、受控图标、4 种首页结构、5 种作品排列、1–4 列作品布局、标题/分类/描述开关、次级页视觉版式、页面模块添加/移出/顺序/标题，以及咨询表单字段
+
+`decoration` 正常通过后台“页面装修”维护。旧配置没有该字段时，小程序和后台都会补齐默认结构，原有作品、资料、套餐和 COS 图片不会被覆盖。
 
 `consultButton` 说明：
 
@@ -77,7 +76,7 @@ v1.1 新增字段包括：
 
 关联规则：
 
-- 作品系列 ID 格式为 `series-<主题ID>-<系列ID>`，例如 `series-sample-sample-series`
+- 作品系列 ID 格式为 `series-<主题ID>-<系列ID>`，例如 `series-style-a-album-a`
 - 作品系列的 `description`、`suitableFor`、`scenes`、`tags`、`relatedPackageIds`、`relatedPhotographerIds` 通过后台“编辑系列”维护，不需要手写 JSON
 - 作品系列的 `relatedPackageIds` 用来把指定套餐显示到作品详情页
 - 作品系列的 `relatedPhotographerIds` 用来把指定摄影师显示到作品详情页
@@ -87,13 +86,13 @@ v1.1 新增字段包括：
 - 摄影师列表的 `relatedSeriesIds` / `relatedPackageIds` 用于后续关联展示
 - 门店 `phone` 用于拨打电话；`latitude` 和 `longitude` 同时配置后支持地图导航；未配置坐标时仍支持复制地址
 
-正常使用后台管理即可，不需要手动维护两份配置。后台保存时会自动更新本地配置，并同步到 COS：
+正常使用后台管理即可，不需要手动维护两份配置。配置 COS 后，后台直接读取并更新云端配置，不会把客户内容写回源码模板：
 
 ```text
 config/portfolio-config.json
 ```
 
-小程序线上优先读取 COS 配置，这样更新作品、头像、Banner 或资料时不需要重新上传小程序代码；本地 `data/portfolio-config.json` 只作为源码模板和网络异常兜底。
+小程序线上始终优先读取 COS 配置，这样更新作品、头像、Banner 或资料时不需要重新上传小程序代码。云端请求临时失败时只复用当前 COS 最近一次成功配置；已配置 COS 后不会回退到源码中的其他客户数据。本地 `data/portfolio-config.json` 仅用于未配置 COS 时的开发模板。
 
 咨询页提交时不会调用后台接口，也不会把用户填写的信息写入 COS 或数据库。它只使用 `wx.setStorageSync('lastConsultation', consultationData)` 临时保存到用户本机，用于咨询结果页展示和复制。
 
@@ -106,6 +105,7 @@ avatar/photographer.<ext>
 banner/main-banner.jpg
 banner/booking-banner.jpg
 banner/about-banner.jpg
+share/<自动生成的图片文件名>
 portfolio/<自动生成的图片文件名>
 config/portfolio-config.json
 ```

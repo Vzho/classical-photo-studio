@@ -10,6 +10,9 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+release/
+output/
+.playwright-cli/
 *.local
 
 # Editor directories and files
@@ -31,10 +34,18 @@ miniprogram/.env
 
 # Runtime data
 admin/uploads/
+admin/backups/
 admin/bookings.json
 
 # WeChat DevTools local config
 miniprogram/project.private.config.json
+/project.config.json
+/project.private.config.json
 
 # Generated miniprogram JavaScript from TypeScript
 miniprogram/**/*.js
+!miniprogram/data/portfolio-config.js
+!miniprogram/config/
+!miniprogram/config/client.config.example.js
+miniprogram/config/client.config.js
+miniprogram/client.config.js

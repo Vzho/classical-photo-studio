@@ -1,13 +1,22 @@
 import { PHOTOGRAPHER } from '../../utils/constants'
 import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
-import { buildThemeStyle, ConsultButtonContent, getAboutPageData, getCosUrl, PackageItem } from '../../utils/cos'
+import { buildThemeStyle, ConsultButtonContent, DEFAULT_SHARE_CONTENT, getAboutPageData, getCosUrl, getThemePreset, PackageItem, QuickJumpContent, ShareContent, shouldShowQuickJump } from '../../utils/cos'
+import { AboutDecoration, DEFAULT_DECORATION, TerminologyDecoration } from '../../utils/decoration'
+import { setPageNavigationTitle } from '../../utils/navigation'
+import { createShareMessage } from '../../utils/share'
 
 Page({
   data: {
     photographer: PHOTOGRAPHER,
     themeStyle: '',
+    themePreset: 'minimal',
+    aboutDecoration: DEFAULT_DECORATION.about as AboutDecoration,
+    aboutSections: DEFAULT_DECORATION.about.sections,
+    terminology: { ...DEFAULT_DECORATION.terminology } as TerminologyDecoration,
+    icons: DEFAULT_DECORATION.icons,
     avatarUrl: '',
     bannerUrl: '',
+    bannerFallbackUrl: '',
     canOpenStudioLocation: false,
     stores: [] as any[],
     selectedStore: null as any,
@@ -21,12 +30,19 @@ Page({
       text: '发起拍摄咨询',
       action: 'booking'
     } as Partial<ConsultButtonContent>,
-    consultButtonVisible: true
+    consultButtonVisible: true,
+    quickJump: {
+      enabled: true,
+      bookingText: '咨询',
+      portfolioText: '作品集'
+    } as Partial<QuickJumpContent>,
+    quickJumpVisible: true,
+    share: { ...DEFAULT_SHARE_CONTENT } as ShareContent
   },
 
-  async onLoad() {
+  async loadData() {
     // 优先加载远程配置的摄影师信息
-    const { photographer: remoteProfile, theme, consultButton, packages, stores, photographers, testimonials, serviceFlow, faq } = await getAboutPageData()
+    const { photographer: remoteProfile, theme, consultButton, packages, stores, photographers, testimonials, serviceFlow, faq, quickJump, share, icons, decoration, terminology } = await getAboutPageData()
     const profile = {
       ...PHOTOGRAPHER,
       ...(remoteProfile || {}),
@@ -43,7 +59,9 @@ Page({
     }
     
     // 加载 Banner
+    const avatarUrl = getCosUrl(profile.avatar)
     const bannerUrl = getCosUrl('banner/about-banner.jpg')
+    const bannerFallbackUrl = share.fallbackImageUrl || avatarUrl
     const studioLatitude = profile.studio?.latitude as unknown
     const studioLongitude = profile.studio?.longitude as unknown
     const hasStudioCoordinates = studioLatitude !== null
@@ -58,8 +76,14 @@ Page({
     this.setData({
       photographer: profile,
       themeStyle: buildThemeStyle(theme),
-      avatarUrl: getCosUrl(profile.avatar),
+      themePreset: getThemePreset(theme),
+      aboutDecoration: decoration,
+      aboutSections: decoration.sections,
+      terminology,
+      icons,
+      avatarUrl,
       bannerUrl,
+      bannerFallbackUrl,
       canOpenStudioLocation: Number.isFinite(latitude) && Number.isFinite(longitude),
       packages: packages.map(item => ({
         ...item,
@@ -88,19 +112,31 @@ Page({
         action: 'booking',
         ...(consultButton || {})
       },
-      consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'about')
+      consultButtonVisible: shouldShowConsultButton(consultButton || { enabled: true }, 'about'),
+      quickJump: {
+        enabled: true,
+        bookingText: '咨询',
+        portfolioText: '作品集',
+        ...(quickJump || {})
+      },
+      quickJumpVisible: shouldShowQuickJump(quickJump, 'about'),
+      share
     })
+
+    setPageNavigationTitle(profile.name, '店铺简介')
   },
 
   onBannerError() {
-    console.log('Banner 加载失败，使用默认背景')
-    this.setData({ bannerUrl: '' })
+    const bannerFallbackUrl = this.data.bannerFallbackUrl
+    this.setData({
+      bannerUrl: bannerFallbackUrl && this.data.bannerUrl !== bannerFallbackUrl
+        ? bannerFallbackUrl
+        : ''
+    })
   },
 
-  onShow() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 1 })
-    }
+  async onShow() {
+    await this.loadData()
   },
 
   copyWechat() {
@@ -359,9 +395,12 @@ Page({
   },
 
   onShareAppMessage() {
-    return {
-      title: '摄影作品合集 - 摄影师简介',
-      path: '/pages/about/about'
-    }
+    return createShareMessage({
+      pageType: 'about',
+      share: this.data.share,
+      path: '/pages/about/about',
+      contentImageUrl: this.data.share.fallbackImageUrl,
+      imagePriority: 'global-first'
+    })
   }
 })
