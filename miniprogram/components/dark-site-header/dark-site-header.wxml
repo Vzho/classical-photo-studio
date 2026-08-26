@@ -1,0 +1,7 @@
+<view class="dark-site-header">
+  <view wx:if="{{showBack}}" class="dark-site-header-back" bindtap="goBack" aria-label="返回">
+    <app-icon name="chevron-left" size="44" tone="inverse" />
+  </view>
+  <view class="dark-site-header-title">{{title}}</view>
+</view>
+<view class="dark-site-header-spacer"></view>

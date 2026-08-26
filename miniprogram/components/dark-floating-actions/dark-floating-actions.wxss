@@ -1,0 +1,39 @@
+.dark-floating-actions {
+  position: fixed;
+  z-index: 860;
+  right: 22rpx;
+  bottom: calc(var(--tab-bar-height, 108rpx) + env(safe-area-inset-bottom) + 34rpx);
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.dark-floating-action {
+  display: flex;
+  box-sizing: border-box;
+  width: 96rpx;
+  height: 96rpx;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2rpx;
+  border-radius: 50%;
+  font-size: 20rpx;
+  line-height: 1.15;
+  box-shadow: 0 10rpx 28rpx rgba(0, 0, 0, 0.22);
+}
+
+.dark-floating-action.follow {
+  color: #77736f;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.dark-floating-action.contact {
+  color: #ffffff;
+  background: var(--primary, #69d7d8);
+}
+
+.dark-floating-action:active {
+  opacity: 0.84;
+  transform: scale(0.96);
+}

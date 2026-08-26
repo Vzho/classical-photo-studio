@@ -41,10 +41,12 @@ Page({
     themeStyle: '',
     themePreset: 'minimal',
     siteTemplate: 'classic' as 'classic' | 'dark-gallery',
+    pageTitle: '作品',
     showcase: { ...DEFAULT_DECORATION.showcase } as ShowcaseDecoration,
     categories: ['全部'] as string[],
     activeCategory: '全部',
     searchKeyword: '',
+    searchOpen: false,
     portfolioItems: [] as PortfolioItem[],
     filteredItems: [] as PortfolioItem[],
     navigationItems: [] as GalleryNavigationItem[],
@@ -81,6 +83,7 @@ Page({
       themeStyle: buildThemeStyle(data.theme),
       themePreset: getThemePreset(data.theme),
       siteTemplate: data.siteTemplate,
+      pageTitle: data.navigation.galleryText || '作品',
       showcase: data.showcase,
       categories,
       portfolioItems: data.portfolioItems,
@@ -122,6 +125,14 @@ Page({
     this.setData({ searchKeyword: e.detail.value }, () => this.applyFilters())
   },
 
+  toggleSearch() {
+    const searchOpen = !this.data.searchOpen
+    this.setData({
+      searchOpen,
+      searchKeyword: searchOpen ? this.data.searchKeyword : ''
+    }, () => this.applyFilters())
+  },
+
   onItemTap(e: WechatMiniprogram.TouchEvent) {
     const item = e.currentTarget.dataset.item as PortfolioItem
     if (!item?.seriesId) return
@@ -134,6 +145,10 @@ Page({
     const key = e.currentTarget.dataset.key as NavigationItemKey
     if (key === 'gallery') return
     navigateToSitePage(key)
+  },
+
+  goContact() {
+    navigateToSitePage('booking')
   },
 
   onImageError(e: WechatMiniprogram.CustomEvent) {

@@ -469,6 +469,7 @@ function checkCmsIntegration() {
 
 function checkPageIntegration() {
   const pages = ['portfolio', 'about', 'booking']
+  const darkPreviewStyles = read('admin/preview.css')
   pages.forEach(page => {
     const wxml = read(`miniprogram/pages/${page}/${page}.wxml`)
     assert.ok(wxml.includes('wx:for="{{'), `${page} must render configurable sections`)
@@ -492,8 +493,40 @@ function checkPageIntegration() {
   const galleryWxss = read('miniprogram/pages/gallery/gallery.wxss')
   assert.ok(galleryWxml.includes('showcase.categoryMode'))
   assert.ok(galleryWxml.includes('navigationItems'))
-  assert.ok(galleryWxml.includes('<quick-jump'))
+  assert.ok(galleryWxml.includes('<dark-site-header'))
+  assert.ok(galleryWxml.includes('<dark-floating-actions'))
   assert.ok(galleryWxss.includes('.gallery-grid'))
+
+  const darkHeader = read('miniprogram/components/dark-site-header/dark-site-header.wxml')
+  const darkActions = read('miniprogram/components/dark-floating-actions/dark-floating-actions.wxml')
+  assert.ok(darkHeader.includes('dark-site-header-title'), 'dark template must use a shared brand header')
+  assert.ok(darkActions.includes('dark-floating-action follow'), 'dark template must expose the follow entry')
+  assert.ok(darkActions.includes('dark-floating-action contact'), 'dark template must expose the contact entry')
+  assert.ok(portfolioWxml.includes('dark-home-featured'), 'dark home must render the gallery section below the immersive hero')
+
+  const darkSeriesWxml = read('miniprogram/pages/series/series.wxml')
+  const darkAboutWxml = read('miniprogram/pages/about/about.wxml')
+  assert.ok(darkSeriesWxml.includes('dark-series-dock'), 'dark series page must use the storefront action dock')
+  assert.ok(darkSeriesWxml.includes('class="dark-series-cover"') && darkSeriesWxml.includes('mode="aspectFill"'), 'dark series cover must keep the reference portrait crop')
+  assert.ok(darkAboutWxml.includes('dark-about-landing'), 'dark about page must reserve a complete first-screen introduction')
+  assert.ok(darkAboutWxml.includes('dark-about-map'), 'dark about page must include the store location section')
+  assert.ok(darkAboutWxml.includes('dark-about-footer'), 'dark about page must include the contact footer')
+  assert.match(
+    darkPreviewStyles,
+    /\.customer-preview-dark-copy\s*\{[^}]*bottom:\s*auto;/s,
+    'dark home preview must clear the legacy bottom constraint'
+  )
+  ;[
+    ['portfolio', portfolioWxml],
+    ['gallery', galleryWxml],
+    ['series', darkSeriesWxml],
+    ['about', darkAboutWxml]
+  ].forEach(([page, wxml]) => {
+    assert.ok(
+      !/<\/?(?:article|b|i|main|nav|section|small|span|strong)(?:\s|>)/i.test(wxml),
+      `${page} dark template must only use WeChat WXML components`
+    )
+  })
 
   const secondaryPages = ['packages', 'package-detail', 'series', 'success']
   secondaryPages.forEach(page => {

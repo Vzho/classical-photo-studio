@@ -1,4 +1,8 @@
 {
   "navigationBarTitleText": "店铺简介",
-  "navigationStyle": "custom"
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "dark-site-header": "/components/dark-site-header/dark-site-header",
+    "dark-floating-actions": "/components/dark-floating-actions/dark-floating-actions"
+  }
 }

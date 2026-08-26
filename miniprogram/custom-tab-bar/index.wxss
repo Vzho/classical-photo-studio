@@ -207,7 +207,41 @@
   border-top-color: #303030;
 }
 
-.tab-bar.site-template-dark-gallery .tab-item.active,
-.tab-bar.theme-dark-gallery .tab-item.active { color: #72dedf; }
-.tab-bar.site-template-dark-gallery.nav-style-line .tab-item.active .tab-indicator,
-.tab-bar.theme-dark-gallery.nav-style-line .tab-item.active .tab-indicator { background: #72dedf; }
+.tab-bar.site-template-dark-gallery,
+.tab-bar.theme-dark-gallery {
+  height: calc(112rpx + env(safe-area-inset-bottom));
+}
+
+.tab-bar.site-template-dark-gallery .tab-item,
+.tab-bar.theme-dark-gallery .tab-item {
+  padding-top: 8rpx;
+}
+
+.tab-bar.site-template-dark-gallery .tab-icon-shell,
+.tab-bar.theme-dark-gallery .tab-icon-shell {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.tab-bar.site-template-dark-gallery .tab-text,
+.tab-bar.theme-dark-gallery .tab-text {
+  margin-top: 3rpx;
+  color: #858585;
+  font-size: 22rpx;
+}
+
+.tab-bar.site-template-dark-gallery .tab-item.active .tab-text,
+.tab-bar.theme-dark-gallery .tab-item.active .tab-text {
+  color: #72dedf;
+  font-weight: 500;
+}
+
+.tab-bar.site-template-dark-gallery .tab-item.active app-icon,
+.tab-bar.theme-dark-gallery .tab-item.active app-icon {
+  filter: brightness(0) saturate(100%) invert(90%) sepia(18%) saturate(1127%) hue-rotate(129deg) brightness(94%);
+}
+
+.tab-bar.site-template-dark-gallery .tab-indicator,
+.tab-bar.theme-dark-gallery .tab-indicator {
+  display: none;
+}

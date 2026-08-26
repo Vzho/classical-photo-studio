@@ -977,29 +977,220 @@
 }
 .dark-showcase-home {
   min-height: 100vh;
-  padding-bottom: 150rpx;
+  padding-bottom: calc(var(--tab-bar-height, 108rpx) + env(safe-area-inset-bottom));
+  overflow-x: hidden;
   color: #f7f6f2;
-  background: #111;
+  background: var(--bg-light, #111111);
 }
 
 .dark-home-swiper,
-.dark-home-empty { position: relative; height: 100vh; min-height: 1080rpx; background: #171717; }
-.dark-home-image { width: 100%; height: 100%; }
-.dark-home-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.04) 36%, rgba(0,0,0,.86)); }
-.dark-home-brand { position: absolute; top: calc(32rpx + env(safe-area-inset-top)); left: 38rpx; z-index: 2; color: #fff; font-size: 27rpx; font-weight: 600; }
-.dark-home-copy { position: absolute; left: 48rpx; right: 48rpx; bottom: 132rpx; z-index: 2; }
-.dark-home-kicker { display: inline-block; padding-left: 26rpx; color: #fff; font-size: 25rpx; font-weight: 600; border-left: 48rpx solid #7de3e1; }
-.dark-home-title { margin-top: 30rpx; max-width: 610rpx; color: #fff; font-size: 62rpx; font-weight: 600; line-height: 1.12; }
-.dark-home-category { margin-top: 18rpx; color: #e8e6e0; font-size: 28rpx; }
-.dark-home-description { margin-top: 20rpx; max-width: 580rpx; color: rgba(255,255,255,.78); font-size: 25rpx; line-height: 1.65; }
-.dark-home-action { display: inline-flex; align-items: center; justify-content: center; gap: 14rpx; min-width: 250rpx; height: 76rpx; margin-top: 34rpx; padding: 0 36rpx; color: #fff; font-size: 27rpx; border: 1rpx solid rgba(255,255,255,.72); box-sizing: border-box; }
-.dark-home-scroll-cue { position: absolute; left: 50%; bottom: 34rpx; z-index: 2; transform: translateX(-50%); }
-.dark-home-gallery-head { display: flex; align-items: flex-end; justify-content: space-between; padding: 58rpx 30rpx 30rpx; }
-.dark-home-gallery-head text { display: block; font-size: 38rpx; font-weight: 600; }
-.dark-home-gallery-subtitle { margin-top: 8rpx; color: #666; font-size: 22rpx; }
-.dark-home-more { display: flex; align-items: center; gap: 6rpx; color: #7de3e1; font-size: 24rpx; }
-.dark-home-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10rpx; padding: 0 20rpx; }
-.dark-home-card { position: relative; height: 480rpx; overflow: hidden; background: #202020; }
-.dark-home-card image { width: 100%; height: 100%; }
-.dark-home-card-shade { position: absolute; inset: 50% 0 0; background: linear-gradient(transparent, rgba(0,0,0,.78)); }
-.dark-home-card-title { position: absolute; left: 20rpx; right: 20rpx; bottom: 22rpx; color: #fff; font-size: 26rpx; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dark-home-empty {
+  position: relative;
+  height: calc(100vh - 196rpx - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  min-height: 960rpx;
+  overflow: hidden;
+  background: #171717;
+}
+
+.dark-home-image {
+  width: 100%;
+  height: 100%;
+}
+
+.dark-home-shade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.1) 38%, rgba(0, 0, 0, 0.58));
+}
+
+.dark-home-copy {
+  position: absolute;
+  z-index: 2;
+  top: 34%;
+  right: 60rpx;
+  left: 60rpx;
+  color: #ffffff;
+  text-align: center;
+  transform: translateY(-50%);
+}
+
+.dark-home-title {
+  overflow: hidden;
+  font-size: 62rpx;
+  font-weight: 500;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dark-home-title-line {
+  width: 76rpx;
+  height: 2rpx;
+  margin: 26rpx auto 24rpx;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.dark-home-description {
+  display: -webkit-box;
+  max-width: 610rpx;
+  margin: 0 auto;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 27rpx;
+  font-weight: 500;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.dark-home-action {
+  position: absolute;
+  z-index: 2;
+  bottom: 24%;
+  left: 50%;
+  display: flex;
+  box-sizing: border-box;
+  width: 220rpx;
+  height: 64rpx;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 27rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.86);
+  border-radius: 34rpx;
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateX(-50%);
+}
+
+.dark-home-scroll-cue {
+  position: absolute;
+  z-index: 2;
+  bottom: 12%;
+  left: 50%;
+  display: flex;
+  width: 72rpx;
+  height: 72rpx;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transform: translateX(-50%);
+}
+
+.dark-home-scroll-cue app-icon + app-icon {
+  margin-top: -26rpx;
+}
+
+.dark-home-featured {
+  min-height: 100vh;
+  padding: 52rpx 18rpx 72rpx;
+  background: var(--bg-light, #111111);
+}
+
+.dark-home-gallery-head {
+  padding: 0 16rpx 42rpx;
+  text-align: center;
+}
+
+.dark-home-gallery-head text {
+  display: block;
+  font-size: 38rpx;
+  font-weight: 500;
+}
+
+.dark-home-gallery-subtitle {
+  margin-top: 8rpx;
+  color: var(--text-muted, #747474);
+  font-size: 25rpx;
+  line-height: 1.2;
+}
+
+.dark-home-category-scroll {
+  width: 100%;
+  margin-bottom: 28rpx;
+  white-space: nowrap;
+}
+
+.dark-home-categories {
+  display: flex;
+  width: max-content;
+  gap: 0;
+}
+
+.dark-home-category-item {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  min-width: 126rpx;
+  height: 58rpx;
+  padding: 0 24rpx;
+  overflow: hidden;
+  color: #686868;
+  font-size: 25rpx;
+  line-height: 58rpx;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-right: 1rpx solid #252525;
+}
+
+.dark-home-category-item.active {
+  color: #ffffff;
+  font-weight: 600;
+  background: var(--primary, #69d7d8);
+}
+
+.dark-home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8rpx;
+}
+
+.dark-home-card {
+  position: relative;
+  height: 470rpx;
+  overflow: hidden;
+  background: #202020;
+}
+
+.dark-home-card image {
+  width: 100%;
+  height: 100%;
+}
+
+.dark-home-card-shade {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 42%;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+}
+
+.dark-home-card-title {
+  position: absolute;
+  right: 18rpx;
+  bottom: 22rpx;
+  left: 18rpx;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 27rpx;
+  font-weight: 600;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dark-home-gallery-action {
+  display: flex;
+  width: 260rpx;
+  height: 70rpx;
+  margin: 44rpx auto 0;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 25rpx;
+  border: 1rpx solid #555555;
+}

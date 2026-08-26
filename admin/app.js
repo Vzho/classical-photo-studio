@@ -97,7 +97,7 @@ const CONFIGURABLE_ICONS = [
   { name: 'user-round', label: '个人资料' }
 ]
 const CONFIGURABLE_ICON_NAMES = new Set(CONFIGURABLE_ICONS.map(item => item.name))
-const PREVIEW_SYSTEM_ICON_NAMES = new Set(['arrow-right', 'chevron-down', 'chevron-right', 'copy', 'plus', 'search', 'x'])
+const PREVIEW_SYSTEM_ICON_NAMES = new Set(['arrow-right', 'chevron-down', 'chevron-right', 'copy', 'grid-2x2', 'plus', 'search', 'x'])
 const CUSTOM_NAVIGATION_PREVIEW_PAGES = new Set(['home', 'gallery', 'about', 'booking'])
 const PREVIEW_NATIVE_PAGE_TITLES = {
   stores: '门店信息',
@@ -4615,30 +4615,44 @@ function renderSkinPreviewHeading(section, trailing = '') {
   `
 }
 
+function renderSkinPreviewDarkHeader(title, showBack = false) {
+  return `
+    <header class="customer-preview-dark-header">
+      ${showBack ? '<span class="customer-preview-dark-back">‹</span>' : ''}
+      <strong>${escapeHtml(title)}</strong>
+    </header>
+  `
+}
+
 function renderSkinPreviewDarkHome(model) {
   const heroItem = model.bannerItems[0] || model.seriesItems[0]
   const showcase = model.decoration.showcase
   const cards = model.seriesItems.slice(0, 4).map(item => `
     <article class="customer-preview-dark-card">
       ${renderSkinPreviewImage(item.imageUrl, 'customer-preview-dark-card-image', item.title)}
-      <span>${escapeHtml(item.title)}</span>
+      <i></i><span>${escapeHtml(item.title)}</span>
     </article>
   `).join('')
   return `
-    <section class="customer-preview-dark-hero" data-preview-section="hero">
-      ${renderSkinPreviewImage(heroItem?.imageUrl || model.heroImage, 'customer-preview-dark-hero-image', '首页主视觉')}
-      <div class="customer-preview-dark-hero-shade"></div>
-      <strong class="customer-preview-dark-brand">${escapeHtml(model.homeBanner.logoText)}</strong>
-      <div class="customer-preview-dark-copy">
-        <small>${escapeHtml(model.homeBanner.tagText)}</small>
-        <h2>${escapeHtml(heroItem?.title || model.homeBanner.logoText)}</h2>
-        <p>${escapeHtml(model.homeBanner.description || heroItem?.description || '')}</p>
-        <button type="button">${escapeHtml(showcase.heroActionText)} ${renderSkinPreviewIcon('arrow-right')}</button>
+    <section class="customer-preview-dark-home">
+      ${renderSkinPreviewDarkHeader(model.homeBanner.logoText)}
+      <div class="customer-preview-dark-hero" data-preview-section="hero">
+        ${renderSkinPreviewImage(heroItem?.imageUrl || model.heroImage, 'customer-preview-dark-hero-image', '首页主视觉')}
+        <div class="customer-preview-dark-hero-shade"></div>
+        <div class="customer-preview-dark-copy">
+          <h2>${escapeHtml(model.homeBanner.logoText)}</h2>
+          <i></i>
+          <p>${escapeHtml(model.homeBanner.description || heroItem?.title || '')}</p>
+        </div>
+        <button type="button" class="customer-preview-dark-home-action">${escapeHtml(showcase.heroActionText)}</button>
+        <span class="customer-preview-dark-scroll-cue"><i></i><i></i></span>
       </div>
     </section>
     <section class="customer-preview-dark-featured" data-preview-section="portfolio">
-      <header><div><strong>${escapeHtml(showcase.galleryTitle)}</strong><small>${escapeHtml(showcase.gallerySubtitle)}</small></div><span>查看全部</span></header>
+      <header><strong>${escapeHtml(showcase.galleryTitle)}</strong><small>${escapeHtml(showcase.gallerySubtitle)}</small></header>
+      <nav>${model.categories.slice(0, 5).map((item, index) => `<span class="${index === 0 ? 'active' : ''}">${escapeHtml(item)}</span>`).join('')}</nav>
       <div>${cards || '<p class="customer-preview-empty">上传作品后显示精选内容</p>'}</div>
+      <button type="button" class="customer-preview-dark-view-all">查看全部${escapeHtml(model.decoration.terminology.workLabel)}</button>
     </section>
   `
 }
@@ -4647,17 +4661,19 @@ function renderSkinPreviewGallery(model) {
   const showcase = model.decoration.showcase
   const cards = model.seriesItems.slice(0, 8).map(item => `
     <article class="customer-preview-dark-gallery-card">
-      ${renderSkinPreviewImage(item.imageUrl, 'customer-preview-dark-gallery-image', item.title)}
-      <div><strong>${escapeHtml(item.title)}</strong>${showcase.showTags ? `<small>#${escapeHtml(item.tags?.[0] || item.category || '')}</small>` : ''}</div>
+      <div class="customer-preview-dark-gallery-media">${renderSkinPreviewImage(item.imageUrl, 'customer-preview-dark-gallery-image', item.title)}</div>
+      <div class="customer-preview-dark-gallery-copy"><strong>${escapeHtml(item.title)}</strong><b>♡</b>${showcase.showTags ? `<small>#${escapeHtml(item.tags?.[0] || item.category || '')}</small>` : ''}</div>
     </article>
   `).join('')
   return `
     <section class="customer-preview-dark-gallery">
-      <header><h2>${escapeHtml(showcase.galleryTitle)}</h2><p>${escapeHtml(showcase.gallerySubtitle)}</p></header>
-      ${showcase.showSearch ? `<div class="customer-preview-dark-search">${renderSkinPreviewIcon('search')}<span>搜索作品或风格</span></div>` : ''}
+      ${renderSkinPreviewDarkHeader(model.decoration.navigation.galleryText || showcase.galleryTitle, true)}
       <div class="customer-preview-dark-gallery-body mode-${escapeHtml(showcase.categoryMode)}">
         <nav>${model.categories.slice(0, 7).map((item, index) => `<span class="${index === 0 ? 'active' : ''}">${escapeHtml(item)}</span>`).join('')}</nav>
-        <main><div class="customer-preview-dark-gallery-title"><i></i>全部 <small>${model.seriesItems.length} 组</small></div><div class="customer-preview-dark-gallery-grid columns-${showcase.galleryColumns}">${cards}</div></main>
+        <main>
+          <div class="customer-preview-dark-gallery-title"><i></i><span>全部</span><div>${renderSkinPreviewIcon('images')}${showcase.showSearch ? renderSkinPreviewIcon('search') : ''}</div></div>
+          <div class="customer-preview-dark-gallery-grid columns-${showcase.galleryColumns}">${cards}</div>
+        </main>
       </div>
     </section>
   `
@@ -4668,11 +4684,22 @@ function renderSkinPreviewDarkAbout(model) {
   const gallery = model.seriesItems.slice(0, showcase.aboutGalleryLimit).map(item => renderSkinPreviewImage(item.imageUrl, 'customer-preview-dark-about-image', item.title)).join('')
   return `
     <section class="customer-preview-dark-about" data-preview-section="profile">
-      ${renderSkinPreviewImage(model.avatarImage, 'customer-preview-dark-about-avatar', model.profile.name, model.heroImage)}
-      <h2>${escapeHtml(model.profile.name)}</h2><p>${escapeHtml(model.profile.title || '')}</p><small>${escapeHtml(model.profile.location || '')}</small>
-      <blockquote>“${escapeHtml(showcase.aboutQuote)}”</blockquote>
-      <div class="customer-preview-dark-contact">${renderSkinPreviewIcon('phone')}${renderSkinPreviewIcon('message-circle')}${renderSkinPreviewIcon('map-pin')}</div>
+      ${renderSkinPreviewDarkHeader(model.decoration.navigation.aboutText || '关于', true)}
+      <div class="customer-preview-dark-about-landing">
+        <div class="customer-preview-dark-about-profile">
+          ${renderSkinPreviewImage(model.avatarImage, 'customer-preview-dark-about-avatar', model.profile.name, model.heroImage)}
+          <h2>${escapeHtml(model.profile.name)}</h2><p>${escapeHtml(model.profile.title || '')}</p><small>${escapeHtml(model.profile.location || '')}</small>
+        </div>
+        <blockquote><i>“</i><span>${escapeHtml(showcase.aboutQuote)}</span><b>”</b></blockquote>
+        <div class="customer-preview-dark-contact"><span>${renderSkinPreviewIcon('phone')}</span><span>${renderSkinPreviewIcon('message-circle')}</span><span>${renderSkinPreviewIcon('map-pin')}</span></div>
+        <button type="button" class="customer-preview-dark-about-action">联系我们</button>
+      </div>
       <div class="customer-preview-dark-about-wall">${gallery}</div>
+      <div class="customer-preview-dark-map"><span>${renderSkinPreviewIcon('map-pin')}</span><p>${escapeHtml(model.profile.studio?.address || '门店地址')}</p></div>
+      <div class="customer-preview-dark-about-footer">
+        ${renderSkinPreviewImage(model.aboutCover, 'customer-preview-dark-about-footer-image', '门店联系背景', model.heroImage)}
+        <i></i><div><p>微信：${escapeHtml(model.profile.contact?.wechat || '客服微信')}</p><p>地址：${escapeHtml(model.profile.studio?.address || '门店地址')}</p></div>
+      </div>
     </section>
   `
 }
@@ -4682,10 +4709,13 @@ function renderSkinPreviewDarkSeries(model) {
   const images = item.imageUrls?.length ? item.imageUrls : model.seriesItems.slice(0, 4).map(entry => entry.imageUrl)
   return `
     <section class="customer-preview-dark-series">
-      ${renderSkinPreviewImage(item.imageUrl || images[0], 'customer-preview-dark-series-cover', item.title)}
-      <div class="customer-preview-dark-series-copy"><div><h2>${escapeHtml(item.title)}</h2><p>${escapeHtml(item.category || '')}</p></div><small>${images.length || 1} PHOTOS</small></div>
+      ${renderSkinPreviewDarkHeader(item.title, true)}
+      <div class="customer-preview-dark-series-cover-wrap">
+        ${renderSkinPreviewImage(item.imageUrl || images[0], 'customer-preview-dark-series-cover', item.title)}
+        <button type="button">分享</button>
+      </div>
+      <div class="customer-preview-dark-series-copy"><div><h2>${escapeHtml(item.title)}</h2><p>${escapeHtml(item.category || '')}</p></div><span>${renderSkinPreviewIcon('images')}${renderSkinPreviewIcon('grid-2x2')}</span><small>${escapeHtml(item.description || '')}</small></div>
       <div class="customer-preview-dark-series-images">${images.slice(1, 4).map(url => renderSkinPreviewImage(url, 'customer-preview-dark-series-image', item.title)).join('')}</div>
-      <button type="button" class="customer-preview-dark-series-action">${escapeHtml(model.decoration.showcase.seriesActionText)}</button>
     </section>
   `
 }
@@ -5150,6 +5180,16 @@ function renderSkinPreviewSuccess(model) {
 function renderSkinPreviewNavigation(model) {
   const nav = document.getElementById('skinPreviewBottomNav')
   if (!nav) return
+  if (model.decoration.siteTemplate === 'dark-gallery' && activeSkinPreviewPage === 'series') {
+    nav.className = 'customer-preview-bottom-nav customer-preview-dark-series-dock'
+    nav.style.gridTemplateColumns = 'minmax(0, 1fr) 50px 80px'
+    nav.innerHTML = `
+      <span><strong>${escapeHtml(model.homeBanner.logoText)}</strong><small>记录值得珍藏的瞬间</small></span>
+      <button type="button">${renderSkinPreviewIcon('navigation')}</button>
+      <button type="button" class="customer-preview-dark-series-dock-action">${escapeHtml(model.decoration.showcase.seriesActionText)}</button>
+    `
+    return
+  }
   const pages = model.decoration.navigation.items
     .filter(item => item.enabled)
     .map(item => {
@@ -5173,10 +5213,23 @@ function renderSkinPreviewNavigation(model) {
 function renderSkinPreviewQuickJump(model) {
   const quickJump = document.getElementById('skinPreviewQuickJump')
   if (!quickJump) return
-  const visible = model.modules.quickJump !== false && model.quickJump.enabled !== false
+  const darkGallery = model.decoration.siteTemplate === 'dark-gallery'
+  const visible = model.modules.quickJump !== false
+    && model.quickJump.enabled !== false
+    && !(darkGallery && activeSkinPreviewPage === 'series')
   quickJump.hidden = !visible
+  quickJump.className = darkGallery
+    ? 'customer-preview-quick-jump customer-preview-dark-floating-actions'
+    : 'customer-preview-quick-jump'
   quickJump.classList.toggle('is-open', skinPreviewQuickJumpOpen)
   if (!visible) return
+  if (darkGallery) {
+    quickJump.innerHTML = `
+      <button type="button" class="customer-preview-dark-follow">${renderSkinPreviewIcon('heart')}<span>关注</span></button>
+      <button type="button" class="customer-preview-dark-contact-button" onclick="switchSkinPreviewPage('booking')">${renderSkinPreviewIcon('message-circle')}<span>联系</span></button>
+    `
+    return
+  }
   quickJump.innerHTML = `
     <div class="customer-preview-quick-menu" ${skinPreviewQuickJumpOpen ? '' : 'hidden'}>
       <button type="button" onclick="switchSkinPreviewPage('booking')">${renderSkinPreviewIcon(model.decoration.icons.quickJump.booking)}<span>${escapeHtml(model.quickJump.bookingText || model.decoration.navigation.bookingText)}</span></button>
@@ -5325,6 +5378,7 @@ function updateThemePreview() {
   preview.dataset.seriesGallery = model.decoration.series.galleryVariant
   preview.dataset.successLayout = model.decoration.success.layoutVariant
   const usesCustomNavigation = CUSTOM_NAVIGATION_PREVIEW_PAGES.has(activeSkinPreviewPage)
+    || (model.decoration.siteTemplate === 'dark-gallery' && activeSkinPreviewPage === 'series')
   preview.dataset.navigationMode = usesCustomNavigation ? 'custom' : 'native'
 
   const nativeNavbar = document.getElementById('skinPreviewNativeNavbar')

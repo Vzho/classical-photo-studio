@@ -1,4 +1,6 @@
 <view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-showcase-home" style="{{themeStyle}}">
+  <dark-site-header title="{{homeBanner.logoText}}" />
+
   <swiper
     wx:if="{{bannerItems.length}}"
     class="dark-home-swiper"
@@ -6,48 +8,64 @@
     autoplay
     interval="5600"
     duration="900"
-    indicator-dots="{{bannerItems.length > 1}}"
-    indicator-color="rgba(255,255,255,.28)"
-    indicator-active-color="#7de3e1"
+    indicator-dots="{{false}}"
   >
     <swiper-item wx:for="{{bannerItems}}" wx:key="id" wx:for-item="bannerItem" bindtap="onBannerTap" data-item="{{bannerItem}}">
       <image class="dark-home-image" src="{{bannerItem.imageUrl}}" mode="aspectFill" binderror="onBannerImageError" data-id="{{bannerItem.id}}" />
       <view class="dark-home-shade"></view>
-      <view class="dark-home-brand">{{homeBanner.logoText}}</view>
       <view class="dark-home-copy">
-        <view class="dark-home-kicker">{{homeBanner.tagText}}</view>
-        <view class="dark-home-title">{{bannerItem.title || homeBanner.logoText}}</view>
-        <view wx:if="{{bannerItem.category}}" class="dark-home-category">{{bannerItem.category}}</view>
-        <view wx:if="{{homeBanner.description}}" class="dark-home-description">{{homeBanner.description}}</view>
-        <view class="dark-home-action" catchtap="onShowcaseAction">{{showcase.heroActionText}}<app-icon name="arrow-right" size="28" tone="inverse" /></view>
+        <view class="dark-home-title">{{homeBanner.logoText}}</view>
+        <view class="dark-home-title-line"></view>
+        <view class="dark-home-description">{{homeBanner.description || bannerItem.title}}</view>
       </view>
-      <view class="dark-home-scroll-cue"><app-icon name="chevron-down" size="40" tone="inverse" /></view>
+      <view class="dark-home-action" catchtap="onShowcaseAction">{{showcase.heroActionText}}</view>
+      <view class="dark-home-scroll-cue" catchtap="scrollToFeatured">
+        <app-icon name="chevron-down" size="40" tone="inverse" />
+        <app-icon name="chevron-down" size="40" tone="inverse" />
+      </view>
     </swiper-item>
   </swiper>
 
   <view wx:else class="dark-home-empty">
-    <view class="dark-home-brand">{{homeBanner.logoText}}</view>
     <view class="dark-home-copy">
-      <view class="dark-home-kicker">{{homeBanner.tagText}}</view>
       <view class="dark-home-title">{{homeBanner.logoText}}</view>
+      <view class="dark-home-title-line"></view>
       <view class="dark-home-description">{{homeBanner.description}}</view>
-      <view class="dark-home-action" bindtap="onShowcaseAction">{{showcase.heroActionText}}<app-icon name="arrow-right" size="28" tone="inverse" /></view>
+    </view>
+    <view class="dark-home-action" bindtap="onShowcaseAction">{{showcase.heroActionText}}</view>
+    <view class="dark-home-scroll-cue" bindtap="scrollToFeatured">
+      <app-icon name="chevron-down" size="40" tone="inverse" />
+      <app-icon name="chevron-down" size="40" tone="inverse" />
     </view>
   </view>
 
-  <view class="dark-home-gallery-head">
-    <view><text>{{showcase.galleryTitle}}</text><view class="dark-home-gallery-subtitle">{{showcase.gallerySubtitle}}</view></view>
-    <view class="dark-home-more" bindtap="goGallery">查看全部<app-icon name="arrow-right" size="24" tone="primary" /></view>
-  </view>
-  <view class="dark-home-grid">
-    <view class="dark-home-card" wx:for="{{filteredItems}}" wx:key="id" wx:for-item="portfolioItem" wx:if="{{index < 4}}" bindtap="onItemTap" data-item="{{portfolioItem}}">
-      <image src="{{portfolioItem.imageUrl}}" mode="aspectFill" lazy-load binderror="onItemImageError" data-id="{{portfolioItem.id}}" />
-      <view class="dark-home-card-shade"></view>
-      <view class="dark-home-card-title">{{portfolioItem.title}}</view>
+  <view id="dark-home-featured" class="dark-home-featured">
+    <view class="dark-home-gallery-head">
+      <text>{{showcase.galleryTitle}}</text>
+      <view class="dark-home-gallery-subtitle">{{showcase.gallerySubtitle}}</view>
     </view>
+    <scroll-view class="dark-home-category-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="dark-home-categories">
+        <view
+          wx:for="{{categories}}"
+          wx:key="*this"
+          class="dark-home-category-item {{activeCategory === item ? 'active' : ''}}"
+          bindtap="onCategoryTap"
+          data-category="{{item}}"
+        >{{item}}</view>
+      </view>
+    </scroll-view>
+    <view class="dark-home-grid">
+      <view class="dark-home-card" wx:for="{{filteredItems}}" wx:key="id" wx:for-item="portfolioItem" wx:if="{{index < 4}}" bindtap="onItemTap" data-item="{{portfolioItem}}">
+        <image src="{{portfolioItem.imageUrl}}" mode="aspectFill" lazy-load binderror="onItemImageError" data-id="{{portfolioItem.id}}" />
+        <view class="dark-home-card-shade"></view>
+        <view class="dark-home-card-title">{{portfolioItem.title}}</view>
+      </view>
+    </view>
+    <view class="dark-home-gallery-action" bindtap="goGallery">查看全部{{terminology.workLabel}}</view>
   </view>
 
-  <quick-jump wx:if="{{quickJumpVisible}}" current="portfolio" booking-text="{{quickJump.bookingText}}" portfolio-text="{{quickJump.portfolioText}}" appearance="{{quickJump.appearance}}" trigger-icon="{{quickJump.triggerIcon}}" booking-icon="{{quickJump.bookingIcon}}" portfolio-icon="{{quickJump.portfolioIcon}}" />
+  <dark-floating-actions wx:if="{{consultButtonVisible}}" contact-text="{{terminology.consultationLabel}}" bindcontact="goBooking" />
 </view>
 
 <view wx:else

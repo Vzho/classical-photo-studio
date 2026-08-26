@@ -1,0 +1,10 @@
+<view class="dark-floating-actions">
+  <view wx:if="{{showFollow}}" class="dark-floating-action follow" bindtap="showFollowTip">
+    <app-icon name="heart" size="36" tone="primary" />
+    <text>关注</text>
+  </view>
+  <view class="dark-floating-action contact" bindtap="contact">
+    <app-icon name="message-circle" size="36" tone="inverse" />
+    <text>{{contactText}}</text>
+  </view>
+</view>

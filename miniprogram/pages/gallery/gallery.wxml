@@ -1,16 +1,14 @@
 <view class="dark-gallery-page columns-{{showcase.galleryColumns}} mode-{{showcase.categoryMode}}" style="{{themeStyle}}">
-  <view class="gallery-heading">
-    <view class="gallery-title">{{showcase.galleryTitle}}</view>
-    <view wx:if="{{showcase.gallerySubtitle}}" class="gallery-subtitle">{{showcase.gallerySubtitle}}</view>
-  </view>
-
-  <view wx:if="{{showcase.showSearch}}" class="gallery-search">
-    <app-icon name="search" size="28" tone="muted" />
-    <input value="{{searchKeyword}}" bindinput="onSearchInput" placeholder="搜索作品或风格" placeholder-class="gallery-search-placeholder" />
-  </view>
+  <dark-site-header title="{{pageTitle}}" show-back="{{true}}" />
 
   <view class="gallery-body">
-    <scroll-view class="gallery-categories" scroll-x="{{showcase.categoryMode === 'top'}}" scroll-y="{{showcase.categoryMode === 'sidebar'}}" enhanced show-scrollbar="{{false}}">
+    <scroll-view
+      class="gallery-categories"
+      scroll-x="{{showcase.categoryMode === 'top'}}"
+      scroll-y="{{showcase.categoryMode === 'sidebar'}}"
+      enhanced
+      show-scrollbar="{{false}}"
+    >
       <view class="gallery-category-track">
         <view
           wx:for="{{categories}}"
@@ -23,14 +21,31 @@
     </scroll-view>
 
     <view class="gallery-content">
-      <view class="gallery-current"><view class="gallery-current-line"></view>{{activeCategory}}<text>{{filteredItems.length}} 组</text></view>
+      <view class="gallery-toolbar">
+        <view class="gallery-current"><view class="gallery-current-line"></view>{{activeCategory}}</view>
+        <view class="gallery-tools">
+          <view class="gallery-tool active" aria-label="网格布局"><app-icon name="grid-2x2" size="34" tone="inverse" /></view>
+          <view wx:if="{{showcase.showSearch}}" class="gallery-tool" bindtap="toggleSearch" aria-label="搜索"><app-icon name="search" size="34" tone="inverse" /></view>
+        </view>
+      </view>
+
+      <view wx:if="{{showcase.showSearch && searchOpen}}" class="gallery-search">
+        <app-icon name="search" size="28" tone="muted" />
+        <input value="{{searchKeyword}}" bindinput="onSearchInput" focus="{{searchOpen}}" placeholder="搜索作品或风格" placeholder-class="gallery-search-placeholder" />
+      </view>
+
       <view class="gallery-grid">
         <view class="gallery-card" wx:for="{{filteredItems}}" wx:key="id" bindtap="onItemTap" data-item="{{item}}">
-          <image class="gallery-image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load binderror="onImageError" data-id="{{item.id}}" />
-          <view class="gallery-card-shade"></view>
+          <view class="gallery-card-media">
+            <image class="gallery-image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load binderror="onImageError" data-id="{{item.id}}" />
+          </view>
           <view class="gallery-card-copy">
             <view class="gallery-card-title">{{item.title}}</view>
-            <view wx:if="{{showcase.showTags && item.tags && item.tags.length}}" class="gallery-card-tags">#{{item.tags[0]}}</view>
+            <app-icon name="heart" size="31" tone="inverse" />
+            <view wx:if="{{showcase.showTags}}" class="gallery-card-tags">
+              <text wx:if="{{item.category}}">#{{item.category}}</text>
+              <text wx:for="{{item.tags}}" wx:key="*this" wx:if="{{index < 2}}">#{{item}}</text>
+            </view>
           </view>
         </view>
       </view>
@@ -46,9 +61,10 @@
       bindtap="onNavigationTap"
       data-key="{{item.key}}"
     >
-      <app-icon name="{{item.icon}}" src="{{item.customIcon}}" size="36" tone="{{item.key === 'gallery' ? 'primary' : 'muted'}}" />
+      <app-icon name="{{item.icon}}" src="{{item.customIcon}}" size="38" tone="{{item.key === 'gallery' ? 'primary' : 'muted'}}" />
       <text>{{item.text}}</text>
     </view>
   </view>
-  <quick-jump wx:if="{{quickJumpVisible}}" current="gallery" booking-text="{{quickJump.bookingText}}" portfolio-text="{{quickJump.portfolioText}}" appearance="{{quickJump.appearance}}" trigger-icon="{{quickJump.triggerIcon}}" booking-icon="{{quickJump.bookingIcon}}" portfolio-icon="{{quickJump.portfolioIcon}}" />
+
+  <dark-floating-actions contact-text="联系" bindcontact="goContact" />
 </view>

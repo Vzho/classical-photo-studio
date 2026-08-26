@@ -1,26 +1,68 @@
 <view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-about-page" style="{{themeStyle}}">
-  <view class="dark-about-profile">
-    <image class="dark-about-avatar" src="{{avatarUrl}}" mode="aspectFill" />
-    <view class="dark-about-name">{{photographer.name}}</view>
-    <view class="dark-about-title">{{photographer.title}}</view>
-    <view wx:if="{{photographer.location}}" class="dark-about-location">{{photographer.location}}</view>
+  <dark-site-header title="关于" show-back="{{true}}" />
+  <view class="dark-about-landing">
+    <view class="dark-about-profile">
+      <image class="dark-about-avatar" src="{{avatarUrl}}" mode="aspectFill" />
+      <view class="dark-about-name">{{photographer.name}}</view>
+      <view class="dark-about-title">{{photographer.title}}</view>
+      <view wx:if="{{photographer.location}}" class="dark-about-location">{{photographer.location}}</view>
+    </view>
+
+    <view wx:if="{{showcase.aboutQuote}}" class="dark-about-quote">
+      <text class="dark-about-quote-open">“</text>
+      <view>{{showcase.aboutQuote}}</view>
+      <text class="dark-about-quote-close">”</text>
+    </view>
+
+    <view class="dark-about-contact">
+      <view wx:if="{{photographer.contact.wechat}}" bindtap="copyWechat"><app-icon name="{{icons.contact.wechat}}" size="38" tone="inverse" /></view>
+      <view wx:if="{{photographer.contact.email}}" bindtap="copyEmail"><app-icon name="{{icons.contact.email}}" size="38" tone="inverse" /></view>
+      <view wx:if="{{photographer.studio.address}}" bindtap="openStudioLocation"><app-icon name="{{icons.contact.location}}" size="38" tone="inverse" /></view>
+    </view>
+
+    <view wx:if="{{consultButtonVisible}}" class="dark-about-action" bindtap="goBooking">{{consultButton.text || terminology.consultationLabel}}</view>
   </view>
-  <view wx:if="{{showcase.aboutQuote}}" class="dark-about-quote"><text>“</text>{{showcase.aboutQuote}}<text>”</text></view>
-  <view class="dark-about-contact">
-    <view wx:if="{{photographer.contact.wechat}}" bindtap="copyWechat"><app-icon name="{{icons.contact.wechat}}" size="34" tone="inverse" /><text>微信</text></view>
-    <view wx:if="{{photographer.contact.email}}" bindtap="copyEmail"><app-icon name="{{icons.contact.email}}" size="34" tone="inverse" /><text>邮箱</text></view>
-    <view wx:if="{{photographer.studio.address}}" bindtap="openStudioLocation"><app-icon name="{{icons.contact.location}}" size="34" tone="inverse" /><text>地址</text></view>
-  </view>
+
   <view wx:if="{{galleryItems.length}}" class="dark-about-wall">
     <image wx:for="{{galleryItems}}" wx:key="id" src="{{item.imageUrl}}" mode="aspectFill" />
   </view>
-  <view wx:if="{{photographer.studio.address}}" class="dark-about-address" bindtap="openStudioLocation">
-    <view>{{photographer.studio.name}}</view>
-    <text>{{photographer.studio.address}}</text>
-    <app-icon name="chevron-right" size="28" tone="primary" />
+
+  <view wx:if="{{photographer.studio.address}}" class="dark-about-location-section">
+    <map
+      wx:if="{{canOpenStudioLocation}}"
+      class="dark-about-map"
+      latitude="{{studioLatitude}}"
+      longitude="{{studioLongitude}}"
+      scale="16"
+      markers="{{studioMarkers}}"
+      bindtap="openStudioLocation"
+    />
+    <view wx:else class="dark-about-map-placeholder" bindtap="openStudioLocation">
+      <app-icon name="map-pin" size="48" tone="primary" />
+    </view>
+    <view class="dark-about-address" bindtap="openStudioLocation">
+      <view>{{photographer.studio.name}}</view>
+      <text>{{photographer.studio.address}}</text>
+      <app-icon name="chevron-right" size="30" tone="primary" />
+    </view>
   </view>
-  <view wx:if="{{consultButtonVisible}}" class="dark-about-action" bindtap="goBooking">{{consultButton.text || terminology.consultationLabel}}</view>
-  <quick-jump wx:if="{{quickJumpVisible}}" current="about" booking-text="{{quickJump.bookingText}}" portfolio-text="{{quickJump.portfolioText}}" appearance="{{quickJump.appearance}}" trigger-icon="{{quickJump.triggerIcon}}" booking-icon="{{quickJump.bookingIcon}}" portfolio-icon="{{quickJump.portfolioIcon}}" />
+
+  <view class="dark-about-footer">
+    <image wx:if="{{bannerUrl}}" class="dark-about-footer-image" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
+    <view class="dark-about-footer-shade"></view>
+    <view class="dark-about-footer-copy">
+      <view wx:if="{{photographer.contact.wechat}}">微信：{{photographer.contact.wechat}}</view>
+      <view wx:if="{{photographer.contact.email}}">邮箱：{{photographer.contact.email}}</view>
+      <view wx:if="{{photographer.studio.address}}">地址：{{photographer.studio.address}}</view>
+    </view>
+    <view class="dark-about-footer-icons">
+      <view wx:if="{{photographer.contact.wechat}}" bindtap="copyWechat"><app-icon name="{{icons.contact.wechat}}" size="34" tone="inverse" /></view>
+      <view wx:if="{{photographer.contact.email}}" bindtap="copyEmail"><app-icon name="{{icons.contact.email}}" size="34" tone="inverse" /></view>
+      <view wx:if="{{photographer.studio.address}}" bindtap="openStudioLocation"><app-icon name="{{icons.contact.location}}" size="34" tone="inverse" /></view>
+    </view>
+  </view>
+
+  <dark-floating-actions wx:if="{{consultButtonVisible}}" contact-text="{{terminology.consultationLabel}}" bindcontact="goBooking" />
 </view>
 
 <view wx:else class="about-page theme-{{themePreset}} header-{{aboutDecoration.headerVariant}}" style="{{themeStyle}}">

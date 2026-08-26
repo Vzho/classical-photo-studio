@@ -298,6 +298,13 @@ Page({
     }
     this.goGallery()
   },
+
+  scrollToFeatured() {
+    wx.pageScrollTo({
+      selector: '#dark-home-featured',
+      duration: 420
+    })
+  },
   
   // 轮播图点击跳转
   onBannerTap(e: WechatMiniprogram.TouchEvent) {

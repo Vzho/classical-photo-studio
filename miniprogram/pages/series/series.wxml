@@ -1,22 +1,36 @@
 <view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-series-page" style="{{themeStyle}}">
-  <image wx:if="{{images.length}}" class="dark-series-cover" src="{{images[0].imageUrl}}" mode="widthFix" bindtap="onImageTap" data-index="0" />
+  <dark-site-header title="{{seriesTitle}}" show-back="{{true}}" />
+  <view wx:if="{{images.length}}" class="dark-series-cover-wrap">
+    <image class="dark-series-cover" src="{{images[0].imageUrl}}" mode="aspectFill" bindtap="onImageTap" data-index="0" />
+    <button class="dark-series-share" open-type="share">分享</button>
+  </view>
   <view class="dark-series-intro">
     <view class="dark-series-heading">
-      <view>
-        <view class="dark-series-title">{{seriesTitle}}</view>
-        <view class="dark-series-category">{{seriesCategory}}</view>
+      <view class="dark-series-title">{{seriesTitle}}</view>
+      <view class="dark-series-layout-icons">
+        <app-icon name="images" size="34" tone="muted" />
+        <app-icon name="grid-2x2" size="34" tone="muted" />
       </view>
-      <view class="dark-series-count">{{images.length}} PHOTOS</view>
     </view>
-    <view wx:if="{{seriesInfo && seriesInfo.tags.length}}" class="dark-series-tags">
-      <text wx:for="{{seriesInfo.tags}}" wx:key="*this">{{item}}</text>
+    <view class="dark-series-tags">
+      <text wx:if="{{seriesCategory}}">{{seriesCategory}}</text>
+      <block wx:if="{{seriesInfo && seriesInfo.tags}}">
+        <text wx:for="{{seriesInfo.tags}}" wx:key="*this">{{item}}</text>
+      </block>
     </view>
     <view wx:if="{{seriesInfo && seriesInfo.description}}" class="dark-series-description">{{seriesInfo.description}}</view>
   </view>
   <view class="dark-series-images">
     <image wx:for="{{images}}" wx:key="id" wx:if="{{index > 0}}" src="{{item.imageUrl}}" mode="widthFix" lazy-load bindtap="onImageTap" data-index="{{index}}" binderror="onSeriesImageError" data-id="{{item.id}}" />
   </view>
-  <view wx:if="{{consultButtonVisible}}" class="dark-series-action" bindtap="consultSameStyle">{{showcase.seriesActionText || consultButton.text}}<app-icon name="arrow-right" size="28" tone="inverse" /></view>
+  <view class="dark-series-dock">
+    <view class="dark-series-brand">
+      <app-icon name="sparkles" size="34" tone="primary" />
+      <view><text class="dark-series-brand-name">{{brandName}}</text><text>记录值得珍藏的瞬间</text></view>
+    </view>
+    <button class="dark-series-dock-share" open-type="share" aria-label="分享"><app-icon name="navigation" size="30" tone="muted" /></button>
+    <view wx:if="{{consultButtonVisible}}" class="dark-series-action" bindtap="consultSameStyle">{{showcase.seriesActionText || consultButton.text}}</view>
+  </view>
 </view>
 
 <view wx:else class="series-page theme-{{themePreset}} gallery-{{decoration.galleryVariant}}" style="{{themeStyle}}">
@@ -105,4 +119,4 @@
   </block>
 
 </view>
-<quick-jump wx:if="{{quickJumpVisible}}" current="series" booking-text="{{quickJump.bookingText}}" portfolio-text="{{quickJump.portfolioText}}" appearance="{{quickJump.appearance}}" trigger-icon="{{quickJump.triggerIcon}}" booking-icon="{{quickJump.bookingIcon}}" portfolio-icon="{{quickJump.portfolioIcon}}" />
+<quick-jump wx:if="{{siteTemplate !== 'dark-gallery' && quickJumpVisible}}" current="series" booking-text="{{quickJump.bookingText}}" portfolio-text="{{quickJump.portfolioText}}" appearance="{{quickJump.appearance}}" trigger-icon="{{quickJump.triggerIcon}}" booking-icon="{{quickJump.bookingIcon}}" portfolio-icon="{{quickJump.portfolioIcon}}" />

@@ -1,6 +1,9 @@
 {
   "navigationBarTitleText": "作品",
-  "navigationBarBackgroundColor": "#111111",
-  "navigationBarTextStyle": "white",
-  "backgroundColor": "#111111"
+  "navigationStyle": "custom",
+  "backgroundColor": "#111111",
+  "usingComponents": {
+    "dark-site-header": "/components/dark-site-header/dark-site-header",
+    "dark-floating-actions": "/components/dark-floating-actions/dark-floating-actions"
+  }
 }

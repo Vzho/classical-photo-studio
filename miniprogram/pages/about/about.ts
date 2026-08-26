@@ -21,6 +21,9 @@ Page({
     bannerUrl: '',
     bannerFallbackUrl: '',
     canOpenStudioLocation: false,
+    studioLatitude: 0,
+    studioLongitude: 0,
+    studioMarkers: [] as Array<{ id: number; latitude: number; longitude: number; title: string }>,
     stores: [] as any[],
     selectedStore: null as any,
     packages: [] as PackageItem[],
@@ -91,6 +94,11 @@ Page({
       bannerUrl,
       bannerFallbackUrl,
       canOpenStudioLocation: Number.isFinite(latitude) && Number.isFinite(longitude),
+      studioLatitude: Number.isFinite(latitude) ? latitude : 0,
+      studioLongitude: Number.isFinite(longitude) ? longitude : 0,
+      studioMarkers: Number.isFinite(latitude) && Number.isFinite(longitude)
+        ? [{ id: 1, latitude, longitude, title: profile.studio?.name || '门店位置' }]
+        : [],
       packages: packages.map(item => ({
         ...item,
         includes: item.includes || [],
