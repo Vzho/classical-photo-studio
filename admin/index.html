@@ -6,6 +6,7 @@
   <title>作品管理后台</title>
   <link rel="icon" href="/mini-icons/camera.svg" type="image/svg+xml">
   <link rel="stylesheet" href="preview.css">
+  <link rel="stylesheet" href="workbench.css">
   <style>
     * {
       margin: 0;
@@ -5166,7 +5167,7 @@
         </div>
 
         <section class="decoration-preview-pane" aria-label="顾客端预览栏">
-          <div class="customer-preview-workbench">
+          <div class="customer-preview-workbench" id="sharedCustomerPreview">
             <div class="customer-preview-toolbar">
               <div class="customer-preview-toolbar-copy">
                 <span>顾客端实时预览</span>
@@ -5842,6 +5843,7 @@
     <span id="toastMessage"></span>
   </div>
 
+  <script src="workbench.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

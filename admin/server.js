@@ -69,6 +69,8 @@ app.use('/mini-icons', express.static(path.join(__dirname, '../miniprogram/asset
 app.get(['/', '/index.html'], (req, res) => res.sendFile(path.join(__dirname, 'index.html')))
 app.get('/app.js', (req, res) => res.sendFile(path.join(__dirname, 'app.js')))
 app.get('/preview.css', (req, res) => res.sendFile(path.join(__dirname, 'preview.css')))
+app.get('/workbench.js', (req, res) => res.sendFile(path.join(__dirname, 'workbench.js')))
+app.get('/workbench.css', (req, res) => res.sendFile(path.join(__dirname, 'workbench.css')))
 
 // 配置文件上传
 const upload = multer({

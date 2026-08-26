@@ -57,6 +57,7 @@ let themeSearchQuery = ''
 let themeStatusFilter = 'all'
 let themeReorderInProgress = false
 const DECORATION_SPLIT_RATIO_STORAGE_KEY = 'photo-admin-decoration-preview-ratio'
+const MANAGEMENT_MAIN_WORKBENCH_ID = 'worksManagementWorkspace'
 const expandedSeriesKeys = new Set()
 const UI_CONFIG = {
   maxVisiblePhotos: 8,
@@ -1138,6 +1139,7 @@ async function init() {
   }
   updateStats()
   setupDragAndDrop()
+  setupManagementWorkbenches()
 }
 
 async function loadRuntimeSettings() {
@@ -1239,6 +1241,8 @@ function updateConfigSourceBar() {
 
 // 保存配置文件
 async function saveConfig() {
+  const activeWorkbenchId = window.AdminWorkbench?.getActiveId?.() || ''
+  if (activeWorkbenchId) window.AdminWorkbench.setState(activeWorkbenchId, 'saving')
   try {
     // 所有保存入口统一升级为当前配置结构，避免旧弹窗把装修字段或版本号写回旧格式。
     ensureV11Config()
@@ -1252,6 +1256,8 @@ async function saveConfig() {
 
     if (result.success) {
       updateAdminBranding()
+      if (activeWorkbenchId) window.AdminWorkbench.setState(activeWorkbenchId, 'clean')
+      refreshManagementPreview()
       return true
     } else {
       throw new Error(result.error || '保存失败')
@@ -1259,6 +1265,7 @@ async function saveConfig() {
   } catch (error) {
     console.error('❌ 保存失败:', error)
     showToast('保存失败: ' + error.message, 'error')
+    if (activeWorkbenchId) window.AdminWorkbench.setState(activeWorkbenchId, 'dirty')
     return false
   }
 }
@@ -1431,6 +1438,8 @@ function resetUploadSelection() {
   document.getElementById('uploadSummary').textContent = ''
   document.getElementById('fileInput').value = ''
   document.getElementById('uploadBtn').disabled = true
+  window.AdminWorkbench?.setSaveEnabled('uploadPhotoModal', false)
+  window.AdminWorkbench?.refresh('uploadPhotoModal')
 }
 
 function renderUploadPreview() {
@@ -1450,6 +1459,8 @@ function renderUploadPreview() {
   `).join('')
 
   document.getElementById('uploadBtn').disabled = selectedFiles.length === 0
+  window.AdminWorkbench?.setSaveEnabled('uploadPhotoModal', selectedFiles.length > 0)
+  window.AdminWorkbench?.refresh('uploadPhotoModal')
 }
 
 function formatFileSize(size) {
@@ -1826,6 +1837,7 @@ function selectTheme(theme) {
   renderSeriesList()
   document.getElementById('currentThemeName').textContent = theme.name
   document.getElementById('addSeriesBtn').style.display = 'block'
+  refreshManagementPreview()
 }
 
 // 渲染作品集列表
@@ -2411,6 +2423,7 @@ async function uploadPhotos() {
   if (!currentSeries || selectedFiles.length === 0) return
 
   const uploadBtn = document.getElementById('uploadBtn')
+  window.AdminWorkbench?.setState('uploadPhotoModal', 'saving')
   uploadBtn.disabled = true
   uploadBtn.textContent = '提交中...'
 
@@ -2423,7 +2436,7 @@ async function uploadPhotos() {
       formData.append('photos', item.file)
     })
 
-    closeModal('uploadPhotoModal')
+    closeModal('uploadPhotoModal', true)
     showToast('正在提交后台上传任务...', 'info')
 
     const response = await fetch(`${CONFIG.apiUrl}/upload`, {
@@ -2759,22 +2772,174 @@ function setupDecorationSplitter() {
   })
 }
 
-// 模态框操作
-function openModal(modalId) {
-  document.getElementById(modalId).classList.add('active')
-  if (modalId === 'themeSettingsModal') {
-    document.body.classList.add('decoration-workspace-open')
-    requestAnimationFrame(restoreDecorationSplitter)
-  }
+function getWorksManagementPreviewPage() {
+  return normalizeDecorationConfig(portfolioData.decoration).siteTemplate === 'dark-gallery'
+    ? 'gallery'
+    : 'home'
 }
 
-function closeModal(modalId) {
-  if (modalId === 'themeSettingsModal' && decorationHasUnsavedChanges) {
+function mountSharedCustomerPreview(host, pageKey) {
+  const sharedPreview = document.getElementById('sharedCustomerPreview')
+  if (!host || !sharedPreview) return
+  if (sharedPreview.parentElement !== host) host.replaceChildren(sharedPreview)
+  activeSkinPreviewPage = SKIN_PREVIEW_PAGE_KEYS.has(pageKey) ? pageKey : 'home'
+  updateThemePreview()
+  requestAnimationFrame(updateSkinPreviewScale)
+}
+
+function restoreManagementMainPreview() {
+  const host = window.AdminWorkbench?.getHost(MANAGEMENT_MAIN_WORKBENCH_ID)
+  if (host) mountSharedCustomerPreview(host, getWorksManagementPreviewPage())
+}
+
+function refreshManagementPreview() {
+  const activeId = window.AdminWorkbench?.getActiveId?.()
+  if (activeId) {
+    window.AdminWorkbench.refresh(activeId)
+    return
+  }
+  if (document.getElementById('themeSettingsModal')?.classList.contains('active')) {
+    updateThemePreview()
+    return
+  }
+  window.AdminWorkbench?.refresh(MANAGEMENT_MAIN_WORKBENCH_ID)
+}
+
+function renderSettingsWorkbenchPreview(host) {
+  if (!host) return
+  const bannerPanelActive = document.getElementById('panel-banner')?.style.display !== 'none'
+  if (bannerPanelActive) {
+    const banners = [
+      ['main-banner', '首页 Banner'],
+      ['booking-banner', '预约页 Banner'],
+      ['about-banner', '简介页 Banner']
+    ]
+    host.innerHTML = `
+      <section class="management-system-preview">
+        <header><span>顾客端图片预览</span><h4>Banner 管理</h4></header>
+        <div class="management-banner-preview-grid">
+          ${banners.map(([type, label]) => {
+            const image = document.getElementById(`preview-${type}`)
+            const source = image?.style.display !== 'none' && image.complete && image.naturalWidth > 0
+              ? image.src
+              : ''
+            return `
+              <figure class="management-banner-preview-card">
+                <div>${source ? `<img src="${escapeHtml(source)}" alt="${escapeHtml(label)}">` : '<span>暂无图片</span>'}</div>
+                <figcaption><strong>${escapeHtml(label)}</strong><small>${selectedBanners[type] ? '已选择新图片，等待上传' : '当前云端图片'}</small></figcaption>
+              </figure>
+            `
+          }).join('')}
+        </div>
+        <div class="management-system-card"><span>更新方式</span><strong>左侧选择图片后，可先在这里确认画面，再点击对应的上传按钮。</strong></div>
+      </section>
+    `
+    return
+  }
+  const bucket = getManagementInputValue('settingBucket')
+  const region = getManagementInputValue('settingRegion')
+  const appId = getManagementInputValue('settingAppID')
+  const configKey = configDiagnostics?.cos?.configKey || 'config/portfolio-config.json'
+  const ready = Boolean(bucket && region)
+  host.innerHTML = `
+    <section class="management-system-preview">
+      <header><span>云端连接预览</span><h4>${ready ? '配置可以进行连接验证' : '还需要补充云端信息'}</h4></header>
+      <div class="management-system-card ${ready ? 'is-ready' : 'is-warning'}"><span>连接状态</span><strong>${ready ? 'Bucket 和地域已填写' : '请填写 Bucket 与地域'}</strong></div>
+      <div class="management-system-card"><span>存储桶</span><code>${escapeHtml(bucket || '尚未填写')}</code></div>
+      <div class="management-system-card"><span>地域</span><code>${escapeHtml(region || '尚未填写')}</code></div>
+      <div class="management-system-card"><span>小程序 AppID</span><code>${escapeHtml(appId || '尚未填写')}</code></div>
+      <div class="management-system-card"><span>小程序读取配置</span><code>${escapeHtml(configKey)}</code></div>
+      <div class="management-system-card"><span>安全说明</span><strong>右侧不会显示 SecretKey；保存后由后台验证连接并同步配置。</strong></div>
+    </section>
+  `
+}
+
+function renderUploadWorkbenchPreview(host) {
+  if (!host) return
+  const totalSize = selectedFiles.reduce((sum, item) => sum + item.file.size, 0)
+  const photos = selectedFiles.slice(0, 12).map(item => `
+    <figure style="margin:0; aspect-ratio:1; overflow:hidden; border-radius:6px; background:#edf0ed;">
+      <img src="${escapeHtml(item.previewUrl)}" alt="${escapeHtml(item.file.name)}" style="width:100%; height:100%; object-fit:cover;">
+    </figure>
+  `).join('')
+  host.innerHTML = `
+    <section class="management-system-preview">
+      <header><span>照片上传预览</span><h4>${escapeHtml(currentSeries?.title || '当前作品集')}</h4></header>
+      <div class="management-system-card ${selectedFiles.length ? 'is-ready' : 'is-warning'}"><span>本次选择</span><strong>${selectedFiles.length ? `${selectedFiles.length} 张，共 ${formatFileSize(totalSize)}` : '还没有选择照片'}</strong></div>
+      <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px;">${photos}</div>
+      <div class="management-system-card"><span>上传位置</span><strong>${escapeHtml(currentTheme?.name || '未选择分类')} / ${escapeHtml(currentSeries?.title || '未选择作品集')}</strong></div>
+    </section>
+  `
+}
+
+function setupManagementWorkbenches() {
+  if (!window.AdminWorkbench) return
+  const close = id => closeModal(id)
+  const customerPreview = pageKey => host => mountSharedCustomerPreview(host, pageKey)
+  const modalConfigs = [
+    ['profileModal', '修改门店介绍、头像、数据和联系方式', 'about'],
+    ['homeBannerModal', '修改首页文字和微信分享内容', 'home'],
+    ['bookingSettingsModal', '修改顾客预约时可以选择的风格', 'booking'],
+    ['contentModulesModal', '修改套餐、档期、评价、流程和常见问题', 'packages'],
+    ['addThemeModal', '新增分类并查看顾客端分类入口', 'home'],
+    ['editThemeModal', '修改分类名称和显示顺序', 'home'],
+    ['addSeriesModal', '新增作品集并预览详情结构', 'series'],
+    ['editSeriesModal', '修改作品集资料并实时查看效果', 'series']
+  ]
+  modalConfigs.forEach(([id, subtitle, pageKey]) => {
+    window.AdminWorkbench.registerModal(id, {
+      subtitle,
+      onRequestClose: close,
+      onPreview: customerPreview(pageKey),
+      onClose: restoreManagementMainPreview
+    })
+  })
+  window.AdminWorkbench.registerModal('uploadPhotoModal', {
+    subtitle: '左侧选择照片，右侧确认文件和归属作品集',
+    saveText: '开始上传',
+    mobileSaveText: '上传',
+    onRequestClose: close,
+    onPreview: renderUploadWorkbenchPreview,
+    onClose: restoreManagementMainPreview
+  })
+  window.AdminWorkbench.registerModal('settingsModal', {
+    subtitle: '配置云端存储并查看连接目标和同步状态',
+    onRequestClose: close,
+    onPreview: renderSettingsWorkbenchPreview,
+    onClose: restoreManagementMainPreview
+  })
+
+  window.AdminWorkbench.createMainSurface(document.querySelector('.main-content'), {
+    id: MANAGEMENT_MAIN_WORKBENCH_ID,
+    onPreview: host => mountSharedCustomerPreview(host, getWorksManagementPreviewPage())
+  })
+}
+
+// 模态框操作
+function openModal(modalId) {
+  if (modalId === 'themeSettingsModal') {
+    mountSharedCustomerPreview(document.querySelector('#themeSettingsModal .decoration-preview-pane'), 'home')
+    document.getElementById(modalId).classList.add('active')
+    document.body.classList.add('decoration-workspace-open')
+    requestAnimationFrame(restoreDecorationSplitter)
+    return
+  }
+  if (window.AdminWorkbench?.open(modalId)) return
+  document.getElementById(modalId).classList.add('active')
+}
+
+function closeModal(modalId, forceClose = false) {
+  if (!forceClose && modalId === 'themeSettingsModal' && decorationHasUnsavedChanges) {
     const shouldClose = window.confirm('还有未保存的装修修改，确定退出吗？')
     if (!shouldClose) return
     setDecorationSaveState('clean')
   }
-  document.getElementById(modalId).classList.remove('active')
+  if (!forceClose && window.AdminWorkbench?.hasUnsaved(modalId)) {
+    const shouldClose = window.confirm('还有未保存的修改，确定退出吗？')
+    if (!shouldClose) return
+  }
+  const workbenchClosed = window.AdminWorkbench?.close(modalId) || false
+  if (!workbenchClosed) document.getElementById(modalId).classList.remove('active')
   if (modalId === 'themeSettingsModal') {
     document.body.classList.remove('decoration-workspace-open')
     toggleDecorationMobilePreview(false)
@@ -2789,6 +2954,7 @@ function closeModal(modalId) {
     if (fileInput) fileInput.value = ''
     if (uploadBtn) uploadBtn.style.display = 'none'
   }
+  if (workbenchClosed || modalId === 'themeSettingsModal') restoreManagementMainPreview()
 }
 
 // Toast 提示
@@ -4513,7 +4679,127 @@ function getSkinPreviewImages() {
   }
 }
 
+function getManagementInputValue(id, fallback = '') {
+  const element = document.getElementById(id)
+  return element ? String(element.value || '').trim() : fallback
+}
+
+function getManagementPreviewImage(id) {
+  const image = document.getElementById(id)
+  if (!image || image.style.display === 'none' || !image.src) return ''
+  return image.src
+}
+
+function getManagementPreviewTheme() {
+  const themeModalActive = document.getElementById('themeSettingsModal')?.classList.contains('active')
+  if (themeModalActive && themeEditorOriginalState) return getThemeEditorValues()
+  return fillMissingObject(portfolioData.theme, DEFAULT_V11_CONFIG.theme)
+}
+
+function applyManagementPreviewDraft(model) {
+  const workbenchId = window.AdminWorkbench?.getActiveId?.() || ''
+
+  if (workbenchId === 'profileModal') {
+    const profile = deepClone(model.profile)
+    profile.name = getManagementInputValue('profileName', profile.name)
+    profile.title = getManagementInputValue('profileTitle', profile.title)
+    profile.location = getManagementInputValue('profileLocation', profile.location)
+    profile.avatar = getManagementInputValue('profileAvatar', profile.avatar)
+    profile.bio = getManagementInputValue('profileBio', profile.bio)
+    profile.skills = parseListInput(getManagementInputValue('profileSkills', profile.skills?.join('，') || ''))
+    profile.stats = PROFILE_STAT_FIELDS.map((field, index) => ({
+      value: getManagementInputValue(field.inputId, profile.stats?.[index]?.value || field.fallbackValue),
+      label: field.label
+    }))
+    profile.contact = {
+      ...(profile.contact || {}),
+      wechat: getManagementInputValue('profileWechat', profile.contact?.wechat || ''),
+      email: getManagementInputValue('profileEmail', profile.contact?.email || '')
+    }
+    profile.studio = {
+      ...(profile.studio || {}),
+      name: getManagementInputValue('profileStudioName', profile.studio?.name || ''),
+      address: getManagementInputValue('profileStudioAddress', profile.studio?.address || '')
+    }
+    model.profile = profile
+    model.avatarImage = getManagementPreviewImage('profileAvatarPreview') || getSkinPreviewAssetUrl(profile.avatar) || model.heroImage
+    model.aboutCover = getManagementPreviewImage('profileAboutBannerPreview') || model.aboutCover
+  }
+
+  if (workbenchId === 'homeBannerModal') {
+    model.homeBanner = {
+      ...model.homeBanner,
+      logoText: getManagementInputValue('homeBannerLogoText', model.homeBanner.logoText),
+      tagText: getManagementInputValue('homeBannerTagText', model.homeBanner.tagText),
+      description: getManagementInputValue('homeBannerDescription', model.homeBanner.description)
+    }
+  }
+
+  if (workbenchId === 'bookingSettingsModal') {
+    const options = normalizeBookingStyleOptions(getManagementInputValue('bookingStyleOptions').split(/\r?\n/))
+    if (options.length) model.booking.styleOptions = options
+  }
+
+  if (workbenchId === 'contentModulesModal') {
+    try { model.packages = readPackageEditor().filter(item => item.enabled !== false) } catch {}
+    try { model.schedule = readScheduleEditor() } catch {}
+    try { model.testimonials = readTestimonialEditor().filter(item => item.enabled !== false) } catch {}
+    try { model.serviceFlow = readServiceFlowEditor() } catch {}
+    try { model.faq = readFaqEditor() } catch {}
+    try { model.photographers = readPhotographerEditor().filter(item => item.enabled !== false) } catch {}
+    try { model.stores = readStoreEditor().filter(item => item.enabled !== false) } catch {}
+    try { model.quickJump = readQuickJumpEditor() } catch {}
+    model.consultation = {
+      ...model.consultation,
+      title: getManagementInputValue('v11ConsultationTitle', model.consultation.title),
+      description: getManagementInputValue('v11ConsultationDescription', model.consultation.description),
+      template: getManagementInputValue('v11ConsultationTemplate', model.consultation.template),
+      privacyTip: getManagementInputValue('v11ConsultationPrivacyTip', model.consultation.privacyTip)
+    }
+    try {
+      const modules = JSON.parse(document.getElementById('v11ModulesJson')?.value || '{}')
+      model.modules = fillMissingObject(modules, model.modules)
+    } catch {
+    }
+  }
+
+  if (workbenchId === 'addThemeModal' || workbenchId === 'editThemeModal') {
+    const inputId = workbenchId === 'addThemeModal' ? 'themeName' : 'editThemeName'
+    const categoryName = getManagementInputValue(inputId)
+    if (categoryName && !model.categories.includes(categoryName)) model.categories = [...model.categories, categoryName]
+  }
+
+  if (workbenchId === 'addSeriesModal' || workbenchId === 'editSeriesModal') {
+    const editing = workbenchId === 'editSeriesModal'
+    const prefix = editing ? 'editSeries' : 'series'
+    const title = getManagementInputValue(`${prefix}Title`, '新作品集')
+    const description = getManagementInputValue(`${prefix}Description`)
+    const likes = Number(getManagementInputValue(`${prefix}Likes`, '0')) || 0
+    const draftItem = {
+      id: editing ? getManagementInputValue('editSeriesId', 'draft-series') : 'draft-series',
+      title,
+      category: currentTheme?.name || '作品',
+      imageUrl: model.seriesItems[0]?.imageUrl || model.heroImage,
+      imageUrls: model.seriesItems[0]?.imageUrls || [model.heroImage].filter(Boolean),
+      photoCount: editing ? (currentTheme?.series?.[currentEditSeriesIndex]?.photos?.length || 0) : 0,
+      likes,
+      description,
+      suitableFor: parseListInput(getManagementInputValue(`${prefix}SuitableFor`)),
+      scenes: parseListInput(getManagementInputValue(`${prefix}Scenes`)),
+      tags: parseListInput(getManagementInputValue(`${prefix}Tags`))
+    }
+    const existingIndex = model.seriesItems.findIndex(item => item.id === draftItem.id)
+    if (existingIndex >= 0) model.seriesItems[existingIndex] = { ...model.seriesItems[existingIndex], ...draftItem }
+    else model.seriesItems = [draftItem, ...model.seriesItems]
+    model.categories = ['全部', ...Array.from(new Set(model.seriesItems.map(item => item.category)))]
+  }
+
+  return model
+}
+
 function getSkinPreviewDraftDecoration() {
+  const themeModalActive = document.getElementById('themeSettingsModal')?.classList.contains('active')
+  if (!themeModalActive) return normalizeDecorationConfig(portfolioData.decoration)
   try {
     return collectDecorationSettings()
   } catch (error) {
@@ -4553,7 +4839,7 @@ function getSkinPreviewModel(theme) {
     .filter(item => item?.enabled !== false)
   const categories = ['全部', ...Array.from(new Set(previewImages.seriesItems.map(item => item.category)))]
 
-  return {
+  const model = {
     theme,
     decoration,
     modules,
@@ -4579,6 +4865,7 @@ function getSkinPreviewModel(theme) {
       styleOptions: normalizeBookingStyleOptions(portfolioData.booking?.styleOptions || FALLBACK_BOOKING_CONFIG.styleOptions)
     }
   }
+  return applyManagementPreviewDraft(model)
 }
 
 function renderSkinPreviewIcon(name, className = '', customIconPath = '') {
@@ -5260,7 +5547,7 @@ function toggleSkinPreviewQuickJump() {
 }
 
 function updateSkinPreviewScale() {
-  const canvas = document.querySelector('.decoration-preview-pane .customer-preview-canvas')
+  const canvas = document.querySelector('#sharedCustomerPreview .customer-preview-canvas')
   const shell = document.getElementById('skinPreviewPhoneShell')
   const phone = document.getElementById('skinLivePreview')
   if (!canvas || !shell || !phone) return
@@ -5321,8 +5608,9 @@ function updateThemePreview() {
   const preview = document.getElementById('skinLivePreview')
   const viewport = document.getElementById('skinPreviewViewport')
   if (!preview || !viewport) return
-  syncThemeColorOutputs()
-  const theme = getThemeEditorValues()
+  const themeModalActive = document.getElementById('themeSettingsModal')?.classList.contains('active')
+  if (themeModalActive) syncThemeColorOutputs()
+  const theme = getManagementPreviewTheme()
   const preset = THEME_PRESETS[theme.preset] || THEME_PRESETS.minimal
   const model = getSkinPreviewModel(theme)
   if (model.decoration.siteTemplate !== 'dark-gallery' && activeSkinPreviewPage === 'gallery') {
@@ -6872,6 +7160,7 @@ function renderProfileAvatarPreview(avatarPathOrUrl) {
   preview.src = src.startsWith('data:')
     ? src
     : `${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`
+  window.AdminWorkbench?.refresh('profileModal')
 }
 
 function renderProfileAboutBannerPreview(srcOverride = '') {
@@ -6899,6 +7188,7 @@ function renderProfileAboutBannerPreview(srcOverride = '') {
   preview.src = src.startsWith('data:')
     ? src
     : `${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`
+  window.AdminWorkbench?.refresh('profileModal')
 }
 
 // 保存个人资料
@@ -7007,10 +7297,12 @@ async function openSettingsModal() {
       mainImg.onerror = () => {
         mainImg.style.display = 'none'
         document.getElementById('no-main-banner').style.display = 'flex'
+        window.AdminWorkbench?.refresh('settingsModal')
       }
       mainImg.onload = () => {
         mainImg.style.display = 'block'
         document.getElementById('no-main-banner').style.display = 'none'
+        window.AdminWorkbench?.refresh('settingsModal')
       }
 
       const bookingImg = document.getElementById('preview-booking-banner')
@@ -7019,10 +7311,12 @@ async function openSettingsModal() {
       bookingImg.onerror = () => {
         bookingImg.style.display = 'none'
         document.getElementById('no-booking-banner').style.display = 'flex'
+        window.AdminWorkbench?.refresh('settingsModal')
       }
       bookingImg.onload = () => {
         bookingImg.style.display = 'block'
         document.getElementById('no-booking-banner').style.display = 'none'
+        window.AdminWorkbench?.refresh('settingsModal')
       }
 
       const aboutImg = document.getElementById('preview-about-banner')
@@ -7031,10 +7325,12 @@ async function openSettingsModal() {
       aboutImg.onerror = () => {
         aboutImg.style.display = 'none'
         document.getElementById('no-about-banner').style.display = 'flex'
+        window.AdminWorkbench?.refresh('settingsModal')
       }
       aboutImg.onload = () => {
         aboutImg.style.display = 'block'
         document.getElementById('no-about-banner').style.display = 'none'
+        window.AdminWorkbench?.refresh('settingsModal')
       }
 
       openModal('settingsModal')
@@ -7051,6 +7347,7 @@ async function openSettingsModal() {
 async function saveAndSyncSettings() {
   const btn = document.getElementById('saveSettingsBtn')
   const logDiv = document.getElementById('syncLogs')
+  window.AdminWorkbench?.setState('settingsModal', 'saving')
 
   btn.disabled = true
   btn.textContent = '正在保存...'
@@ -7077,6 +7374,7 @@ async function saveAndSyncSettings() {
     showToast(message, 'error')
     btn.disabled = false
     btn.textContent = '💾 保存并更新小程序'
+    window.AdminWorkbench?.setState('settingsModal', 'dirty')
     return
   }
 
@@ -7104,6 +7402,7 @@ async function saveAndSyncSettings() {
     logDiv.scrollTop = logDiv.scrollHeight
 
     if (result.success) {
+      window.AdminWorkbench?.setState('settingsModal', 'clean')
       showToast('云端设置已保存，小程序会显示最新内容', 'success')
       // 延迟关闭，让用户看完日志
       setTimeout(() => {
@@ -7118,6 +7417,7 @@ async function saveAndSyncSettings() {
         }
       }, 1500)
     } else {
+      window.AdminWorkbench?.setState('settingsModal', 'dirty')
       showToast('保存失败: ' + result.error, 'error')
     }
 
@@ -7125,6 +7425,7 @@ async function saveAndSyncSettings() {
     console.error('保存设置失败:', error)
     logDiv.innerHTML += `<div style="color: #e06c75">[ERROR] 网络请求失败: ${error.message}</div>`
     showToast('网络请求失败', 'error')
+    window.AdminWorkbench?.setState('settingsModal', 'dirty')
   } finally {
     btn.disabled = false
     btn.textContent = '💾 保存并更新小程序'
@@ -7312,6 +7613,7 @@ function switchSettingsTab(tabName) {
   if (activePanel) {
     activePanel.style.display = 'block'
   }
+  window.AdminWorkbench?.refresh('settingsModal')
 }
 
 // 处理 Banner 选择
@@ -7344,6 +7646,7 @@ function handleBannerSelect(type, event) {
 
     // 显示上传按钮
     document.getElementById(`btn-upload-${type}`).style.display = 'inline-block'
+    window.AdminWorkbench?.refresh('settingsModal')
   }
   reader.readAsDataURL(file)
 }

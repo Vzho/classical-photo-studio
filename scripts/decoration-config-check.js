@@ -720,6 +720,49 @@ function checkIcons() {
   assert.ok(server.includes('512 * 1024'), 'admin must limit custom icon upload size')
 }
 
+function checkManagementWorkbenches() {
+  const html = read('admin/index.html')
+  const app = read('admin/app.js')
+  const server = read('admin/server.js')
+  const workbench = read('admin/workbench.js')
+  const styles = read('admin/workbench.css')
+
+  assert.strictEqual((html.match(/id="sharedCustomerPreview"/g) || []).length, 1, 'admin must keep one shared customer preview')
+  assert.ok(html.includes('href="workbench.css"'), 'admin must load workbench styles')
+  assert.ok(html.includes('src="workbench.js"'), 'admin must load workbench runtime')
+  assert.ok(server.includes("app.get('/workbench.js'"), 'admin server must expose workbench.js')
+  assert.ok(server.includes("app.get('/workbench.css'"), 'admin server must expose workbench.css')
+  assert.ok(workbench.includes('const DEFAULT_RATIO = 0.3'), 'management workbenches must default to a 70/30 split')
+  assert.ok(workbench.includes("cursor: col-resize") || styles.includes('cursor: col-resize'), 'management splitters must remain draggable')
+  assert.ok(styles.includes('.management-mobile-preview-button'), 'management workbenches must support narrow screens')
+  assert.ok(app.includes('mountSharedCustomerPreview'), 'management pages must reuse the customer preview')
+  assert.ok(app.includes('applyManagementPreviewDraft'), 'customer preview must consume unsaved management drafts')
+  assert.ok(app.includes('renderSettingsWorkbenchPreview'), 'cloud settings must use a status preview')
+  assert.ok(app.includes('management-banner-preview-grid'), 'banner settings must use an image preview')
+  assert.ok(app.includes('renderUploadWorkbenchPreview'), 'photo upload must use an asset preview')
+  assert.ok(app.includes("closeModal('uploadPhotoModal', true)"), 'confirmed uploads must bypass the discard warning')
+  assert.ok(!app.includes("getManagementInputValue('settingSecretKey'"), 'cloud preview must never read SecretKey')
+
+  const registeredModals = [
+    'profileModal',
+    'homeBannerModal',
+    'bookingSettingsModal',
+    'contentModulesModal',
+    'addThemeModal',
+    'editThemeModal',
+    'addSeriesModal',
+    'editSeriesModal',
+    'uploadPhotoModal',
+    'settingsModal'
+  ]
+  registeredModals.forEach(id => {
+    assert.ok(app.includes(`'${id}'`), `management workbench is missing ${id}`)
+  })
+  ;['home', 'about', 'booking', 'packages', 'series'].forEach(page => {
+    assert.ok(app.includes(`'${page}'`), `management preview is missing ${page}`)
+  })
+}
+
 function main() {
   checkNormalization()
   checkConfig('miniprogram/data/portfolio-config.template.json', { requireLatest: true })
@@ -727,6 +770,7 @@ function main() {
   checkCmsIntegration()
   checkPageIntegration()
   checkIcons()
+  checkManagementWorkbenches()
   checkSkinRuntime()
   console.log('decoration-config-check: PASS')
 }
