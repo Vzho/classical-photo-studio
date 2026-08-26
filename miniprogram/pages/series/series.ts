@@ -14,7 +14,7 @@ import {
   TestimonialItem
 } from '../../utils/cos'
 import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
-import { DEFAULT_DECORATION, SeriesDecoration, TerminologyDecoration } from '../../utils/decoration'
+import { DEFAULT_DECORATION, SeriesDecoration, ShowcaseDecoration, TerminologyDecoration } from '../../utils/decoration'
 import { setPageNavigationTitle } from '../../utils/navigation'
 import { createShareMessage } from '../../utils/share'
 
@@ -22,6 +22,8 @@ Page({
   data: {
     themeStyle: '',
     themePreset: 'minimal',
+    siteTemplate: 'classic' as 'classic' | 'dark-gallery',
+    showcase: { ...DEFAULT_DECORATION.showcase } as ShowcaseDecoration,
     seriesTitle: '',
     seriesCategory: '',
     seriesInfo: null as SeriesInfo | null,
@@ -60,13 +62,15 @@ Page({
   },
 
   async loadSeriesImages(seriesId: string) {
-    const { images, seriesInfo, theme, consultButton, packages, testimonials, photographers, quickJump, share, terminology, decoration } = await getSeriesPageData(seriesId)
+    const { images, seriesInfo, theme, consultButton, packages, testimonials, photographers, quickJump, share, terminology, decoration, siteTemplate, showcase } = await getSeriesPageData(seriesId)
     const seriesTitle = seriesInfo?.title || this.data.seriesTitle
     const seriesCategory = seriesInfo?.category || this.data.seriesCategory
 
     this.setData({
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      siteTemplate,
+      showcase,
       seriesTitle,
       seriesCategory,
       seriesInfo,
@@ -96,6 +100,10 @@ Page({
       terminology,
       decoration
     })
+
+    if (siteTemplate === 'dark-gallery') {
+      wx.setNavigationBarColor({ frontColor: '#ffffff', backgroundColor: '#202020' })
+    }
 
     setPageNavigationTitle(seriesTitle, `${terminology.workLabel}详情`)
   },

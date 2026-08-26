@@ -2737,3 +2737,62 @@
   border-radius: 0;
   background: var(--secondary);
 }
+.portfolio-page.theme-dark-gallery,
+.about-page.theme-dark-gallery,
+.booking-page.theme-dark-gallery,
+.packages-page.theme-dark-gallery,
+.package-detail-page.theme-dark-gallery,
+.series-page.theme-dark-gallery,
+.success-page.theme-dark-gallery,
+.stores-page.theme-dark-gallery {
+  color: #f5f5f2;
+  background: #111111;
+}
+
+.booking-page.theme-dark-gallery .booking-hero,
+.packages-page.theme-dark-gallery .page-header,
+.package-detail-page.theme-dark-gallery .detail-hero,
+.success-page.theme-dark-gallery .success-header,
+.stores-page.theme-dark-gallery .stores-header {
+  color: #f5f5f2;
+  background: #1b1b1b;
+  border-color: #383838;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.booking-page.theme-dark-gallery .notice-section,
+.booking-page.theme-dark-gallery .booking-section,
+.packages-page.theme-dark-gallery .schedule-notice,
+.packages-page.theme-dark-gallery .package-card,
+.package-detail-page.theme-dark-gallery .detail-section,
+.package-detail-page.theme-dark-gallery .series-card,
+.success-page.theme-dark-gallery .result-section,
+.success-page.theme-dark-gallery .consultation-text,
+.success-page.theme-dark-gallery .contact-row,
+.stores-page.theme-dark-gallery .store-card {
+  color: #f5f5f2;
+  background: #1b1b1b;
+  border-color: #383838;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.booking-page.theme-dark-gallery .form-input,
+.booking-page.theme-dark-gallery .form-textarea,
+.booking-page.theme-dark-gallery .style-item {
+  color: #f5f5f2;
+  background: #292929;
+  border-color: #3d3d3d;
+}
+
+.booking-page.theme-dark-gallery .style-item.active,
+.booking-page.theme-dark-gallery .submit-btn,
+.packages-page.theme-dark-gallery .package-action,
+.package-detail-page.theme-dark-gallery .detail-action,
+.success-page.theme-dark-gallery .copy-control {
+  color: #111111;
+  background: #72dedf;
+  border-color: #72dedf;
+  border-radius: 0;
+}

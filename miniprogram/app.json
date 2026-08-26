@@ -6,6 +6,7 @@
   },
   "pages": [
     "pages/portfolio/portfolio",
+    "pages/gallery/gallery",
     "pages/about/about",
     "pages/booking/booking",
     "pages/success/success",

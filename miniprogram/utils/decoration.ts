@@ -29,6 +29,7 @@ export interface BookingFieldDecoration {
 
 export interface NavigationDecoration {
   portfolioText: string
+  galleryText: string
   aboutText: string
   packagesText: string
   bookingText: string
@@ -37,7 +38,7 @@ export interface NavigationDecoration {
   items: NavigationItemDecoration[]
 }
 
-export type NavigationItemKey = 'portfolio' | 'about' | 'packages' | 'booking' | 'stores'
+export type NavigationItemKey = 'portfolio' | 'gallery' | 'about' | 'packages' | 'booking' | 'stores'
 
 export interface NavigationItemDecoration {
   key: NavigationItemKey
@@ -67,6 +68,7 @@ export const CONFIGURABLE_ICON_NAMES = [
 export interface IconDecoration {
   navigation: {
     portfolio: string
+    gallery: string
     about: string
     packages: string
     booking: string
@@ -74,6 +76,7 @@ export interface IconDecoration {
   }
   navigationCustom: {
     portfolio: string
+    gallery: string
     about: string
     packages: string
     booking: string
@@ -99,6 +102,20 @@ export interface TerminologyDecoration {
   professionalLabel: string
   serviceLabel: string
   customerServiceLabel: string
+}
+
+export interface ShowcaseDecoration {
+  heroActionText: string
+  heroActionTarget: 'gallery' | 'booking'
+  galleryTitle: string
+  gallerySubtitle: string
+  categoryMode: 'top' | 'sidebar'
+  galleryColumns: 2 | 3
+  showSearch: boolean
+  showTags: boolean
+  seriesActionText: string
+  aboutQuote: string
+  aboutGalleryLimit: 6 | 9
 }
 
 export interface HomeDecoration {
@@ -148,6 +165,8 @@ export interface SuccessDecoration extends SectionPageDecoration {
 }
 
 export interface DecorationContent {
+  siteTemplate: 'classic' | 'dark-gallery'
+  showcase: ShowcaseDecoration
   terminology: TerminologyDecoration
   navigation: NavigationDecoration
   icons: IconDecoration
@@ -193,6 +212,20 @@ const field = (
 })
 
 export const DEFAULT_DECORATION: DecorationContent = {
+  siteTemplate: 'classic',
+  showcase: {
+    heroActionText: '浏览作品',
+    heroActionTarget: 'gallery',
+    galleryTitle: '作品欣赏',
+    gallerySubtitle: 'GALLERY',
+    categoryMode: 'sidebar',
+    galleryColumns: 2,
+    showSearch: true,
+    showTags: true,
+    seriesActionText: '咨询这套',
+    aboutQuote: '以光为序，记录值得珍藏的瞬间。',
+    aboutGalleryLimit: 9
+  },
   terminology: {
     workLabel: '作品',
     packageLabel: '套餐',
@@ -203,6 +236,7 @@ export const DEFAULT_DECORATION: DecorationContent = {
   },
   navigation: {
     portfolioText: '作品集',
+    galleryText: '作品',
     aboutText: '简介',
     packagesText: '套餐',
     bookingText: '咨询',
@@ -212,6 +246,7 @@ export const DEFAULT_DECORATION: DecorationContent = {
       { key: 'portfolio', enabled: true },
       { key: 'about', enabled: true },
       { key: 'booking', enabled: true },
+      { key: 'gallery', enabled: false },
       { key: 'packages', enabled: false },
       { key: 'stores', enabled: false }
     ]
@@ -219,6 +254,7 @@ export const DEFAULT_DECORATION: DecorationContent = {
   icons: {
     navigation: {
       portfolio: 'images',
+      gallery: 'images',
       about: 'user-round',
       packages: 'briefcase-business',
       booking: 'calendar-days',
@@ -226,6 +262,7 @@ export const DEFAULT_DECORATION: DecorationContent = {
     },
     navigationCustom: {
       portfolio: '',
+      gallery: '',
       about: '',
       packages: '',
       booking: '',
@@ -461,7 +498,7 @@ function pick<T extends string | number>(value: unknown, allowed: readonly T[], 
   return allowed.includes(value as T) ? value as T : fallback
 }
 
-const NAVIGATION_ITEM_KEYS: readonly NavigationItemKey[] = ['portfolio', 'about', 'packages', 'booking', 'stores']
+const NAVIGATION_ITEM_KEYS: readonly NavigationItemKey[] = ['portfolio', 'gallery', 'about', 'packages', 'booking', 'stores']
 
 function normalizeNavigationItems(value: unknown): NavigationItemDecoration[] {
   if (!Array.isArray(value)) return clone(DEFAULT_DECORATION.navigation.items)
@@ -513,6 +550,7 @@ export function normalizeDecoration(value?: Partial<DecorationContent> | null): 
   const packageDetail: Partial<PackageDetailDecoration> = input.packageDetail || {}
   const series: Partial<SeriesDecoration> = input.series || {}
   const success: Partial<SuccessDecoration> = input.success || {}
+  const showcase: Partial<ShowcaseDecoration> = input.showcase || {}
   const homeColumns = pick(Number(home.galleryColumns) as 1 | 2 | 3 | 4, [1, 2, 3, 4] as const, DEFAULT_DECORATION.home.galleryColumns)
   let homeCardContent = pick(home.cardContent, ['full', 'compact', 'image-only', 'custom'] as const, DEFAULT_DECORATION.home.cardContent)
   const visibilityFallback = homeCardContent === 'full'
@@ -532,6 +570,20 @@ export function normalizeDecoration(value?: Partial<DecorationContent> | null): 
   }
 
   return {
+    siteTemplate: pick(input.siteTemplate, ['classic', 'dark-gallery'] as const, DEFAULT_DECORATION.siteTemplate),
+    showcase: {
+      heroActionText: String(showcase.heroActionText || DEFAULT_DECORATION.showcase.heroActionText).slice(0, 12),
+      heroActionTarget: pick(showcase.heroActionTarget, ['gallery', 'booking'] as const, DEFAULT_DECORATION.showcase.heroActionTarget),
+      galleryTitle: String(showcase.galleryTitle || DEFAULT_DECORATION.showcase.galleryTitle).slice(0, 18),
+      gallerySubtitle: String(showcase.gallerySubtitle || DEFAULT_DECORATION.showcase.gallerySubtitle).slice(0, 24),
+      categoryMode: pick(showcase.categoryMode, ['top', 'sidebar'] as const, DEFAULT_DECORATION.showcase.categoryMode),
+      galleryColumns: pick(Number(showcase.galleryColumns) as 2 | 3, [2, 3] as const, DEFAULT_DECORATION.showcase.galleryColumns),
+      showSearch: showcase.showSearch !== false,
+      showTags: showcase.showTags !== false,
+      seriesActionText: String(showcase.seriesActionText || DEFAULT_DECORATION.showcase.seriesActionText).slice(0, 12),
+      aboutQuote: String(showcase.aboutQuote || DEFAULT_DECORATION.showcase.aboutQuote).slice(0, 80),
+      aboutGalleryLimit: pick(Number(showcase.aboutGalleryLimit) as 6 | 9, [6, 9] as const, DEFAULT_DECORATION.showcase.aboutGalleryLimit)
+    },
     terminology: {
       workLabel: String(terminology.workLabel || DEFAULT_DECORATION.terminology.workLabel),
       packageLabel: String(terminology.packageLabel || DEFAULT_DECORATION.terminology.packageLabel),
@@ -542,6 +594,7 @@ export function normalizeDecoration(value?: Partial<DecorationContent> | null): 
     },
     navigation: {
       portfolioText: String(navigation.portfolioText || DEFAULT_DECORATION.navigation.portfolioText),
+      galleryText: String(navigation.galleryText || DEFAULT_DECORATION.navigation.galleryText),
       aboutText: String(navigation.aboutText || DEFAULT_DECORATION.navigation.aboutText),
       packagesText: String(navigation.packagesText || DEFAULT_DECORATION.navigation.packagesText),
       bookingText: String(navigation.bookingText || DEFAULT_DECORATION.navigation.bookingText),
@@ -552,6 +605,7 @@ export function normalizeDecoration(value?: Partial<DecorationContent> | null): 
     icons: {
       navigation: {
         portfolio: normalizeConfigurableIcon(navigationIcons.portfolio, DEFAULT_DECORATION.icons.navigation.portfolio),
+        gallery: normalizeConfigurableIcon(navigationIcons.gallery, DEFAULT_DECORATION.icons.navigation.gallery),
         about: normalizeConfigurableIcon(navigationIcons.about, DEFAULT_DECORATION.icons.navigation.about),
         packages: normalizeConfigurableIcon(navigationIcons.packages, DEFAULT_DECORATION.icons.navigation.packages),
         booking: normalizeConfigurableIcon(navigationIcons.booking, DEFAULT_DECORATION.icons.navigation.booking),
@@ -559,6 +613,7 @@ export function normalizeDecoration(value?: Partial<DecorationContent> | null): 
       },
       navigationCustom: {
         portfolio: normalizeCustomIconPath(customNavigationIcons.portfolio),
+        gallery: normalizeCustomIconPath(customNavigationIcons.gallery),
         about: normalizeCustomIconPath(customNavigationIcons.about),
         packages: normalizeCustomIconPath(customNavigationIcons.packages),
         booking: normalizeCustomIconPath(customNavigationIcons.booking),

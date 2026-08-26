@@ -274,8 +274,11 @@ function getHomePortfolioCardConfig(config: any): Required<HomePortfolioCardCont
 }
 
 function getQuickJumpConfig(config: any): Required<QuickJumpContent> {
-  const quickJumpIcons = normalizeDecoration(config?.decoration).icons.quickJump
-  const appearance = ['solid', 'soft', 'outline'].includes(config?.theme?.quickJumpStyle)
+  const decoration = normalizeDecoration(config?.decoration)
+  const quickJumpIcons = decoration.icons.quickJump
+  const appearance = decoration.siteTemplate === 'dark-gallery'
+    ? 'stacked'
+    : ['solid', 'soft', 'outline'].includes(config?.theme?.quickJumpStyle)
     ? config.theme.quickJumpStyle
     : DEFAULT_QUICK_JUMP.appearance
   if (!isModuleEnabled(config, 'quickJump')) {
@@ -663,7 +666,8 @@ export function getThemePreset(theme?: Partial<ThemeContent> | null): string {
     'editorial-studio',
     'luminous-portrait',
     'cinematic-story',
-    'gallery-monograph'
+    'gallery-monograph',
+    'dark-gallery'
   ].includes(preset)
     ? preset
     : 'minimal'
@@ -820,6 +824,10 @@ export async function getPortfolioPageData(): Promise<{
   share: ShareContent
   decoration: DecorationContent['home']
   terminology: DecorationContent['terminology']
+  siteTemplate: DecorationContent['siteTemplate']
+  showcase: DecorationContent['showcase']
+  navigation: DecorationContent['navigation']
+  icons: DecorationContent['icons']
 }> {
   try {
     const config = await loadConfig()
@@ -841,7 +849,11 @@ export async function getPortfolioPageData(): Promise<{
       quickJump: getQuickJumpConfig(config),
       share: getShareContent(config, allImages),
       decoration: decoration.home,
-      terminology: decoration.terminology
+      terminology: decoration.terminology,
+      siteTemplate: decoration.siteTemplate,
+      showcase: decoration.showcase,
+      navigation: decoration.navigation,
+      icons: decoration.icons
     }
   } catch (error) {
     console.error('加载首页配置失败:', error)
@@ -859,7 +871,11 @@ export async function getPortfolioPageData(): Promise<{
       quickJump: DEFAULT_QUICK_JUMP,
       share: { ...DEFAULT_SHARE_CONTENT },
       decoration: normalizeDecoration().home,
-      terminology: normalizeDecoration().terminology
+      terminology: normalizeDecoration().terminology,
+      siteTemplate: normalizeDecoration().siteTemplate,
+      showcase: normalizeDecoration().showcase,
+      navigation: normalizeDecoration().navigation,
+      icons: normalizeDecoration().icons
     }
   }
 }
@@ -871,6 +887,7 @@ export async function getThemePageData(): Promise<{
   icons: DecorationContent['icons']
   terminology: DecorationContent['terminology']
   decoration: DecorationContent['success']
+  siteTemplate: DecorationContent['siteTemplate']
 }> {
   try {
     const config = await loadConfig()
@@ -883,7 +900,8 @@ export async function getThemePageData(): Promise<{
       navigation: decoration.navigation,
       icons: decoration.icons,
       terminology: decoration.terminology,
-      decoration: decoration.success
+      decoration: decoration.success,
+      siteTemplate: decoration.siteTemplate
     }
   } catch (error) {
     console.error('加载主题配置失败:', error)
@@ -893,7 +911,8 @@ export async function getThemePageData(): Promise<{
       navigation: normalizeDecoration().navigation,
       icons: normalizeDecoration().icons,
       terminology: normalizeDecoration().terminology,
-      decoration: normalizeDecoration().success
+      decoration: normalizeDecoration().success,
+      siteTemplate: normalizeDecoration().siteTemplate
     }
   }
 }
@@ -942,6 +961,8 @@ export async function getSeriesPageData(seriesId: string): Promise<{
   share: ShareContent
   terminology: DecorationContent['terminology']
   decoration: DecorationContent['series']
+  siteTemplate: DecorationContent['siteTemplate']
+  showcase: DecorationContent['showcase']
 }> {
   try {
     const config = await loadConfig()
@@ -985,7 +1006,9 @@ export async function getSeriesPageData(seriesId: string): Promise<{
       }),
       share: getShareContent(config, allImages),
       terminology: decoration.terminology,
-      decoration: decoration.series
+      decoration: decoration.series,
+      siteTemplate: decoration.siteTemplate,
+      showcase: decoration.showcase
     }
   } catch (error) {
     console.error('加载系列详情配置失败:', error)
@@ -1000,7 +1023,9 @@ export async function getSeriesPageData(seriesId: string): Promise<{
       photographers: [],
       share: { ...DEFAULT_SHARE_CONTENT },
       terminology: normalizeDecoration().terminology,
-      decoration: normalizeDecoration().series
+      decoration: normalizeDecoration().series,
+      siteTemplate: normalizeDecoration().siteTemplate,
+      showcase: normalizeDecoration().showcase
     }
   }
 }
@@ -1199,11 +1224,18 @@ export async function getAboutPageData(): Promise<{
   icons: DecorationContent['icons']
   decoration: DecorationContent['about']
   terminology: DecorationContent['terminology']
+  siteTemplate: DecorationContent['siteTemplate']
+  showcase: DecorationContent['showcase']
+  galleryItems: PortfolioItem[]
 }> {
   try {
     const config = await loadConfig()
 
     const decoration = normalizeDecoration(config?.decoration)
+    const allImages = generateImagesFromConfig(config)
+    const featuredImages = allImages.filter(item => item.featuredOnHome).sort(compareHomeFeaturedItems)
+    const galleryItems = (featuredImages.length ? featuredImages : allImages.filter(item => item.isSeriesCover))
+      .slice(0, decoration.showcase.aboutGalleryLimit)
 
     return {
       photographer: config?.photographer || null,
@@ -1219,7 +1251,10 @@ export async function getAboutPageData(): Promise<{
       share: getShareContent(config),
       icons: decoration.icons,
       decoration: decoration.about,
-      terminology: decoration.terminology
+      terminology: decoration.terminology,
+      siteTemplate: decoration.siteTemplate,
+      showcase: decoration.showcase,
+      galleryItems
     }
   } catch (error) {
     console.error('加载简介页配置失败:', error)
@@ -1237,7 +1272,10 @@ export async function getAboutPageData(): Promise<{
       share: { ...DEFAULT_SHARE_CONTENT },
       icons: normalizeDecoration().icons,
       decoration: normalizeDecoration().about,
-      terminology: normalizeDecoration().terminology
+      terminology: normalizeDecoration().terminology,
+      siteTemplate: normalizeDecoration().siteTemplate,
+      showcase: normalizeDecoration().showcase,
+      galleryItems: []
     }
   }
 }

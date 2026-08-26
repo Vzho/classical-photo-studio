@@ -140,6 +140,20 @@ module.exports = {
     }
   },
   "decoration": {
+    "siteTemplate": "classic",
+    "showcase": {
+      "heroActionText": "浏览作品",
+      "heroActionTarget": "gallery",
+      "galleryTitle": "作品欣赏",
+      "gallerySubtitle": "GALLERY",
+      "categoryMode": "sidebar",
+      "galleryColumns": 2,
+      "showSearch": true,
+      "showTags": true,
+      "seriesActionText": "咨询这套",
+      "aboutQuote": "以光为序，记录值得珍藏的瞬间。",
+      "aboutGalleryLimit": 9
+    },
     "terminology": {
       "workLabel": "作品",
       "packageLabel": "套餐",
@@ -150,22 +164,43 @@ module.exports = {
     },
     "navigation": {
       "portfolioText": "作品集",
+      "galleryText": "作品",
       "aboutText": "简介",
       "packagesText": "套餐",
       "bookingText": "咨询",
       "storesText": "门店",
       "style": "line",
       "items": [
-        { "key": "portfolio", "enabled": true },
-        { "key": "about", "enabled": true },
-        { "key": "booking", "enabled": true },
-        { "key": "packages", "enabled": false },
-        { "key": "stores", "enabled": false }
+        {
+          "key": "portfolio",
+          "enabled": true
+        },
+        {
+          "key": "about",
+          "enabled": true
+        },
+        {
+          "key": "booking",
+          "enabled": true
+        },
+        {
+          "key": "gallery",
+          "enabled": false
+        },
+        {
+          "key": "packages",
+          "enabled": false
+        },
+        {
+          "key": "stores",
+          "enabled": false
+        }
       ]
     },
     "icons": {
       "navigation": {
         "portfolio": "images",
+        "gallery": "images",
         "about": "user-round",
         "packages": "briefcase-business",
         "booking": "calendar-days",
@@ -173,6 +208,7 @@ module.exports = {
       },
       "navigationCustom": {
         "portfolio": "",
+        "gallery": "",
         "about": "",
         "packages": "",
         "booking": "",

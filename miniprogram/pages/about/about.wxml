@@ -1,4 +1,29 @@
-<view class="about-page theme-{{themePreset}} header-{{aboutDecoration.headerVariant}}" style="{{themeStyle}}">
+<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-about-page" style="{{themeStyle}}">
+  <view class="dark-about-profile">
+    <image class="dark-about-avatar" src="{{avatarUrl}}" mode="aspectFill" />
+    <view class="dark-about-name">{{photographer.name}}</view>
+    <view class="dark-about-title">{{photographer.title}}</view>
+    <view wx:if="{{photographer.location}}" class="dark-about-location">{{photographer.location}}</view>
+  </view>
+  <view wx:if="{{showcase.aboutQuote}}" class="dark-about-quote"><text>“</text>{{showcase.aboutQuote}}<text>”</text></view>
+  <view class="dark-about-contact">
+    <view wx:if="{{photographer.contact.wechat}}" bindtap="copyWechat"><app-icon name="{{icons.contact.wechat}}" size="34" tone="inverse" /><text>微信</text></view>
+    <view wx:if="{{photographer.contact.email}}" bindtap="copyEmail"><app-icon name="{{icons.contact.email}}" size="34" tone="inverse" /><text>邮箱</text></view>
+    <view wx:if="{{photographer.studio.address}}" bindtap="openStudioLocation"><app-icon name="{{icons.contact.location}}" size="34" tone="inverse" /><text>地址</text></view>
+  </view>
+  <view wx:if="{{galleryItems.length}}" class="dark-about-wall">
+    <image wx:for="{{galleryItems}}" wx:key="id" src="{{item.imageUrl}}" mode="aspectFill" />
+  </view>
+  <view wx:if="{{photographer.studio.address}}" class="dark-about-address" bindtap="openStudioLocation">
+    <view>{{photographer.studio.name}}</view>
+    <text>{{photographer.studio.address}}</text>
+    <app-icon name="chevron-right" size="28" tone="primary" />
+  </view>
+  <view wx:if="{{consultButtonVisible}}" class="dark-about-action" bindtap="goBooking">{{consultButton.text || terminology.consultationLabel}}</view>
+  <quick-jump wx:if="{{quickJumpVisible}}" current="about" booking-text="{{quickJump.bookingText}}" portfolio-text="{{quickJump.portfolioText}}" appearance="{{quickJump.appearance}}" trigger-icon="{{quickJump.triggerIcon}}" booking-icon="{{quickJump.bookingIcon}}" portfolio-icon="{{quickJump.portfolioIcon}}" />
+</view>
+
+<view wx:else class="about-page theme-{{themePreset}} header-{{aboutDecoration.headerVariant}}" style="{{themeStyle}}">
   <block wx:for="{{aboutSections}}" wx:for-item="section" wx:key="id">
     <view wx:if="{{section.enabled && section.type === 'profile'}}" class="profile-section">
       <view class="profile-media">

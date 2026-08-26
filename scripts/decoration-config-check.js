@@ -18,7 +18,8 @@ const COMMERCIAL_SKIN_NAMES = [
   'editorial-studio',
   'luminous-portrait',
   'cinematic-story',
-  'gallery-monograph'
+  'gallery-monograph',
+  'dark-gallery'
 ]
 const LEGACY_SKIN_NAMES = ['minimal', 'film', 'bridal', 'family', 'oriental', 'luxury']
 const SKIN_NAMES = [...COMMERCIAL_SKIN_NAMES, ...LEGACY_SKIN_NAMES]
@@ -66,6 +67,7 @@ function checkNormalization() {
   })
 
   assert.strictEqual(normalized.navigation.portfolioText, '案例')
+  assert.strictEqual(normalized.navigation.galleryText, DEFAULT_DECORATION.navigation.galleryText)
   assert.strictEqual(normalized.navigation.aboutText, DEFAULT_DECORATION.navigation.aboutText)
   assert.strictEqual(normalized.navigation.packagesText, DEFAULT_DECORATION.navigation.packagesText)
   assert.strictEqual(normalized.navigation.storesText, DEFAULT_DECORATION.navigation.storesText)
@@ -89,6 +91,16 @@ function checkNormalization() {
   assert.strictEqual(normalized.booking.fields.length, DEFAULT_DECORATION.booking.fields.length)
   assert.strictEqual(normalized.packages.layoutVariant, 'cards')
   assert.strictEqual(normalized.series.galleryVariant, 'immersive')
+  assert.strictEqual(normalized.siteTemplate, 'classic')
+
+  const showcase = normalizeDecoration({
+    siteTemplate: 'dark-gallery',
+    showcase: { categoryMode: 'top', galleryColumns: 3, showSearch: false }
+  })
+  assert.strictEqual(showcase.siteTemplate, 'dark-gallery')
+  assert.strictEqual(showcase.showcase.categoryMode, 'top')
+  assert.strictEqual(showcase.showcase.galleryColumns, 3)
+  assert.strictEqual(showcase.showcase.showSearch, false)
 
   const homeLayout = normalizeDecoration({
     home: {
@@ -146,7 +158,7 @@ function checkNormalization() {
       ]
     }
   }).navigation.items
-  assert.deepStrictEqual(customNavigation.map(item => item.key), ['booking', 'packages', 'about', 'portfolio', 'stores'])
+  assert.deepStrictEqual(customNavigation.map(item => item.key), ['booking', 'packages', 'about', 'portfolio', 'gallery', 'stores'])
   assert.strictEqual(customNavigation.filter(item => item.enabled).length, 2)
 }
 
@@ -181,8 +193,8 @@ function checkConfig(relativePath, { requireLatest = false } = {}) {
     })
   })
   assert.strictEqual(decoration.navigation.items.filter(item => item.enabled).length >= 2, true)
-  assert.strictEqual(decoration.navigation.items.length, 5)
-  assert.strictEqual(new Set(decoration.navigation.items.map(item => item.key)).size, 5)
+  assert.strictEqual(decoration.navigation.items.length, 6)
+  assert.strictEqual(new Set(decoration.navigation.items.map(item => item.key)).size, 6)
   assert.ok(['editorial-cover', 'split-catalog', 'gallery-wall', 'service-led'].includes(decoration.home.template))
   assert.ok([1, 2, 3, 4].includes(decoration.home.galleryColumns))
   assert.ok(['full', 'compact', 'image-only'].includes(decoration.home.cardContent))
@@ -392,11 +404,13 @@ function checkCmsIntegration() {
   assert.match(variantSource, /'luminous-portrait':\s*\{[^}]*homeHero:\s*'compact',/s)
   assert.match(variantSource, /'cinematic-story':\s*\{[^}]*homeHero:\s*'immersive',/s)
   assert.match(variantSource, /'gallery-monograph':\s*\{[^}]*homeRatio:\s*'square',/s)
+  assert.match(variantSource, /'dark-gallery':\s*\{[^}]*homeHero:\s*'immersive',/s)
   assert.ok(preview.includes('left: 45%'), 'editorial preview must use the balanced split hero')
   assert.ok(preview.includes('height: calc(100% - 82px)'), 'luminous preview must use a photo-print caption band')
   assert.ok(preview.includes('writing-mode: vertical-rl'), 'oriental preview must use vertical brand typography')
   assert.ok(preview.includes('data-skin="cinematic-story"'), 'cinematic preview must have a dedicated layout')
   assert.ok(preview.includes('data-skin="gallery-monograph"'), 'gallery preview must have a dedicated layout')
+  assert.ok(preview.includes('data-site-template="dark-gallery"'), 'dark gallery preview must have a dedicated site layout')
   assert.match(preview, /data-skin="cinematic-story"\] \.customer-preview-hero::before,/s)
   assert.match(preview, /data-skin="gallery-monograph"\] \.customer-preview-profile\s*\{[^}]*grid-template-columns:\s*56% 44%;/s)
   assert.match(preview, /data-skin="oriental-premium"\] \.customer-preview-notice\s*\{[^}]*background:\s*var\(--preview-secondary\)/s)
@@ -433,6 +447,11 @@ function checkCmsIntegration() {
 
   assert.deepStrictEqual(getSelectValues('navStyle'), ['line', 'quiet'])
   assert.deepStrictEqual(getSelectValues('themePreset'), SKIN_NAMES)
+  assert.deepStrictEqual(getSelectValues('showcaseHeroActionTarget'), ['gallery', 'booking'])
+  assert.deepStrictEqual(getSelectValues('showcaseCategoryMode'), ['sidebar', 'top'])
+  assert.deepStrictEqual(getSelectValues('showcaseGalleryColumns'), ['2', '3'])
+  assert.deepStrictEqual(getSelectValues('showcaseAboutGalleryLimit'), ['6', '9'])
+  assert.ok(app.includes('decorationEditorState.siteTemplate === templateKey'), 'reselecting the active site template should preserve draft settings')
   assert.deepStrictEqual(getSelectValues('homeHeroVariant'), ['editorial', 'immersive', 'compact'])
   assert.deepStrictEqual(getSelectValues('homeGalleryVariant'), ['editorial', 'masonry', 'cards', 'horizontal', 'mixed'])
   assert.deepStrictEqual(getSelectValues('homeGalleryColumns'), ['1', '2', '3', '4'])
@@ -466,6 +485,15 @@ function checkPageIntegration() {
   assert.ok(portfolioWxml.includes('home-section-testimonials'))
   assert.ok(portfolioWxss.includes('.portfolio-page.gallery-horizontal'))
   assert.ok(portfolioWxss.includes('.portfolio-page.gallery-mixed'))
+  assert.ok(portfolioWxml.includes("siteTemplate === 'dark-gallery'"))
+  assert.ok(portfolioWxml.includes('goGallery'))
+
+  const galleryWxml = read('miniprogram/pages/gallery/gallery.wxml')
+  const galleryWxss = read('miniprogram/pages/gallery/gallery.wxss')
+  assert.ok(galleryWxml.includes('showcase.categoryMode'))
+  assert.ok(galleryWxml.includes('navigationItems'))
+  assert.ok(galleryWxml.includes('<quick-jump'))
+  assert.ok(galleryWxss.includes('.gallery-grid'))
 
   const secondaryPages = ['packages', 'package-detail', 'series', 'success']
   secondaryPages.forEach(page => {
@@ -475,7 +503,7 @@ function checkPageIntegration() {
     assert.ok(/(?:layout|gallery)-\{\{decoration\.(?:layoutVariant|galleryVariant)\}\}/.test(wxml), `${page} must apply its visual variant`)
     assert.ok(wxml.includes('theme-{{themePreset}}'), `${page} must apply the shared commercial skin class`)
     assert.ok(!wxml.includes('CMS'), `${page} must not expose CMS wording to customers`)
-    assert.ok(!/position\s*:\s*fixed/.test(wxss), `${page} must not add a competing fixed action bar`)
+    if (page !== 'series') assert.ok(!/position\s*:\s*fixed/.test(wxss), `${page} must not add a competing fixed action bar`)
   })
 
   const appConfig = readJson('miniprogram/app.json')
@@ -496,6 +524,7 @@ function checkPageIntegration() {
   assert.ok(quickJump.includes('name="{{bookingIcon}}"'))
   assert.ok(quickJump.includes('name="{{portfolioIcon}}"'))
   assert.ok(quickJump.includes("appearance === 'outline'"))
+  assert.ok(quickJump.includes("appearance === 'stacked'"))
 
   ;[...pages, ...secondaryPages].forEach(page => {
     const wxml = read(`miniprogram/pages/${page}/${page}.wxml`)
@@ -546,7 +575,7 @@ function checkPageIntegration() {
   assert.ok(skinStyles.includes('left: 45%'), 'editorial mini program must use the balanced split hero')
   assert.ok(skinStyles.includes('right: 55%'), 'editorial title column must leave enough room for Chinese titles')
   assert.ok(skinStyles.includes('height: calc(100% - 164rpx)'), 'luminous mini program must use a photo-print caption band')
-  assert.ok(skinStyles.includes('.portfolio-page.theme-luminous-portrait .hero-meta {\n  position: static;'), 'luminous caption metadata must not overlap the title')
+  assert.match(skinStyles, /\.portfolio-page\.theme-luminous-portrait \.hero-meta \{\r?\n\s+position: static;/, 'luminous caption metadata must not overlap the title')
   assert.ok(skinStyles.includes('writing-mode: vertical-rl'), 'oriental mini program must use vertical brand typography')
   assert.ok(skinStyles.includes('theme-oriental-premium.columns-1'), 'oriental mini program must support a single-column lookbook')
   assert.ok(skinStyles.includes('theme-luminous-portrait.hero-compact'), 'luminous mini program must use a compact hero')

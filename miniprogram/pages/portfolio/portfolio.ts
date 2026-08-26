@@ -18,7 +18,7 @@ import {
   shouldShowQuickJump,
   TestimonialItem
 } from '../../utils/cos'
-import { DEFAULT_DECORATION, HomeDecoration, TerminologyDecoration } from '../../utils/decoration'
+import { DEFAULT_DECORATION, HomeDecoration, ShowcaseDecoration, TerminologyDecoration } from '../../utils/decoration'
 import { setPageNavigationTitle } from '../../utils/navigation'
 import { createShareMessage } from '../../utils/share'
 
@@ -101,6 +101,8 @@ Page({
     } as HomePortfolioCardContent,
     themeStyle: '',
     themePreset: 'minimal',
+    siteTemplate: 'classic' as 'classic' | 'dark-gallery',
+    showcase: { ...DEFAULT_DECORATION.showcase } as ShowcaseDecoration,
     homeDecoration: DEFAULT_DECORATION.home as HomeDecoration,
     homeSections: DEFAULT_DECORATION.home.sections,
     homeShortcuts: [] as HomeShortcutItem[],
@@ -157,7 +159,7 @@ Page({
 
   async loadData() {
     const bannerUrl = getCosUrl('banner/main-banner.jpg')
-    const { portfolioItems, homeFeaturedItems, homeBanner, homePortfolioCard, theme, packages, schedule, testimonials, serviceFlow, consultButton, quickJump, share, decoration, terminology } = await getPortfolioPageData()
+    const { portfolioItems, homeFeaturedItems, homeBanner, homePortfolioCard, theme, packages, schedule, testimonials, serviceFlow, consultButton, quickJump, share, decoration, terminology, siteTemplate, showcase } = await getPortfolioPageData()
     const resolvedHomeBanner = {
       ...DEFAULT_HOME_BANNER,
       ...(homeBanner || {})
@@ -235,6 +237,8 @@ Page({
       },
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      siteTemplate,
+      showcase,
       homeDecoration: decoration,
       homeSections: decoration.sections,
       homeShortcuts: buildHomeShortcuts(
@@ -281,6 +285,18 @@ Page({
     })
 
     setPageNavigationTitle(theme?.brandName || resolvedHomeBanner.logoText, '作品集')
+  },
+
+  goGallery() {
+    wx.navigateTo({ url: '/pages/gallery/gallery' })
+  },
+
+  onShowcaseAction() {
+    if (this.data.showcase.heroActionTarget === 'booking') {
+      this.goBooking()
+      return
+    }
+    this.goGallery()
   },
   
   // 轮播图点击跳转

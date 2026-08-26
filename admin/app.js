@@ -44,6 +44,7 @@ const DECORATION_STAGE_LABELS = {
 }
 const DECORATION_PAGE_GUIDE = {
   home: { name: '作品首页', description: '顾客打开小程序后首先看到的作品页面。' },
+  gallery: { name: '作品画廊', description: '顾客按分类浏览和搜索全部作品的页面。' },
   about: { name: '店铺简介', description: '展示门店介绍、团队、地址和联系方式。' },
   stores: { name: '门店信息', description: '展示门店地址、营业时间、电话和地图导航。' },
   booking: { name: '预约咨询', description: '顾客填写需求并生成咨询内容的页面。' },
@@ -96,8 +97,8 @@ const CONFIGURABLE_ICONS = [
   { name: 'user-round', label: '个人资料' }
 ]
 const CONFIGURABLE_ICON_NAMES = new Set(CONFIGURABLE_ICONS.map(item => item.name))
-const PREVIEW_SYSTEM_ICON_NAMES = new Set(['arrow-right', 'chevron-right', 'copy', 'plus', 'x'])
-const CUSTOM_NAVIGATION_PREVIEW_PAGES = new Set(['home', 'about', 'booking'])
+const PREVIEW_SYSTEM_ICON_NAMES = new Set(['arrow-right', 'chevron-down', 'chevron-right', 'copy', 'plus', 'search', 'x'])
+const CUSTOM_NAVIGATION_PREVIEW_PAGES = new Set(['home', 'gallery', 'about', 'booking'])
 const PREVIEW_NATIVE_PAGE_TITLES = {
   stores: '门店信息',
   packages: '服务套餐',
@@ -176,6 +177,20 @@ const TERMINOLOGY_PRESETS = {
 }
 
 const DEFAULT_DECORATION_CONFIG = {
+  siteTemplate: 'classic',
+  showcase: {
+    heroActionText: '浏览作品',
+    heroActionTarget: 'gallery',
+    galleryTitle: '作品欣赏',
+    gallerySubtitle: 'GALLERY',
+    categoryMode: 'sidebar',
+    galleryColumns: 2,
+    showSearch: true,
+    showTags: true,
+    seriesActionText: '咨询这套',
+    aboutQuote: '以光为序，记录值得珍藏的瞬间。',
+    aboutGalleryLimit: 9
+  },
   terminology: {
     workLabel: '作品',
     packageLabel: '套餐',
@@ -186,6 +201,7 @@ const DEFAULT_DECORATION_CONFIG = {
   },
   navigation: {
     portfolioText: '作品集',
+    galleryText: '作品',
     aboutText: '简介',
     packagesText: '套餐',
     bookingText: '咨询',
@@ -195,6 +211,7 @@ const DEFAULT_DECORATION_CONFIG = {
       { key: 'portfolio', enabled: true },
       { key: 'about', enabled: true },
       { key: 'booking', enabled: true },
+      { key: 'gallery', enabled: false },
       { key: 'packages', enabled: false },
       { key: 'stores', enabled: false }
     ]
@@ -202,6 +219,7 @@ const DEFAULT_DECORATION_CONFIG = {
   icons: {
     navigation: {
       portfolio: 'images',
+      gallery: 'images',
       about: 'user-round',
       packages: 'briefcase-business',
       booking: 'calendar-days',
@@ -209,6 +227,7 @@ const DEFAULT_DECORATION_CONFIG = {
     },
     navigationCustom: {
       portfolio: '',
+      gallery: '',
       about: '',
       packages: '',
       booking: '',
@@ -333,7 +352,8 @@ const DEFAULT_DECORATION_CONFIG = {
 }
 
 const NAVIGATION_ITEM_DEFINITIONS = {
-  portfolio: { label: '作品页', previewPage: 'home', textKey: 'portfolioText' },
+  portfolio: { label: '首页', previewPage: 'home', textKey: 'portfolioText' },
+  gallery: { label: '作品画廊', previewPage: 'gallery', textKey: 'galleryText' },
   about: { label: '简介页', previewPage: 'about', textKey: 'aboutText' },
   packages: { label: '套餐页', previewPage: 'packages', textKey: 'packagesText' },
   booking: { label: '咨询页', previewPage: 'booking', textKey: 'bookingText' },
@@ -754,6 +774,33 @@ const THEME_PRESETS = {
     layoutDensity: 'spacious',
     homeLayout: 'portfolio-first',
     showDecorations: false
+  },
+  'dark-gallery': {
+    commercial: true,
+    order: 6,
+    code: '品牌画廊',
+    name: '暗色品牌画廊',
+    description: '沉浸封面、独立作品目录与通栏详情，适合强调品牌感和影像质感的门店',
+    preset: 'dark-gallery',
+    primaryColor: '#72DEDF',
+    secondaryColor: '#F3A8B2',
+    accentColor: '#FFFFFF',
+    backgroundColor: '#111111',
+    surfaceColor: '#1B1B1B',
+    surfaceMutedColor: '#292929',
+    textColor: '#F5F5F2',
+    mutedTextColor: '#9B9B98',
+    dividerColor: '#383838',
+    buttonTextColor: '#111111',
+    cardStyle: 'minimal',
+    buttonStyle: 'square',
+    fontStyle: 'clean',
+    headingStyle: 'editorial',
+    quickJumpStyle: 'solid',
+    imageRadius: 'none',
+    layoutDensity: 'compact',
+    homeLayout: 'banner-first',
+    showDecorations: false
   }
 }
 
@@ -990,6 +1037,23 @@ const DECORATION_PRESET_VARIANTS = {
     packagesLayout: 'list',
     packageDetailLayout: 'compact',
     seriesGallery: 'framed',
+    successLayout: 'compact'
+  },
+  'dark-gallery': {
+    navigationStyle: 'line',
+    homeTemplate: 'editorial-cover',
+    homeCardContent: 'image-only',
+    homeGap: 'tight',
+    homeHero: 'immersive',
+    homeGallery: 'cards',
+    homeColumns: 2,
+    homeRatio: 'portrait',
+    aboutHeader: 'minimal',
+    bookingHeader: 'image',
+    bookingForm: 'lines',
+    packagesLayout: 'list',
+    packageDetailLayout: 'compact',
+    seriesGallery: 'immersive',
     successLayout: 'compact'
   }
 }
@@ -4015,8 +4079,102 @@ function applyHomeTemplate(templateKey) {
   updateThemePreview()
 }
 
+function setShowcaseEditorValues(decoration) {
+  const normalized = normalizeDecorationConfig(decoration)
+  const showcase = normalized.showcase
+  const siteTemplateInput = document.getElementById('siteTemplate')
+  if (siteTemplateInput) siteTemplateInput.value = normalized.siteTemplate
+  const values = {
+    showcaseHeroActionText: showcase.heroActionText,
+    showcaseHeroActionTarget: showcase.heroActionTarget,
+    showcaseGalleryTitle: showcase.galleryTitle,
+    showcaseGallerySubtitle: showcase.gallerySubtitle,
+    showcaseCategoryMode: showcase.categoryMode,
+    showcaseGalleryColumns: String(showcase.galleryColumns),
+    showcaseSeriesActionText: showcase.seriesActionText,
+    showcaseAboutQuote: showcase.aboutQuote,
+    showcaseAboutGalleryLimit: String(showcase.aboutGalleryLimit)
+  }
+  Object.entries(values).forEach(([id, value]) => {
+    const element = document.getElementById(id)
+    if (element) element.value = value
+  })
+  const showSearch = document.getElementById('showcaseShowSearch')
+  const showTags = document.getElementById('showcaseShowTags')
+  if (showSearch) showSearch.checked = showcase.showSearch !== false
+  if (showTags) showTags.checked = showcase.showTags !== false
+  document.querySelectorAll('[data-site-template]').forEach(button => {
+    const active = button.dataset.siteTemplate === normalized.siteTemplate
+    button.classList.toggle('active', active)
+    button.setAttribute('aria-pressed', String(active))
+    const state = button.querySelector('.site-template-state')
+    if (state) state.textContent = active ? '正在使用' : '选择'
+  })
+  const options = document.getElementById('darkGalleryOptions')
+  if (options) options.hidden = normalized.siteTemplate !== 'dark-gallery'
+}
+
+function applySiteTemplate(templateKey) {
+  if (!['classic', 'dark-gallery'].includes(templateKey) || !decorationEditorState) return
+  if (decorationEditorState.siteTemplate === templateKey) return
+  decorationEditorState.siteTemplate = templateKey
+
+  if (templateKey === 'dark-gallery') {
+    decorationEditorState.showcase = deepClone(DEFAULT_DECORATION_CONFIG.showcase)
+    decorationEditorState.navigation.portfolioText = '首页'
+    decorationEditorState.navigation.galleryText = '作品'
+    decorationEditorState.navigation.aboutText = '关于'
+    decorationEditorState.navigation.items = NAVIGATION_ITEM_KEYS.map(key => ({
+      key,
+      enabled: ['portfolio', 'gallery', 'about'].includes(key)
+    }))
+    decorationEditorState.icons.navigation.portfolio = 'image'
+    decorationEditorState.icons.navigation.gallery = 'images'
+    decorationEditorState.icons.navigation.about = 'user-round'
+    selectThemePreset('dark-gallery')
+    activeSkinPreviewPage = 'home'
+  } else {
+    decorationEditorState.navigation.portfolioText = '作品集'
+    decorationEditorState.navigation.aboutText = '简介'
+    decorationEditorState.navigation.bookingText = '咨询'
+    decorationEditorState.navigation.items = NAVIGATION_ITEM_KEYS.map(key => ({
+      key,
+      enabled: ['portfolio', 'about', 'booking'].includes(key)
+    }))
+    decorationEditorState.icons.navigation.portfolio = 'images'
+    if (document.getElementById('themePreset')?.value === 'dark-gallery') selectThemePreset('minimal')
+  }
+
+  setShowcaseEditorValues(decorationEditorState)
+  renderNavigationEditor()
+  markDecorationChanged({
+    key: `appearance:site-template:${templateKey}`,
+    stage: 'appearance',
+    label: templateKey === 'dark-gallery' ? '整站结构：暗色品牌画廊' : '整站结构：经典作品站',
+    editorElement: document.querySelector(`[data-site-template="${templateKey}"]`),
+    previewPage: 'home',
+    previewSelector: '#skinPreviewViewport'
+  })
+  updateThemePreview()
+}
+
 function collectDecorationSettings() {
   const decoration = normalizeDecorationConfig(decorationEditorState)
+  decoration.siteTemplate = document.getElementById('siteTemplate')?.value === 'dark-gallery' ? 'dark-gallery' : 'classic'
+  decoration.showcase = {
+    ...decoration.showcase,
+    heroActionText: document.getElementById('showcaseHeroActionText')?.value.trim() || DEFAULT_DECORATION_CONFIG.showcase.heroActionText,
+    heroActionTarget: document.getElementById('showcaseHeroActionTarget')?.value || DEFAULT_DECORATION_CONFIG.showcase.heroActionTarget,
+    galleryTitle: document.getElementById('showcaseGalleryTitle')?.value.trim() || DEFAULT_DECORATION_CONFIG.showcase.galleryTitle,
+    gallerySubtitle: document.getElementById('showcaseGallerySubtitle')?.value.trim() || DEFAULT_DECORATION_CONFIG.showcase.gallerySubtitle,
+    categoryMode: document.getElementById('showcaseCategoryMode')?.value || DEFAULT_DECORATION_CONFIG.showcase.categoryMode,
+    galleryColumns: Number(document.getElementById('showcaseGalleryColumns')?.value) || DEFAULT_DECORATION_CONFIG.showcase.galleryColumns,
+    showSearch: document.getElementById('showcaseShowSearch')?.checked !== false,
+    showTags: document.getElementById('showcaseShowTags')?.checked !== false,
+    seriesActionText: document.getElementById('showcaseSeriesActionText')?.value.trim() || DEFAULT_DECORATION_CONFIG.showcase.seriesActionText,
+    aboutQuote: document.getElementById('showcaseAboutQuote')?.value.trim() || DEFAULT_DECORATION_CONFIG.showcase.aboutQuote,
+    aboutGalleryLimit: Number(document.getElementById('showcaseAboutGalleryLimit')?.value) === 6 ? 6 : 9
+  }
   Object.keys(DEFAULT_DECORATION_CONFIG.terminology).forEach(key => {
     const element = document.getElementById(`term-${key}`)
     decoration.terminology[key] = element?.value.trim() || DEFAULT_DECORATION_CONFIG.terminology[key]
@@ -4249,7 +4407,7 @@ function renderThemePresetCards() {
   }).join('')
 }
 
-const SKIN_PREVIEW_PAGE_KEYS = new Set(['home', 'about', 'stores', 'booking', 'packages', 'packageDetail', 'series', 'success'])
+const SKIN_PREVIEW_PAGE_KEYS = new Set(['home', 'gallery', 'about', 'stores', 'booking', 'packages', 'packageDetail', 'series', 'success'])
 const SKIN_PREVIEW_SECONDARY_PAGE_KEYS = new Set(['stores', 'packages', 'packageDetail', 'series', 'success'])
 
 function getSkinPreviewPhotoUrl(photoName, size = 700) {
@@ -4457,7 +4615,83 @@ function renderSkinPreviewHeading(section, trailing = '') {
   `
 }
 
+function renderSkinPreviewDarkHome(model) {
+  const heroItem = model.bannerItems[0] || model.seriesItems[0]
+  const showcase = model.decoration.showcase
+  const cards = model.seriesItems.slice(0, 4).map(item => `
+    <article class="customer-preview-dark-card">
+      ${renderSkinPreviewImage(item.imageUrl, 'customer-preview-dark-card-image', item.title)}
+      <span>${escapeHtml(item.title)}</span>
+    </article>
+  `).join('')
+  return `
+    <section class="customer-preview-dark-hero" data-preview-section="hero">
+      ${renderSkinPreviewImage(heroItem?.imageUrl || model.heroImage, 'customer-preview-dark-hero-image', '首页主视觉')}
+      <div class="customer-preview-dark-hero-shade"></div>
+      <strong class="customer-preview-dark-brand">${escapeHtml(model.homeBanner.logoText)}</strong>
+      <div class="customer-preview-dark-copy">
+        <small>${escapeHtml(model.homeBanner.tagText)}</small>
+        <h2>${escapeHtml(heroItem?.title || model.homeBanner.logoText)}</h2>
+        <p>${escapeHtml(model.homeBanner.description || heroItem?.description || '')}</p>
+        <button type="button">${escapeHtml(showcase.heroActionText)} ${renderSkinPreviewIcon('arrow-right')}</button>
+      </div>
+    </section>
+    <section class="customer-preview-dark-featured" data-preview-section="portfolio">
+      <header><div><strong>${escapeHtml(showcase.galleryTitle)}</strong><small>${escapeHtml(showcase.gallerySubtitle)}</small></div><span>查看全部</span></header>
+      <div>${cards || '<p class="customer-preview-empty">上传作品后显示精选内容</p>'}</div>
+    </section>
+  `
+}
+
+function renderSkinPreviewGallery(model) {
+  const showcase = model.decoration.showcase
+  const cards = model.seriesItems.slice(0, 8).map(item => `
+    <article class="customer-preview-dark-gallery-card">
+      ${renderSkinPreviewImage(item.imageUrl, 'customer-preview-dark-gallery-image', item.title)}
+      <div><strong>${escapeHtml(item.title)}</strong>${showcase.showTags ? `<small>#${escapeHtml(item.tags?.[0] || item.category || '')}</small>` : ''}</div>
+    </article>
+  `).join('')
+  return `
+    <section class="customer-preview-dark-gallery">
+      <header><h2>${escapeHtml(showcase.galleryTitle)}</h2><p>${escapeHtml(showcase.gallerySubtitle)}</p></header>
+      ${showcase.showSearch ? `<div class="customer-preview-dark-search">${renderSkinPreviewIcon('search')}<span>搜索作品或风格</span></div>` : ''}
+      <div class="customer-preview-dark-gallery-body mode-${escapeHtml(showcase.categoryMode)}">
+        <nav>${model.categories.slice(0, 7).map((item, index) => `<span class="${index === 0 ? 'active' : ''}">${escapeHtml(item)}</span>`).join('')}</nav>
+        <main><div class="customer-preview-dark-gallery-title"><i></i>全部 <small>${model.seriesItems.length} 组</small></div><div class="customer-preview-dark-gallery-grid columns-${showcase.galleryColumns}">${cards}</div></main>
+      </div>
+    </section>
+  `
+}
+
+function renderSkinPreviewDarkAbout(model) {
+  const showcase = model.decoration.showcase
+  const gallery = model.seriesItems.slice(0, showcase.aboutGalleryLimit).map(item => renderSkinPreviewImage(item.imageUrl, 'customer-preview-dark-about-image', item.title)).join('')
+  return `
+    <section class="customer-preview-dark-about" data-preview-section="profile">
+      ${renderSkinPreviewImage(model.avatarImage, 'customer-preview-dark-about-avatar', model.profile.name, model.heroImage)}
+      <h2>${escapeHtml(model.profile.name)}</h2><p>${escapeHtml(model.profile.title || '')}</p><small>${escapeHtml(model.profile.location || '')}</small>
+      <blockquote>“${escapeHtml(showcase.aboutQuote)}”</blockquote>
+      <div class="customer-preview-dark-contact">${renderSkinPreviewIcon('phone')}${renderSkinPreviewIcon('message-circle')}${renderSkinPreviewIcon('map-pin')}</div>
+      <div class="customer-preview-dark-about-wall">${gallery}</div>
+    </section>
+  `
+}
+
+function renderSkinPreviewDarkSeries(model) {
+  const item = model.seriesItems[0] || { title: '作品示例', category: '', imageUrl: model.heroImage, imageUrls: [] }
+  const images = item.imageUrls?.length ? item.imageUrls : model.seriesItems.slice(0, 4).map(entry => entry.imageUrl)
+  return `
+    <section class="customer-preview-dark-series">
+      ${renderSkinPreviewImage(item.imageUrl || images[0], 'customer-preview-dark-series-cover', item.title)}
+      <div class="customer-preview-dark-series-copy"><div><h2>${escapeHtml(item.title)}</h2><p>${escapeHtml(item.category || '')}</p></div><small>${images.length || 1} PHOTOS</small></div>
+      <div class="customer-preview-dark-series-images">${images.slice(1, 4).map(url => renderSkinPreviewImage(url, 'customer-preview-dark-series-image', item.title)).join('')}</div>
+      <button type="button" class="customer-preview-dark-series-action">${escapeHtml(model.decoration.showcase.seriesActionText)}</button>
+    </section>
+  `
+}
+
 function renderSkinPreviewHome(model) {
+  if (model.decoration.siteTemplate === 'dark-gallery') return renderSkinPreviewDarkHome(model)
   const { decoration, homeBanner, bannerItems, seriesItems } = model
   const heroItem = bannerItems[0] || seriesItems[0]
   const terms = decoration.terminology
@@ -5038,6 +5272,9 @@ function updateThemePreview() {
   const theme = getThemeEditorValues()
   const preset = THEME_PRESETS[theme.preset] || THEME_PRESETS.minimal
   const model = getSkinPreviewModel(theme)
+  if (model.decoration.siteTemplate !== 'dark-gallery' && activeSkinPreviewPage === 'gallery') {
+    activeSkinPreviewPage = 'home'
+  }
   const fontFamilies = {
     clean: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     elegant: '"Songti SC", STSong, serif',
@@ -5070,6 +5307,7 @@ function updateThemePreview() {
   preview.style.setProperty('--preview-card-shadow', cardShadowMap[theme.cardStyle] || 'none')
   preview.style.fontFamily = fontFamilies[theme.fontStyle] || fontFamilies.clean
   preview.dataset.skin = theme.preset
+  preview.dataset.siteTemplate = model.decoration.siteTemplate
   preview.dataset.heading = theme.headingStyle
   preview.dataset.decorations = theme.showDecorations ? 'on' : 'off'
   preview.dataset.page = activeSkinPreviewPage
@@ -5099,7 +5337,10 @@ function updateThemePreview() {
   if (nativeTitle) nativeTitle.textContent = PREVIEW_NATIVE_PAGE_TITLES[activeSkinPreviewPage] || '小程序页面'
   if (nativeBack) nativeBack.classList.toggle('is-visible', PREVIEW_BACK_PAGES.has(activeSkinPreviewPage))
 
-  if (activeSkinPreviewPage === 'about') viewport.innerHTML = renderSkinPreviewAbout(model)
+  if (activeSkinPreviewPage === 'gallery') viewport.innerHTML = renderSkinPreviewGallery(model)
+  else if (activeSkinPreviewPage === 'about' && model.decoration.siteTemplate === 'dark-gallery') viewport.innerHTML = renderSkinPreviewDarkAbout(model)
+  else if (activeSkinPreviewPage === 'series' && model.decoration.siteTemplate === 'dark-gallery') viewport.innerHTML = renderSkinPreviewDarkSeries(model)
+  else if (activeSkinPreviewPage === 'about') viewport.innerHTML = renderSkinPreviewAbout(model)
   else if (activeSkinPreviewPage === 'stores') viewport.innerHTML = renderSkinPreviewStores(model)
   else if (activeSkinPreviewPage === 'booking') viewport.innerHTML = renderSkinPreviewBooking(model)
   else if (activeSkinPreviewPage === 'packages') viewport.innerHTML = renderSkinPreviewPackages(model)
@@ -5114,6 +5355,7 @@ function updateThemePreview() {
   renderSkinPreviewQuickJump(model)
 
   document.querySelectorAll('[data-skin-preview-page]').forEach(button => {
+    if (button.dataset.skinPreviewPage === 'gallery') button.hidden = model.decoration.siteTemplate !== 'dark-gallery'
     const active = button.dataset.skinPreviewPage === activeSkinPreviewPage
     button.classList.toggle('active', active)
     button.setAttribute('aria-selected', String(active))
@@ -5170,6 +5412,7 @@ function restoreOriginalThemeSettings() {
       if (element) element.value = decorationEditorState.terminology[key]
     })
     setSelectValue('navStyle', decorationEditorState.navigation.style)
+    setShowcaseEditorValues(decorationEditorState)
     setHomeLayoutEditorValues(decorationEditorState.home)
     setSelectValue('aboutHeaderVariant', decorationEditorState.about.headerVariant)
     setSelectValue('bookingHeaderVariant', decorationEditorState.booking.headerVariant)
@@ -5255,6 +5498,7 @@ async function openThemeSettingsModal() {
     if (element) element.value = decoration.terminology[key]
   })
   setSelectValue('navStyle', decoration.navigation.style)
+  setShowcaseEditorValues(decoration)
   setHomeLayoutEditorValues(decoration.home)
   setSelectValue('aboutHeaderVariant', decoration.about.headerVariant)
   setSelectValue('bookingHeaderVariant', decoration.booking.headerVariant)
@@ -5493,10 +5737,23 @@ function normalizeNavigationItems(items) {
 function normalizeDecorationConfig(decoration) {
   const normalized = fillMissingObject(decoration, DEFAULT_DECORATION_CONFIG)
   const pickValue = (value, allowed, fallback) => allowed.includes(value) ? value : fallback
+  normalized.siteTemplate = pickValue(normalized.siteTemplate, ['classic', 'dark-gallery'], DEFAULT_DECORATION_CONFIG.siteTemplate)
+  normalized.showcase = fillMissingObject(normalized.showcase, DEFAULT_DECORATION_CONFIG.showcase)
+  normalized.showcase.heroActionText = String(normalized.showcase.heroActionText || DEFAULT_DECORATION_CONFIG.showcase.heroActionText).trim().slice(0, 12)
+  normalized.showcase.heroActionTarget = pickValue(normalized.showcase.heroActionTarget, ['gallery', 'booking'], DEFAULT_DECORATION_CONFIG.showcase.heroActionTarget)
+  normalized.showcase.galleryTitle = String(normalized.showcase.galleryTitle || DEFAULT_DECORATION_CONFIG.showcase.galleryTitle).trim().slice(0, 18)
+  normalized.showcase.gallerySubtitle = String(normalized.showcase.gallerySubtitle || DEFAULT_DECORATION_CONFIG.showcase.gallerySubtitle).trim().slice(0, 24)
+  normalized.showcase.categoryMode = pickValue(normalized.showcase.categoryMode, ['top', 'sidebar'], DEFAULT_DECORATION_CONFIG.showcase.categoryMode)
+  normalized.showcase.galleryColumns = [2, 3].includes(Number(normalized.showcase.galleryColumns)) ? Number(normalized.showcase.galleryColumns) : DEFAULT_DECORATION_CONFIG.showcase.galleryColumns
+  normalized.showcase.showSearch = normalized.showcase.showSearch !== false
+  normalized.showcase.showTags = normalized.showcase.showTags !== false
+  normalized.showcase.seriesActionText = String(normalized.showcase.seriesActionText || DEFAULT_DECORATION_CONFIG.showcase.seriesActionText).trim().slice(0, 12)
+  normalized.showcase.aboutQuote = String(normalized.showcase.aboutQuote || DEFAULT_DECORATION_CONFIG.showcase.aboutQuote).trim().slice(0, 80)
+  normalized.showcase.aboutGalleryLimit = [6, 9].includes(Number(normalized.showcase.aboutGalleryLimit)) ? Number(normalized.showcase.aboutGalleryLimit) : DEFAULT_DECORATION_CONFIG.showcase.aboutGalleryLimit
   Object.keys(DEFAULT_DECORATION_CONFIG.terminology).forEach(key => {
     normalized.terminology[key] = String(normalized.terminology[key] || '').trim() || DEFAULT_DECORATION_CONFIG.terminology[key]
   })
-  ;['portfolioText', 'aboutText', 'packagesText', 'bookingText', 'storesText'].forEach(key => {
+  ;['portfolioText', 'galleryText', 'aboutText', 'packagesText', 'bookingText', 'storesText'].forEach(key => {
     normalized.navigation[key] = String(normalized.navigation[key] || '').trim() || DEFAULT_DECORATION_CONFIG.navigation[key]
   })
   normalized.navigation.items = normalizeNavigationItems(normalized.navigation.items)

@@ -232,3 +232,15 @@
   right: 28rpx;
   bottom: 28rpx;
 }
+.dark-series-page { min-height: 100vh; padding-bottom: 120rpx; color: #f4f3ef; background: #181818; }
+.dark-series-cover { display: block; width: 100%; }
+.dark-series-intro { padding: 42rpx 34rpx 48rpx; }
+.dark-series-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24rpx; }
+.dark-series-title { font-size: 40rpx; font-weight: 600; line-height: 1.25; }
+.dark-series-category { margin-top: 10rpx; color: #9d9d9d; font-size: 24rpx; }
+.dark-series-count { flex: none; padding-top: 9rpx; color: #7de3e1; font-size: 20rpx; }
+.dark-series-tags { display: flex; flex-wrap: wrap; gap: 10rpx; margin-top: 28rpx; }
+.dark-series-tags text { padding: 9rpx 16rpx; color: #a9a9a9; font-size: 21rpx; background: #242424; }
+.dark-series-description { margin-top: 30rpx; color: #c4c4c4; font-size: 27rpx; line-height: 1.8; }
+.dark-series-images image { display: block; width: 100%; margin-top: 6rpx; }
+.dark-series-action { position: fixed; right: 24rpx; bottom: calc(26rpx + env(safe-area-inset-bottom)); z-index: 30; display: flex; align-items: center; justify-content: center; gap: 12rpx; min-width: 240rpx; height: 78rpx; padding: 0 30rpx; color: #111; font-size: 26rpx; font-weight: 600; background: #7de3e1; box-shadow: 0 12rpx 30rpx rgba(0,0,0,.28); box-sizing: border-box; }

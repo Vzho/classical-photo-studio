@@ -64,3 +64,37 @@
 .quick-jump-hover {
   opacity: 0.72;
 }
+
+.appearance-stacked .quick-jump-menu {
+  width: auto;
+  gap: 14rpx;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.appearance-stacked .quick-jump-item {
+  flex-direction: column;
+  justify-content: center;
+  gap: 4rpx;
+  width: 92rpx;
+  min-height: 92rpx;
+  padding: 8rpx;
+  color: #fff;
+  font-size: 19rpx;
+  line-height: 1;
+  background: rgba(21, 21, 21, 0.9);
+  border: 1rpx solid rgba(255,255,255,.28);
+  border-radius: 50%;
+  box-shadow: 0 10rpx 26rpx rgba(0,0,0,.28);
+}
+
+.appearance-stacked .quick-jump-item:first-child {
+  color: #111;
+  background: #7de3e1;
+  border-color: #7de3e1;
+}
+
+.appearance-stacked .quick-jump-item + .quick-jump-item { border-top: 1rpx solid rgba(255,255,255,.28); }

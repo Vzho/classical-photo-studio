@@ -584,3 +584,20 @@
   border-color: var(--button-bg);
   color: var(--button-text);
 }
+.dark-about-page { min-height: 100vh; padding: 96rpx 34rpx 190rpx; color: #f5f4ef; background: #202020; box-sizing: border-box; }
+.dark-about-profile { text-align: center; }
+.dark-about-avatar { width: 168rpx; height: 168rpx; border: 6rpx solid #fff; border-radius: 50%; }
+.dark-about-name { margin-top: 34rpx; font-size: 42rpx; font-weight: 600; }
+.dark-about-title { margin-top: 14rpx; color: #e8e5dc; font-size: 27rpx; }
+.dark-about-location { margin-top: 10rpx; color: #929292; font-size: 24rpx; }
+.dark-about-quote { position: relative; margin: 86rpx 40rpx 74rpx; color: #fff; font-size: 31rpx; line-height: 1.75; text-align: center; }
+.dark-about-quote text { color: #7de3e1; font-size: 54rpx; vertical-align: middle; }
+.dark-about-contact { display: flex; justify-content: center; gap: 40rpx; margin-bottom: 72rpx; }
+.dark-about-contact > view { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8rpx; width: 108rpx; height: 108rpx; color: #ddd; font-size: 20rpx; background: #4a4a4a; border-radius: 50%; }
+.dark-about-wall { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10rpx; }
+.dark-about-wall image { width: 100%; height: 210rpx; }
+.dark-about-address { position: relative; margin-top: 56rpx; padding: 30rpx 74rpx 30rpx 28rpx; color: #fff; background: #2a2a2a; }
+.dark-about-address view { font-size: 28rpx; font-weight: 600; }
+.dark-about-address text { display: block; margin-top: 10rpx; color: #aaa; font-size: 23rpx; line-height: 1.5; }
+.dark-about-address app-icon { position: absolute; right: 26rpx; top: 50%; transform: translateY(-50%); }
+.dark-about-action { margin: 46rpx auto 0; width: 300rpx; height: 82rpx; color: #111; font-size: 28rpx; font-weight: 600; line-height: 82rpx; text-align: center; background: #7de3e1; }

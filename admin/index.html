@@ -4247,6 +4247,54 @@
         animation: none;
       }
     }
+    .site-template-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .site-template-card {
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      min-height: 118px;
+      padding: 14px;
+      color: var(--text-color);
+      text-align: left;
+      background: #fff;
+      border: 1px solid #dedbd5;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .site-template-card.active { border: 2px solid #34443c; box-shadow: 0 0 0 3px rgba(52,68,60,.09); }
+    .site-template-card > span:nth-child(2) { min-width: 0; }
+    .site-template-card strong,
+    .site-template-card small { display: block; }
+    .site-template-card strong { font-size: 16px; }
+    .site-template-card small { margin-top: 7px; color: #78736d; line-height: 1.45; }
+    .site-template-state { color: #746b62; font-size: 13px; white-space: nowrap; }
+    .site-template-card.active .site-template-state { color: #34443c; font-weight: 700; }
+
+    .site-template-visual { position: relative; display: block; width: 112px; height: 88px; overflow: hidden; background: #eee; }
+    .site-template-visual i,
+    .site-template-visual b,
+    .site-template-visual em { position: absolute; display: block; font-style: normal; }
+    .site-template-visual.classic i { inset: 0 0 34px; background: #827369; }
+    .site-template-visual.classic b { left: 8px; right: 8px; bottom: 23px; height: 4px; background: #fff; }
+    .site-template-visual.classic em { left: 8px; right: 8px; bottom: 7px; height: 12px; background: linear-gradient(90deg,#c8c2bb 48%,transparent 48% 52%,#c8c2bb 52%); }
+    .site-template-visual.dark-gallery { background: #111; }
+    .site-template-visual.dark-gallery i { inset: 0 0 22px; background: linear-gradient(145deg,#413a37,#ae8b7e); }
+    .site-template-visual.dark-gallery b { left: 9px; bottom: 31px; width: 48px; height: 5px; background: #72dedf; }
+    .site-template-visual.dark-gallery em { left: 9px; right: 9px; bottom: 7px; height: 12px; background: linear-gradient(90deg,#72dedf 31%,transparent 31% 34%,#555 34% 65%,transparent 65% 68%,#555 68%); }
+    .site-template-options[hidden] { display: none; }
+
+    @media (max-width: 900px) {
+      .site-template-grid { grid-template-columns: 1fr; }
+      .site-template-card { grid-template-columns: 92px minmax(0, 1fr) auto; }
+      .site-template-visual { width: 92px; }
+    }
   </style>
 </head>
 <body>
@@ -4577,6 +4625,46 @@
                   <p>先选择最接近门店气质的皮肤，再按需要调整名称和颜色。</p>
                 </header>
 
+      <div class="settings-section site-template-section">
+        <div class="settings-section-header">
+          <div>
+            <h4>先选择整站结构</h4>
+            <p>整站结构会改变首页、作品页、详情页和简介页的排版；不会删除照片和资料。</p>
+          </div>
+        </div>
+        <input type="hidden" id="siteTemplate" value="classic">
+        <div class="site-template-grid" role="group" aria-label="整站结构">
+          <button type="button" class="site-template-card" data-site-template="classic" onclick="applySiteTemplate('classic')">
+            <span class="site-template-visual classic"><i></i><b></b><em></em></span>
+            <span><strong>经典作品站</strong><small>沿用当前页面结构，适合内容和服务并重</small></span>
+            <span class="site-template-state">选择</span>
+          </button>
+          <button type="button" class="site-template-card" data-site-template="dark-gallery" onclick="applySiteTemplate('dark-gallery')">
+            <span class="site-template-visual dark-gallery"><i></i><b></b><em></em></span>
+            <span><strong>暗色品牌画廊</strong><small>沉浸封面、独立作品目录、通栏作品详情</small></span>
+            <span class="site-template-state">选择</span>
+          </button>
+        </div>
+        <details class="decoration-optional-controls site-template-options" id="darkGalleryOptions">
+          <summary><span><strong>品牌画廊文字与排列</strong><small>使用暗色品牌画廊时可调整</small></span></summary>
+          <div class="settings-grid">
+            <div class="form-group"><label>首页按钮文字</label><input type="text" id="showcaseHeroActionText" maxlength="12" placeholder="浏览作品"></div>
+            <div class="form-group"><label>首页按钮去向</label><select id="showcaseHeroActionTarget"><option value="gallery">作品画廊</option><option value="booking">预约咨询</option></select></div>
+            <div class="form-group"><label>作品页标题</label><input type="text" id="showcaseGalleryTitle" maxlength="18" placeholder="作品欣赏"></div>
+            <div class="form-group"><label>作品页英文副标题</label><input type="text" id="showcaseGallerySubtitle" maxlength="24" placeholder="GALLERY"></div>
+            <div class="form-group"><label>分类位置</label><select id="showcaseCategoryMode"><option value="sidebar">左侧分类</option><option value="top">顶部分类</option></select></div>
+            <div class="form-group"><label>每行作品数</label><select id="showcaseGalleryColumns"><option value="2">两列</option><option value="3">三列</option></select></div>
+            <div class="form-group"><label>详情页咨询按钮</label><input type="text" id="showcaseSeriesActionText" maxlength="12" placeholder="咨询这套"></div>
+            <div class="form-group"><label>关于页品牌句</label><input type="text" id="showcaseAboutQuote" maxlength="80" placeholder="以光为序，记录值得珍藏的瞬间。"></div>
+            <div class="form-group"><label>关于页作品数量</label><select id="showcaseAboutGalleryLimit"><option value="6">6 张</option><option value="9">9 张</option></select></div>
+          </div>
+          <div class="decoration-card-visibility-options">
+            <label><input type="checkbox" id="showcaseShowSearch">作品页显示搜索</label>
+            <label><input type="checkbox" id="showcaseShowTags">作品卡片显示标签</label>
+          </div>
+        </details>
+      </div>
+
       <div class="settings-section">
         <div class="settings-section-header">
           <div>
@@ -4602,6 +4690,7 @@
           <option value="luminous-portrait">清透客片</option>
           <option value="cinematic-story">电影叙事</option>
           <option value="gallery-monograph">影像艺廊</option>
+          <option value="dark-gallery">暗色品牌画廊</option>
           <option value="minimal">极简高级</option>
           <option value="film">复古胶片</option>
           <option value="bridal">清透婚纱</option>
@@ -5084,7 +5173,8 @@
                 <div><strong id="skinPreviewName">时尚画册</strong><small id="skinPreviewStatus">当前草稿，保存后生效</small></div>
               </div>
               <div class="customer-preview-page-tabs" role="tablist" aria-label="选择预览页面">
-                <button type="button" class="active" role="tab" aria-selected="true" data-skin-preview-page="home" onclick="switchSkinPreviewPage('home')">作品首页</button>
+                <button type="button" class="active" role="tab" aria-selected="true" data-skin-preview-page="home" onclick="switchSkinPreviewPage('home')">首页</button>
+                <button type="button" role="tab" aria-selected="false" data-skin-preview-page="gallery" onclick="switchSkinPreviewPage('gallery')">作品</button>
                 <button type="button" role="tab" aria-selected="false" data-skin-preview-page="about" onclick="switchSkinPreviewPage('about')">店铺简介</button>
                 <button type="button" role="tab" aria-selected="false" data-skin-preview-page="booking" onclick="switchSkinPreviewPage('booking')">预约咨询</button>
                 <select id="skinPreviewMorePage" aria-label="预览更多页面" onchange="if(this.value) switchSkinPreviewPage(this.value)">

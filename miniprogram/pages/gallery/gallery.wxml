@@ -1,0 +1,54 @@
+<view class="dark-gallery-page columns-{{showcase.galleryColumns}} mode-{{showcase.categoryMode}}" style="{{themeStyle}}">
+  <view class="gallery-heading">
+    <view class="gallery-title">{{showcase.galleryTitle}}</view>
+    <view wx:if="{{showcase.gallerySubtitle}}" class="gallery-subtitle">{{showcase.gallerySubtitle}}</view>
+  </view>
+
+  <view wx:if="{{showcase.showSearch}}" class="gallery-search">
+    <app-icon name="search" size="28" tone="muted" />
+    <input value="{{searchKeyword}}" bindinput="onSearchInput" placeholder="搜索作品或风格" placeholder-class="gallery-search-placeholder" />
+  </view>
+
+  <view class="gallery-body">
+    <scroll-view class="gallery-categories" scroll-x="{{showcase.categoryMode === 'top'}}" scroll-y="{{showcase.categoryMode === 'sidebar'}}" enhanced show-scrollbar="{{false}}">
+      <view class="gallery-category-track">
+        <view
+          wx:for="{{categories}}"
+          wx:key="*this"
+          class="gallery-category {{activeCategory === item ? 'active' : ''}}"
+          bindtap="onCategoryTap"
+          data-category="{{item}}"
+        >{{item}}</view>
+      </view>
+    </scroll-view>
+
+    <view class="gallery-content">
+      <view class="gallery-current"><view class="gallery-current-line"></view>{{activeCategory}}<text>{{filteredItems.length}} 组</text></view>
+      <view class="gallery-grid">
+        <view class="gallery-card" wx:for="{{filteredItems}}" wx:key="id" bindtap="onItemTap" data-item="{{item}}">
+          <image class="gallery-image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load binderror="onImageError" data-id="{{item.id}}" />
+          <view class="gallery-card-shade"></view>
+          <view class="gallery-card-copy">
+            <view class="gallery-card-title">{{item.title}}</view>
+            <view wx:if="{{showcase.showTags && item.tags && item.tags.length}}" class="gallery-card-tags">#{{item.tags[0]}}</view>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{!filteredItems.length}}" class="gallery-empty">当前条件下暂无作品</view>
+    </view>
+  </view>
+
+  <view class="gallery-bottom-nav nav-style-{{navigationStyle}}">
+    <view
+      wx:for="{{navigationItems}}"
+      wx:key="key"
+      class="gallery-nav-item {{item.key === 'gallery' ? 'active' : ''}}"
+      bindtap="onNavigationTap"
+      data-key="{{item.key}}"
+    >
+      <app-icon name="{{item.icon}}" src="{{item.customIcon}}" size="36" tone="{{item.key === 'gallery' ? 'primary' : 'muted'}}" />
+      <text>{{item.text}}</text>
+    </view>
+  </view>
+  <quick-jump wx:if="{{quickJumpVisible}}" current="gallery" booking-text="{{quickJump.bookingText}}" portfolio-text="{{quickJump.portfolioText}}" appearance="{{quickJump.appearance}}" trigger-icon="{{quickJump.triggerIcon}}" booking-icon="{{quickJump.bookingIcon}}" portfolio-icon="{{quickJump.portfolioIcon}}" />
+</view>

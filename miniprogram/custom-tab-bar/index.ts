@@ -1,7 +1,10 @@
 import { buildThemeStyle, getCosUrl, getThemePageData, getThemePreset } from '../utils/cos'
+import { NavigationItemKey } from '../utils/decoration'
+import { navigateToSitePage } from '../utils/site-navigation'
 
 const NAVIGATION_PAGES = {
   portfolio: { pagePath: '/pages/portfolio/portfolio', textKey: 'portfolioText' as const },
+  gallery: { pagePath: '/pages/gallery/gallery', textKey: 'galleryText' as const },
   about: { pagePath: '/pages/about/about', textKey: 'aboutText' as const },
   packages: { pagePath: '/pages/packages/packages', textKey: 'packagesText' as const },
   booking: { pagePath: '/pages/booking/booking', textKey: 'bookingText' as const },
@@ -14,6 +17,7 @@ Component({
     themeStyle: '',
     themePreset: 'minimal',
     navigationStyle: 'line',
+    siteTemplate: 'classic',
     list: [
       { pagePath: '/pages/portfolio/portfolio', text: '作品集', icon: 'images', customIcon: '' },
       { pagePath: '/pages/about/about', text: '简介', icon: 'user-round', customIcon: '' },
@@ -33,12 +37,13 @@ Component({
   },
   methods: {
     async loadTheme() {
-      const { theme, navigation, icons } = await getThemePageData()
+      const { theme, navigation, icons, siteTemplate } = await getThemePageData()
       const list = navigation.items
         .filter(item => item.enabled)
         .map(item => {
           const page = NAVIGATION_PAGES[item.key]
           return {
+            key: item.key,
             pagePath: page.pagePath,
             text: navigation[page.textKey],
             icon: icons.navigation[item.key],
@@ -49,6 +54,7 @@ Component({
         themeStyle: buildThemeStyle(theme),
         themePreset: getThemePreset(theme),
         navigationStyle: navigation.style,
+        siteTemplate,
         list
       }, () => this.syncSelected())
     },
@@ -62,9 +68,9 @@ Component({
     },
 
     switchTab(e: WechatMiniprogram.TouchEvent) {
-      const { path, index } = e.currentTarget.dataset
+      const { key, index } = e.currentTarget.dataset
       this.setData({ selected: index })
-      wx.switchTab({ url: path })
+      navigateToSitePage(key as NavigationItemKey)
     }
   }
 })

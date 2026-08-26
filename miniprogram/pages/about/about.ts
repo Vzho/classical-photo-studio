@@ -1,7 +1,7 @@
 import { PHOTOGRAPHER } from '../../utils/constants'
 import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
-import { buildThemeStyle, ConsultButtonContent, DEFAULT_SHARE_CONTENT, getAboutPageData, getCosUrl, getThemePreset, PackageItem, QuickJumpContent, ShareContent, shouldShowQuickJump } from '../../utils/cos'
-import { AboutDecoration, DEFAULT_DECORATION, TerminologyDecoration } from '../../utils/decoration'
+import { buildThemeStyle, ConsultButtonContent, DEFAULT_SHARE_CONTENT, getAboutPageData, getCosUrl, getThemePreset, PackageItem, PortfolioItem, QuickJumpContent, ShareContent, shouldShowQuickJump } from '../../utils/cos'
+import { AboutDecoration, DEFAULT_DECORATION, ShowcaseDecoration, TerminologyDecoration } from '../../utils/decoration'
 import { setPageNavigationTitle } from '../../utils/navigation'
 import { createShareMessage } from '../../utils/share'
 
@@ -10,6 +10,9 @@ Page({
     photographer: PHOTOGRAPHER,
     themeStyle: '',
     themePreset: 'minimal',
+    siteTemplate: 'classic' as 'classic' | 'dark-gallery',
+    showcase: { ...DEFAULT_DECORATION.showcase } as ShowcaseDecoration,
+    galleryItems: [] as PortfolioItem[],
     aboutDecoration: DEFAULT_DECORATION.about as AboutDecoration,
     aboutSections: DEFAULT_DECORATION.about.sections,
     terminology: { ...DEFAULT_DECORATION.terminology } as TerminologyDecoration,
@@ -42,7 +45,7 @@ Page({
 
   async loadData() {
     // 优先加载远程配置的摄影师信息
-    const { photographer: remoteProfile, theme, consultButton, packages, stores, photographers, testimonials, serviceFlow, faq, quickJump, share, icons, decoration, terminology } = await getAboutPageData()
+    const { photographer: remoteProfile, theme, consultButton, packages, stores, photographers, testimonials, serviceFlow, faq, quickJump, share, icons, decoration, terminology, siteTemplate, showcase, galleryItems } = await getAboutPageData()
     const profile = {
       ...PHOTOGRAPHER,
       ...(remoteProfile || {}),
@@ -77,6 +80,9 @@ Page({
       photographer: profile,
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      siteTemplate,
+      showcase,
+      galleryItems,
       aboutDecoration: decoration,
       aboutSections: decoration.sections,
       terminology,
