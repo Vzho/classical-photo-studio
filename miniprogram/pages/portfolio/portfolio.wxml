@@ -1,4 +1,4 @@
-<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-showcase-home" style="{{themeStyle}}">
+<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-showcase-home {{decorationClass}}" style="{{themeStyle}} {{decorationStyle}}">
   <dark-site-header title="{{homeBanner.logoText}}" />
 
   <swiper
@@ -69,8 +69,8 @@
 </view>
 
 <view wx:else
-  class="portfolio-page theme-{{themePreset}} template-{{homeDecoration.template}} hero-{{homeDecoration.heroVariant}} gallery-{{homeDecoration.galleryVariant}} columns-{{homeDecoration.galleryColumns}} ratio-{{homeDecoration.imageRatio}} content-{{homeDecoration.cardContent}} gap-{{homeDecoration.galleryGap}}"
-  style="{{themeStyle}}"
+  class="portfolio-page theme-{{themePreset}} {{decorationClass}} template-{{homeDecoration.template}} hero-{{homeDecoration.heroVariant}} gallery-{{homeDecoration.galleryVariant}} columns-{{homeDecoration.galleryColumns}} ratio-{{homeDecoration.imageRatio}} content-{{homeDecoration.cardContent}} gap-{{homeDecoration.galleryGap}}"
+  style="{{themeStyle}} {{decorationStyle}}"
 >
   <block wx:for="{{homeSections}}" wx:for-item="section" wx:key="id">
     <view wx:if="{{section.enabled && section.type === 'hero'}}" class="hero-section">

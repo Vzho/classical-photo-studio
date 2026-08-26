@@ -54,6 +54,8 @@ Page({
     bannerFallbackUrl: '',
     themeStyle: '',
     themePreset: 'minimal',
+    decorationClass: '',
+    decorationStyle: '',
     bookingDecoration: DEFAULT_DECORATION.booking as BookingDecoration,
     bookingSections: DEFAULT_DECORATION.booking.sections,
     bookingFields: DEFAULT_DECORATION.booking.fields as BookingFieldDecoration[],
@@ -122,7 +124,8 @@ Page({
       quickJump,
       share,
       decoration,
-      terminology
+      terminology,
+      runtime
     } = await getBookingPageData()
 
     const styleOptions = normalizeStyleOptions(booking?.styleOptions)
@@ -136,6 +139,8 @@ Page({
       bannerFallbackUrl: share.fallbackImageUrl || getCosUrl(photographer?.avatar || ''),
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      decorationClass: runtime.className,
+      decorationStyle: runtime.style,
       bookingDecoration: decoration,
       bookingSections: decoration.sections,
       bookingFields: decoration.fields,

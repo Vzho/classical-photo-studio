@@ -1,0 +1,316 @@
+/* 装修 V2：框架负责页面骨架和影像节奏，主题变量只负责品牌颜色。 */
+
+.portfolio-page .hero-image,
+.portfolio-page .item-image,
+.booking-page .booking-hero-image,
+.about-page .profile-cover,
+.stores-page .stores-hero-image,
+.dark-showcase-home .dark-home-image,
+.dark-gallery-page .gallery-card-image,
+.dark-series-page .dark-series-cover {
+  object-position: var(--hero-object-position, center center);
+}
+
+.portfolio-page .item-image,
+.dark-showcase-home .dark-home-card image,
+.dark-series-page .dark-series-images image,
+.series-page .series-image {
+  object-position: var(--gallery-object-position, center center);
+}
+
+.portfolio-page .hero-shade,
+.booking-page .booking-hero-shade,
+.about-page .profile-cover-shade,
+.stores-page .stores-hero-shade,
+.dark-showcase-home .dark-home-shade {
+  opacity: var(--hero-overlay-opacity, 0.42);
+}
+
+.motion-subtle .hero-image,
+.motion-subtle .portfolio-item,
+.motion-subtle .package-card,
+.motion-subtle .booking-btn {
+  transition: transform 260ms ease, opacity 260ms ease;
+}
+
+.rhythm-tight .page-section,
+.rhythm-tight .about-section,
+.rhythm-tight .booking-section,
+.rhythm-tight .detail-section,
+.rhythm-tight .result-section {
+  margin-top: 18rpx;
+}
+
+.rhythm-airy .page-section,
+.rhythm-airy .about-section,
+.rhythm-airy .booking-section,
+.rhythm-airy .detail-section,
+.rhythm-airy .result-section {
+  margin-top: 48rpx;
+}
+
+/* 影像叙事：暗场、通栏、尽量减少容器感。 */
+.framework-cinematic-gallery,
+.portfolio-page.framework-cinematic-gallery,
+.about-page.framework-cinematic-gallery,
+.booking-page.framework-cinematic-gallery,
+.packages-page.framework-cinematic-gallery,
+.package-detail-page.framework-cinematic-gallery,
+.series-page.framework-cinematic-gallery,
+.success-page.framework-cinematic-gallery,
+.stores-page.framework-cinematic-gallery {
+  background: #101110;
+  color: #f5f2ec;
+}
+
+.framework-cinematic-gallery .page-section,
+.framework-cinematic-gallery .about-section,
+.framework-cinematic-gallery .booking-section,
+.framework-cinematic-gallery .detail-section,
+.framework-cinematic-gallery .result-section {
+  border-color: rgba(255, 255, 255, 0.13);
+  background: transparent;
+  box-shadow: none;
+}
+
+.framework-cinematic-gallery .section-title,
+.framework-cinematic-gallery .page-title,
+.framework-cinematic-gallery .hero-title,
+.framework-cinematic-gallery .profile-name,
+.framework-cinematic-gallery .package-name {
+  color: #f5f2ec;
+}
+
+.framework-cinematic-gallery .section-subtitle,
+.framework-cinematic-gallery .page-desc,
+.framework-cinematic-gallery .item-meta,
+.framework-cinematic-gallery .item-description,
+.framework-cinematic-gallery .profile-title {
+  color: rgba(245, 242, 236, 0.62);
+}
+
+.framework-cinematic-gallery .portfolio-grid,
+.framework-cinematic-gallery .dark-home-grid {
+  gap: 4rpx;
+}
+
+.framework-cinematic-gallery .portfolio-item,
+.framework-cinematic-gallery .package-card,
+.framework-cinematic-gallery .testimonial-item,
+.framework-cinematic-gallery .faq-item {
+  border-radius: 0;
+  border-color: rgba(255, 255, 255, 0.12);
+  background: #171917;
+  box-shadow: none;
+}
+
+.framework-cinematic-gallery .item-image-wrap,
+.framework-cinematic-gallery .item-image,
+.framework-cinematic-gallery .profile-cover,
+.framework-cinematic-gallery .booking-hero-image {
+  border-radius: 0;
+}
+
+.framework-cinematic-gallery .btn-primary,
+.framework-cinematic-gallery .booking-btn,
+.framework-cinematic-gallery .package-action {
+  border-radius: 0;
+  background: #f5f2ec;
+  color: #101110;
+}
+
+/* 编辑画册：大留白、明确版面网格、文字克制。 */
+.portfolio-page.framework-editorial-journal,
+.about-page.framework-editorial-journal,
+.booking-page.framework-editorial-journal,
+.packages-page.framework-editorial-journal,
+.package-detail-page.framework-editorial-journal,
+.series-page.framework-editorial-journal,
+.success-page.framework-editorial-journal,
+.stores-page.framework-editorial-journal {
+  background: #f7f7f3;
+}
+
+.portfolio-page.framework-editorial-journal .hero-section,
+.portfolio-page.framework-editorial-journal .hero-swiper,
+.portfolio-page.framework-editorial-journal .hero-fallback {
+  min-height: 880rpx;
+  border-radius: 0;
+}
+
+.portfolio-page.framework-editorial-journal .hero-brand {
+  top: 40rpx;
+  left: 36rpx;
+  max-width: 68%;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.portfolio-page.framework-editorial-journal .hero-content {
+  right: 36rpx;
+  bottom: 52rpx;
+  left: 36rpx;
+  max-width: 610rpx;
+}
+
+.portfolio-page.framework-editorial-journal .hero-title {
+  max-width: 610rpx;
+  font-family: Songti SC, STSong, serif;
+  font-size: 72rpx;
+  font-weight: 500;
+  line-height: 1.08;
+}
+
+.portfolio-page.framework-editorial-journal .category-scroll {
+  border-top: 1rpx solid var(--divider);
+  border-bottom: 1rpx solid var(--divider);
+  background: #f7f7f3;
+}
+
+.portfolio-page.framework-editorial-journal .category-index,
+.portfolio-page.framework-editorial-journal .item-index {
+  display: none;
+}
+
+.portfolio-page.framework-editorial-journal .page-section,
+.about-page.framework-editorial-journal .about-section,
+.booking-page.framework-editorial-journal .booking-section,
+.packages-page.framework-editorial-journal .page-header,
+.packages-page.framework-editorial-journal .schedule-notice,
+.package-detail-page.framework-editorial-journal .detail-section,
+.success-page.framework-editorial-journal .result-section {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.portfolio-page.framework-editorial-journal .section-title,
+.about-page.framework-editorial-journal .section-title,
+.booking-page.framework-editorial-journal .section-title,
+.packages-page.framework-editorial-journal .page-title {
+  font-family: Songti SC, STSong, serif;
+  font-weight: 600;
+}
+
+.portfolio-page.framework-editorial-journal .portfolio-grid {
+  align-items: start;
+}
+
+.portfolio-page.framework-editorial-journal .portfolio-item,
+.portfolio-page.framework-editorial-journal .package-card,
+.about-page.framework-editorial-journal .testimonial-item,
+.booking-page.framework-editorial-journal .faq-item {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.portfolio-page.framework-editorial-journal .item-image-wrap,
+.portfolio-page.framework-editorial-journal .item-image {
+  border-radius: 0;
+}
+
+.portfolio-page.framework-editorial-journal .item-info {
+  padding: 18rpx 0 8rpx;
+  border-bottom: 1rpx solid var(--divider);
+}
+
+.portfolio-page.framework-editorial-journal .item-title {
+  font-family: Songti SC, STSong, serif;
+  font-size: 31rpx;
+  font-weight: 600;
+}
+
+/* 门店高定：信息清晰、咨询路径突出，但保持摄影行业的克制感。 */
+.portfolio-page.framework-atelier-conversion,
+.about-page.framework-atelier-conversion,
+.booking-page.framework-atelier-conversion,
+.packages-page.framework-atelier-conversion,
+.package-detail-page.framework-atelier-conversion,
+.series-page.framework-atelier-conversion,
+.success-page.framework-atelier-conversion,
+.stores-page.framework-atelier-conversion {
+  background: #f3f6f4;
+}
+
+.portfolio-page.framework-atelier-conversion .hero-section,
+.portfolio-page.framework-atelier-conversion .hero-swiper,
+.portfolio-page.framework-atelier-conversion .hero-fallback {
+  min-height: 620rpx;
+  margin: 24rpx;
+  overflow: hidden;
+  border-radius: 12rpx;
+}
+
+.portfolio-page.framework-atelier-conversion .hero-content {
+  right: 32rpx;
+  bottom: 34rpx;
+  left: 32rpx;
+}
+
+.portfolio-page.framework-atelier-conversion .hero-title {
+  font-size: 54rpx;
+  line-height: 1.12;
+}
+
+.portfolio-page.framework-atelier-conversion .home-shortcuts {
+  margin: 22rpx 24rpx 0;
+  overflow: hidden;
+  border: 1rpx solid var(--divider);
+  border-radius: 10rpx;
+  background: var(--surface);
+}
+
+.portfolio-page.framework-atelier-conversion .page-section,
+.about-page.framework-atelier-conversion .about-section,
+.booking-page.framework-atelier-conversion .booking-section,
+.packages-page.framework-atelier-conversion .schedule-notice,
+.package-detail-page.framework-atelier-conversion .detail-section,
+.success-page.framework-atelier-conversion .result-section {
+  border: 1rpx solid var(--divider);
+  border-radius: 10rpx;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.portfolio-page.framework-atelier-conversion .portfolio-item,
+.portfolio-page.framework-atelier-conversion .package-card,
+.about-page.framework-atelier-conversion .testimonial-item,
+.booking-page.framework-atelier-conversion .faq-item,
+.packages-page.framework-atelier-conversion .package-card {
+  overflow: hidden;
+  border: 1rpx solid var(--divider);
+  border-radius: 8rpx;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.portfolio-page.framework-atelier-conversion .item-image-wrap,
+.portfolio-page.framework-atelier-conversion .item-image {
+  border-radius: 7rpx 7rpx 0 0;
+}
+
+.framework-atelier-conversion .btn-primary,
+.framework-atelier-conversion .booking-btn,
+.framework-atelier-conversion .package-action {
+  min-height: 78rpx;
+  border-radius: 6rpx;
+  font-weight: 600;
+}
+
+.tab-bar.framework-cinematic-gallery {
+  border-top-color: #333632;
+  background: #101110;
+}
+
+.tab-bar.framework-editorial-journal {
+  border-top: 1rpx solid #d9d9d2;
+  background: rgba(247, 247, 243, 0.98);
+}
+
+.tab-bar.framework-atelier-conversion {
+  border-top: 1rpx solid #d9e1dc;
+  background: rgba(255, 255, 255, 0.98);
+}

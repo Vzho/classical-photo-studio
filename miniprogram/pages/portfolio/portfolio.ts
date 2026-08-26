@@ -101,6 +101,8 @@ Page({
     } as HomePortfolioCardContent,
     themeStyle: '',
     themePreset: 'minimal',
+    decorationClass: '',
+    decorationStyle: '',
     siteTemplate: 'classic' as 'classic' | 'dark-gallery',
     showcase: { ...DEFAULT_DECORATION.showcase } as ShowcaseDecoration,
     homeDecoration: DEFAULT_DECORATION.home as HomeDecoration,
@@ -159,7 +161,7 @@ Page({
 
   async loadData() {
     const bannerUrl = getCosUrl('banner/main-banner.jpg')
-    const { portfolioItems, homeFeaturedItems, homeBanner, homePortfolioCard, theme, packages, schedule, testimonials, serviceFlow, consultButton, quickJump, share, decoration, terminology, siteTemplate, showcase } = await getPortfolioPageData()
+    const { portfolioItems, homeFeaturedItems, homeBanner, homePortfolioCard, theme, packages, schedule, testimonials, serviceFlow, consultButton, quickJump, share, decoration, terminology, siteTemplate, showcase, runtime } = await getPortfolioPageData()
     const resolvedHomeBanner = {
       ...DEFAULT_HOME_BANNER,
       ...(homeBanner || {})
@@ -237,6 +239,8 @@ Page({
       },
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      decorationClass: runtime.className,
+      decorationStyle: runtime.style,
       siteTemplate,
       showcase,
       homeDecoration: decoration,

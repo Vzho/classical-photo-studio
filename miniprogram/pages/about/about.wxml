@@ -1,4 +1,4 @@
-<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-about-page" style="{{themeStyle}}">
+<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-about-page {{decorationClass}}" style="{{themeStyle}} {{decorationStyle}}">
   <dark-site-header title="关于" show-back="{{true}}" />
   <view class="dark-about-landing">
     <view class="dark-about-profile">
@@ -65,7 +65,7 @@
   <dark-floating-actions wx:if="{{consultButtonVisible}}" contact-text="{{terminology.consultationLabel}}" bindcontact="goBooking" />
 </view>
 
-<view wx:else class="about-page theme-{{themePreset}} header-{{aboutDecoration.headerVariant}}" style="{{themeStyle}}">
+<view wx:else class="about-page theme-{{themePreset}} {{decorationClass}} header-{{aboutDecoration.headerVariant}}" style="{{themeStyle}} {{decorationStyle}}">
   <block wx:for="{{aboutSections}}" wx:for-item="section" wx:key="id">
     <view wx:if="{{section.enabled && section.type === 'profile'}}" class="profile-section">
       <view class="profile-media">

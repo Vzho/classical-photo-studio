@@ -11,6 +11,8 @@ Page({
   data: {
     themeStyle: '',
     themePreset: 'minimal',
+    decorationClass: '',
+    decorationStyle: '',
     consultation: null as any,
     summaryItems: [] as ConsultationSummaryItem[],
     quickJump: {
@@ -42,10 +44,12 @@ Page({
   },
 
   async loadTheme(consultation: any) {
-    const { theme, quickJump, terminology, decoration } = await getThemePageData()
+    const { theme, quickJump, terminology, decoration, runtime } = await getThemePageData()
     this.setData({
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      decorationClass: runtime.className,
+      decorationStyle: runtime.style,
       quickJump: {
         enabled: true,
         bookingText: '咨询',

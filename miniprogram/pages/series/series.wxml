@@ -1,4 +1,4 @@
-<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-series-page" style="{{themeStyle}}">
+<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-series-page {{decorationClass}}" style="{{themeStyle}} {{decorationStyle}}">
   <dark-site-header title="{{seriesTitle}}" show-back="{{true}}" />
   <view wx:if="{{images.length}}" class="dark-series-cover-wrap">
     <image class="dark-series-cover" src="{{images[0].imageUrl}}" mode="aspectFill" bindtap="onImageTap" data-index="0" />
@@ -33,7 +33,7 @@
   </view>
 </view>
 
-<view wx:else class="series-page theme-{{themePreset}} gallery-{{decoration.galleryVariant}}" style="{{themeStyle}}">
+<view wx:else class="series-page theme-{{themePreset}} {{decorationClass}} gallery-{{decoration.galleryVariant}}" style="{{themeStyle}} {{decorationStyle}}">
   <block wx:for="{{decoration.sections}}" wx:key="id" wx:for-item="section">
     <block wx:if="{{section.enabled}}">
       <view class="series-header" wx:if="{{section.type === 'hero'}}">

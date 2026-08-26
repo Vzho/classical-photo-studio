@@ -139,6 +139,17 @@
     }
   },
   "decoration": {
+    "schemaVersion": 2,
+    "framework": {
+      "id": "editorial-journal",
+      "motion": "subtle",
+      "sectionRhythm": "airy"
+    },
+    "media": {
+      "heroFocalPoint": "center",
+      "galleryFocalPoint": "center",
+      "heroOverlay": "balanced"
+    },
     "siteTemplate": "classic",
     "showcase": {
       "heroActionText": "浏览作品",

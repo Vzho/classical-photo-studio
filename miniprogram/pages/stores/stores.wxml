@@ -1,4 +1,4 @@
-<view class="stores-page theme-{{themePreset}}" style="{{themeStyle}}">
+<view class="stores-page theme-{{themePreset}} {{decorationClass}}" style="{{themeStyle}} {{decorationStyle}}">
   <view class="stores-hero">
     <image wx:if="{{bannerUrl}}" class="stores-hero-image" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
     <view class="stores-hero-shade"></view>

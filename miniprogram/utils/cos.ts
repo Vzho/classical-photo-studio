@@ -2,6 +2,8 @@
 
 import {
   DecorationContent,
+  DecorationRuntime,
+  getDecorationRuntime,
   normalizeDecoration
 } from './decoration'
 
@@ -828,6 +830,7 @@ export async function getPortfolioPageData(): Promise<{
   showcase: DecorationContent['showcase']
   navigation: DecorationContent['navigation']
   icons: DecorationContent['icons']
+  runtime: DecorationRuntime
 }> {
   try {
     const config = await loadConfig()
@@ -853,7 +856,8 @@ export async function getPortfolioPageData(): Promise<{
       siteTemplate: decoration.siteTemplate,
       showcase: decoration.showcase,
       navigation: decoration.navigation,
-      icons: decoration.icons
+      icons: decoration.icons,
+      runtime: getDecorationRuntime(decoration)
     }
   } catch (error) {
     console.error('加载首页配置失败:', error)
@@ -875,7 +879,8 @@ export async function getPortfolioPageData(): Promise<{
       siteTemplate: normalizeDecoration().siteTemplate,
       showcase: normalizeDecoration().showcase,
       navigation: normalizeDecoration().navigation,
-      icons: normalizeDecoration().icons
+      icons: normalizeDecoration().icons,
+      runtime: getDecorationRuntime()
     }
   }
 }
@@ -888,6 +893,7 @@ export async function getThemePageData(): Promise<{
   terminology: DecorationContent['terminology']
   decoration: DecorationContent['success']
   siteTemplate: DecorationContent['siteTemplate']
+  runtime: DecorationRuntime
 }> {
   try {
     const config = await loadConfig()
@@ -901,7 +907,8 @@ export async function getThemePageData(): Promise<{
       icons: decoration.icons,
       terminology: decoration.terminology,
       decoration: decoration.success,
-      siteTemplate: decoration.siteTemplate
+      siteTemplate: decoration.siteTemplate,
+      runtime: getDecorationRuntime(decoration)
     }
   } catch (error) {
     console.error('加载主题配置失败:', error)
@@ -912,7 +919,8 @@ export async function getThemePageData(): Promise<{
       icons: normalizeDecoration().icons,
       terminology: normalizeDecoration().terminology,
       decoration: normalizeDecoration().success,
-      siteTemplate: normalizeDecoration().siteTemplate
+      siteTemplate: normalizeDecoration().siteTemplate,
+      runtime: getDecorationRuntime()
     }
   }
 }
@@ -963,6 +971,7 @@ export async function getSeriesPageData(seriesId: string): Promise<{
   decoration: DecorationContent['series']
   siteTemplate: DecorationContent['siteTemplate']
   showcase: DecorationContent['showcase']
+  runtime: DecorationRuntime
 }> {
   try {
     const config = await loadConfig()
@@ -1008,7 +1017,8 @@ export async function getSeriesPageData(seriesId: string): Promise<{
       terminology: decoration.terminology,
       decoration: decoration.series,
       siteTemplate: decoration.siteTemplate,
-      showcase: decoration.showcase
+      showcase: decoration.showcase,
+      runtime: getDecorationRuntime(decoration)
     }
   } catch (error) {
     console.error('加载系列详情配置失败:', error)
@@ -1025,7 +1035,8 @@ export async function getSeriesPageData(seriesId: string): Promise<{
       terminology: normalizeDecoration().terminology,
       decoration: normalizeDecoration().series,
       siteTemplate: normalizeDecoration().siteTemplate,
-      showcase: normalizeDecoration().showcase
+      showcase: normalizeDecoration().showcase,
+      runtime: getDecorationRuntime()
     }
   }
 }
@@ -1063,6 +1074,7 @@ export async function getBookingPageData(): Promise<{
   share: ShareContent
   decoration: DecorationContent['booking']
   terminology: DecorationContent['terminology']
+  runtime: DecorationRuntime
 }> {
   try {
     const config = await loadConfig()
@@ -1084,7 +1096,8 @@ export async function getBookingPageData(): Promise<{
       quickJump: getQuickJumpConfig(config),
       share: getShareContent(config),
       decoration: decoration.booking,
-      terminology: decoration.terminology
+      terminology: decoration.terminology,
+      runtime: getDecorationRuntime(decoration)
     }
   } catch (error) {
     console.error('加载预约页配置失败:', error)
@@ -1103,7 +1116,8 @@ export async function getBookingPageData(): Promise<{
       quickJump: DEFAULT_QUICK_JUMP,
       share: { ...DEFAULT_SHARE_CONTENT },
       decoration: normalizeDecoration().booking,
-      terminology: normalizeDecoration().terminology
+      terminology: normalizeDecoration().terminology,
+      runtime: getDecorationRuntime()
     }
   }
 }
@@ -1118,6 +1132,7 @@ export async function getPackagesPageData(): Promise<{
   share: ShareContent
   terminology: DecorationContent['terminology']
   decoration: DecorationContent['packages']
+  runtime: DecorationRuntime
 }> {
   try {
     const config = await loadConfig()
@@ -1132,7 +1147,8 @@ export async function getPackagesPageData(): Promise<{
       quickJump: getQuickJumpConfig(config),
       share: getShareContent(config),
       terminology: decoration.terminology,
-      decoration: decoration.packages
+      decoration: decoration.packages,
+      runtime: getDecorationRuntime(decoration)
     }
   } catch (error) {
     console.error('加载套餐页配置失败:', error)
@@ -1145,7 +1161,8 @@ export async function getPackagesPageData(): Promise<{
       quickJump: DEFAULT_QUICK_JUMP,
       share: { ...DEFAULT_SHARE_CONTENT },
       terminology: normalizeDecoration().terminology,
-      decoration: normalizeDecoration().packages
+      decoration: normalizeDecoration().packages,
+      runtime: getDecorationRuntime()
     }
   }
 }
@@ -1163,6 +1180,7 @@ export async function getPackageDetailPageData(packageId: string): Promise<{
   share: ShareContent
   terminology: DecorationContent['terminology']
   decoration: DecorationContent['packageDetail']
+  runtime: DecorationRuntime
 }> {
   try {
     const config = await loadConfig()
@@ -1188,7 +1206,8 @@ export async function getPackageDetailPageData(packageId: string): Promise<{
       quickJump: getQuickJumpConfig(config),
       share: getShareContent(config, allImages),
       terminology: decoration.terminology,
-      decoration: decoration.packageDetail
+      decoration: decoration.packageDetail,
+      runtime: getDecorationRuntime(decoration)
     }
   } catch (error) {
     console.error('加载套餐详情配置失败:', error)
@@ -1204,7 +1223,8 @@ export async function getPackageDetailPageData(packageId: string): Promise<{
       quickJump: DEFAULT_QUICK_JUMP,
       share: { ...DEFAULT_SHARE_CONTENT },
       terminology: normalizeDecoration().terminology,
-      decoration: normalizeDecoration().packageDetail
+      decoration: normalizeDecoration().packageDetail,
+      runtime: getDecorationRuntime()
     }
   }
 }
@@ -1227,6 +1247,7 @@ export async function getAboutPageData(): Promise<{
   siteTemplate: DecorationContent['siteTemplate']
   showcase: DecorationContent['showcase']
   galleryItems: PortfolioItem[]
+  runtime: DecorationRuntime
 }> {
   try {
     const config = await loadConfig()
@@ -1254,7 +1275,8 @@ export async function getAboutPageData(): Promise<{
       terminology: decoration.terminology,
       siteTemplate: decoration.siteTemplate,
       showcase: decoration.showcase,
-      galleryItems
+      galleryItems,
+      runtime: getDecorationRuntime(decoration)
     }
   } catch (error) {
     console.error('加载简介页配置失败:', error)
@@ -1275,7 +1297,8 @@ export async function getAboutPageData(): Promise<{
       terminology: normalizeDecoration().terminology,
       siteTemplate: normalizeDecoration().siteTemplate,
       showcase: normalizeDecoration().showcase,
-      galleryItems: []
+      galleryItems: [],
+      runtime: getDecorationRuntime()
     }
   }
 }

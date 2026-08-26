@@ -33,6 +33,8 @@ Page({
   data: {
     themeStyle: '',
     themePreset: 'minimal',
+    decorationClass: '',
+    decorationStyle: '',
     bannerUrl: '',
     stores: [] as StoreItem[],
     section: DEFAULT_DECORATION.about.sections.find(item => item.type === 'stores') as DecorationSection,
@@ -47,7 +49,7 @@ Page({
   },
 
   async onShow() {
-    const { photographer, theme, stores, quickJump, share, icons, decoration } = await getAboutPageData()
+    const { photographer, theme, stores, quickJump, share, icons, decoration, runtime } = await getAboutPageData()
     const profile = {
       ...PHOTOGRAPHER,
       ...(photographer || {}),
@@ -71,6 +73,8 @@ Page({
     this.setData({
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      decorationClass: runtime.className,
+      decorationStyle: runtime.style,
       bannerUrl: getCosUrl('banner/about-banner.jpg'),
       stores: stores.length ? stores : (fallbackStore ? [fallbackStore] : []),
       section,

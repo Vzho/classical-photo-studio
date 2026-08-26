@@ -24,6 +24,8 @@ Page({
   data: {
     themeStyle: '',
     themePreset: 'minimal',
+    decorationClass: '',
+    decorationStyle: '',
     packageItem: null as PackageItem | null,
     relatedSeries: [] as PortfolioItem[],
     photographers: [] as TeamPhotographerItem[],
@@ -57,11 +59,13 @@ Page({
   },
 
   async loadData(packageId: string) {
-    const { theme, packageItem, relatedSeries, photographers, testimonials, serviceFlow, faq, consultButton, quickJump, share, terminology, decoration } = await getPackageDetailPageData(packageId)
+    const { theme, packageItem, relatedSeries, photographers, testimonials, serviceFlow, faq, consultButton, quickJump, share, terminology, decoration, runtime } = await getPackageDetailPageData(packageId)
 
     this.setData({
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      decorationClass: runtime.className,
+      decorationStyle: runtime.style,
       packageItem: packageItem
         ? {
             ...packageItem,

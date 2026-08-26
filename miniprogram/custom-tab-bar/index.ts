@@ -16,6 +16,7 @@ Component({
     selected: -1,
     themeStyle: '',
     themePreset: 'minimal',
+    decorationClass: '',
     navigationStyle: 'line',
     siteTemplate: 'classic',
     list: [
@@ -37,7 +38,7 @@ Component({
   },
   methods: {
     async loadTheme() {
-      const { theme, navigation, icons, siteTemplate } = await getThemePageData()
+      const { theme, navigation, icons, siteTemplate, runtime } = await getThemePageData()
       const list = navigation.items
         .filter(item => item.enabled)
         .map(item => {
@@ -55,6 +56,7 @@ Component({
         themePreset: getThemePreset(theme),
         navigationStyle: navigation.style,
         siteTemplate,
+        decorationClass: runtime.className,
         list
       }, () => this.syncSelected())
     },

@@ -10,6 +10,8 @@ Page({
     photographer: PHOTOGRAPHER,
     themeStyle: '',
     themePreset: 'minimal',
+    decorationClass: '',
+    decorationStyle: '',
     siteTemplate: 'classic' as 'classic' | 'dark-gallery',
     showcase: { ...DEFAULT_DECORATION.showcase } as ShowcaseDecoration,
     galleryItems: [] as PortfolioItem[],
@@ -48,7 +50,7 @@ Page({
 
   async loadData() {
     // 优先加载远程配置的摄影师信息
-    const { photographer: remoteProfile, theme, consultButton, packages, stores, photographers, testimonials, serviceFlow, faq, quickJump, share, icons, decoration, terminology, siteTemplate, showcase, galleryItems } = await getAboutPageData()
+    const { photographer: remoteProfile, theme, consultButton, packages, stores, photographers, testimonials, serviceFlow, faq, quickJump, share, icons, decoration, terminology, siteTemplate, showcase, galleryItems, runtime } = await getAboutPageData()
     const profile = {
       ...PHOTOGRAPHER,
       ...(remoteProfile || {}),
@@ -83,6 +85,8 @@ Page({
       photographer: profile,
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      decorationClass: runtime.className,
+      decorationStyle: runtime.style,
       siteTemplate,
       showcase,
       galleryItems,

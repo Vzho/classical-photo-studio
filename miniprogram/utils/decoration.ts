@@ -7,6 +7,32 @@ export type DecorationPageKey =
   | 'series'
   | 'success'
 
+export type DecorationFrameworkId =
+  | 'legacy-classic'
+  | 'cinematic-gallery'
+  | 'editorial-journal'
+  | 'atelier-conversion'
+
+export type DecorationFocalPoint = 'center' | 'top' | 'bottom' | 'left' | 'right'
+
+export interface FrameworkDecoration {
+  id: DecorationFrameworkId
+  motion: 'none' | 'subtle'
+  sectionRhythm: 'tight' | 'balanced' | 'airy'
+}
+
+export interface MediaDecoration {
+  heroFocalPoint: DecorationFocalPoint
+  galleryFocalPoint: DecorationFocalPoint
+  heroOverlay: 'light' | 'balanced' | 'strong'
+}
+
+export interface DecorationRuntime {
+  frameworkId: DecorationFrameworkId
+  className: string
+  style: string
+}
+
 export interface DecorationSection {
   id: string
   type: string
@@ -165,6 +191,9 @@ export interface SuccessDecoration extends SectionPageDecoration {
 }
 
 export interface DecorationContent {
+  schemaVersion: 2
+  framework: FrameworkDecoration
+  media: MediaDecoration
   siteTemplate: 'classic' | 'dark-gallery'
   showcase: ShowcaseDecoration
   terminology: TerminologyDecoration
@@ -212,6 +241,17 @@ const field = (
 })
 
 export const DEFAULT_DECORATION: DecorationContent = {
+  schemaVersion: 2,
+  framework: {
+    id: 'legacy-classic',
+    motion: 'subtle',
+    sectionRhythm: 'balanced'
+  },
+  media: {
+    heroFocalPoint: 'center',
+    galleryFocalPoint: 'center',
+    heroOverlay: 'balanced'
+  },
   siteTemplate: 'classic',
   showcase: {
     heroActionText: '浏览作品',
@@ -536,6 +576,8 @@ function normalizeNavigationItems(value: unknown): NavigationItemDecoration[] {
 
 export function normalizeDecoration(value?: Partial<DecorationContent> | null): DecorationContent {
   const input = value || {}
+  const framework: Partial<FrameworkDecoration> = input.framework || {}
+  const media: Partial<MediaDecoration> = input.media || {}
   const terminology: Partial<TerminologyDecoration> = input.terminology || {}
   const navigation: Partial<NavigationDecoration> = input.navigation || {}
   const icons: Partial<IconDecoration> = input.icons || {}
@@ -569,8 +611,35 @@ export function normalizeDecoration(value?: Partial<DecorationContent> | null): 
     showDescription = false
   }
 
+  const migratedFrameworkId = input.framework?.id
+    ? input.framework.id
+    : input.siteTemplate === 'dark-gallery'
+      ? 'cinematic-gallery'
+      : DEFAULT_DECORATION.framework.id
+  const frameworkId = pick(
+    migratedFrameworkId,
+    ['legacy-classic', 'cinematic-gallery', 'editorial-journal', 'atelier-conversion'] as const,
+    DEFAULT_DECORATION.framework.id
+  )
+  const siteTemplate = frameworkId === 'cinematic-gallery'
+    ? 'dark-gallery'
+    : frameworkId === 'legacy-classic'
+      ? pick(input.siteTemplate, ['classic', 'dark-gallery'] as const, DEFAULT_DECORATION.siteTemplate)
+      : 'classic'
+
   return {
-    siteTemplate: pick(input.siteTemplate, ['classic', 'dark-gallery'] as const, DEFAULT_DECORATION.siteTemplate),
+    schemaVersion: 2,
+    framework: {
+      id: frameworkId,
+      motion: pick(framework.motion, ['none', 'subtle'] as const, DEFAULT_DECORATION.framework.motion),
+      sectionRhythm: pick(framework.sectionRhythm, ['tight', 'balanced', 'airy'] as const, DEFAULT_DECORATION.framework.sectionRhythm)
+    },
+    media: {
+      heroFocalPoint: pick(media.heroFocalPoint, ['center', 'top', 'bottom', 'left', 'right'] as const, DEFAULT_DECORATION.media.heroFocalPoint),
+      galleryFocalPoint: pick(media.galleryFocalPoint, ['center', 'top', 'bottom', 'left', 'right'] as const, DEFAULT_DECORATION.media.galleryFocalPoint),
+      heroOverlay: pick(media.heroOverlay, ['light', 'balanced', 'strong'] as const, DEFAULT_DECORATION.media.heroOverlay)
+    },
+    siteTemplate,
     showcase: {
       heroActionText: String(showcase.heroActionText || DEFAULT_DECORATION.showcase.heroActionText).slice(0, 12),
       heroActionTarget: pick(showcase.heroActionTarget, ['gallery', 'booking'] as const, DEFAULT_DECORATION.showcase.heroActionTarget),
@@ -670,6 +739,38 @@ export function normalizeDecoration(value?: Partial<DecorationContent> | null): 
       layoutVariant: pick(success.layoutVariant, ['centered', 'compact'] as const, DEFAULT_DECORATION.success.layoutVariant),
       sections: normalizeSections(success.sections, DEFAULT_DECORATION.success.sections)
     }
+  }
+}
+
+const focalPointMap: Record<DecorationFocalPoint, string> = {
+  center: 'center center',
+  top: 'center top',
+  bottom: 'center bottom',
+  left: 'left center',
+  right: 'right center'
+}
+
+const overlayOpacityMap: Record<MediaDecoration['heroOverlay'], string> = {
+  light: '0.2',
+  balanced: '0.42',
+  strong: '0.62'
+}
+
+export function getDecorationRuntime(value?: Partial<DecorationContent> | null): DecorationRuntime {
+  const decoration = normalizeDecoration(value)
+  const framework = decoration.framework
+  return {
+    frameworkId: framework.id,
+    className: [
+      `framework-${framework.id}`,
+      `rhythm-${framework.sectionRhythm}`,
+      `motion-${framework.motion}`
+    ].join(' '),
+    style: [
+      `--hero-object-position: ${focalPointMap[decoration.media.heroFocalPoint]}`,
+      `--gallery-object-position: ${focalPointMap[decoration.media.galleryFocalPoint]}`,
+      `--hero-overlay-opacity: ${overlayOpacityMap[decoration.media.heroOverlay]}`
+    ].join('; ') + ';'
   }
 }
 

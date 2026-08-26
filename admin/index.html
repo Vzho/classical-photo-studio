@@ -4291,10 +4291,77 @@
     .site-template-visual.dark-gallery em { left: 9px; right: 9px; bottom: 7px; height: 12px; background: linear-gradient(90deg,#72dedf 31%,transparent 31% 34%,#555 34% 65%,transparent 65% 68%,#555 68%); }
     .site-template-options[hidden] { display: none; }
 
+    .framework-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .framework-card {
+      display: grid;
+      min-width: 0;
+      padding: 0 0 14px;
+      overflow: hidden;
+      border: 1px solid #d9ded9;
+      border-radius: 6px;
+      background: #fff;
+      color: #27302b;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .framework-card:hover { border-color: #849188; }
+    .framework-card.active { border-color: #34443c; box-shadow: 0 0 0 2px rgba(52, 68, 60, 0.11); }
+    .framework-card-copy { display: block; min-width: 0; padding: 13px 14px 0; }
+    .framework-card-copy strong { display: block; font-size: 15px; }
+    .framework-card-copy small { display: block; min-height: 40px; margin-top: 6px; color: #747b76; font-size: 12px; line-height: 1.55; }
+    .framework-card-state { padding: 10px 14px 0; color: #667069; font-size: 11px; }
+    .framework-card.active .framework-card-state { color: #34443c; font-weight: 700; }
+
+    .framework-visual {
+      position: relative;
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #e7e9e6;
+    }
+
+    .framework-visual i,
+    .framework-visual b,
+    .framework-visual em { position: absolute; display: block; font-style: normal; }
+    .framework-visual-cinematic { background: linear-gradient(135deg, #0d0f0e 0 38%, #5c514b 38% 100%); }
+    .framework-visual-cinematic i { inset: 12px 12px 30px 42%; background: linear-gradient(145deg, #aa877a, #2b2522); }
+    .framework-visual-cinematic b { left: 14px; bottom: 39px; width: 34%; height: 5px; background: #f4f1e9; }
+    .framework-visual-cinematic em { right: 12px; bottom: 12px; left: 12px; height: 12px; background: linear-gradient(90deg, #767b77 32%, transparent 32% 34%, #767b77 34% 66%, transparent 66% 68%, #767b77 68%); }
+    .framework-visual-editorial { background: #f5f5f1; }
+    .framework-visual-editorial i { top: 0; right: 0; bottom: 0; width: 58%; background: linear-gradient(145deg, #615b57, #b39a8d); }
+    .framework-visual-editorial b { left: 13px; bottom: 38px; width: 31%; height: 6px; background: #181a19; }
+    .framework-visual-editorial em { right: 12px; bottom: 12px; left: 12px; height: 13px; border-top: 1px solid #bfc1bb; }
+    .framework-visual-atelier { background: #eef3f0; }
+    .framework-visual-atelier i { inset: 10px 10px 34px; border-radius: 3px; background: linear-gradient(145deg, #7f948a, #c3b3ad); }
+    .framework-visual-atelier b { left: 18px; bottom: 42px; width: 45%; height: 6px; background: #fff; }
+    .framework-visual-atelier em { right: 10px; bottom: 10px; left: 10px; height: 16px; background: linear-gradient(90deg, #fff 48%, transparent 48% 52%, #fff 52%); }
+
+    .framework-legacy-note {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-left: 3px solid #9d8c78;
+      background: #f6f4f1;
+      color: #6e675f;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .framework-legacy-note[hidden] { display: none; }
+    .framework-media-heading { margin-top: 22px; }
+    .framework-media-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
     @media (max-width: 900px) {
       .site-template-grid { grid-template-columns: 1fr; }
       .site-template-card { grid-template-columns: 92px minmax(0, 1fr) auto; }
       .site-template-visual { width: 92px; }
+      .framework-grid,
+      .framework-media-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -4626,25 +4693,44 @@
                   <p>先选择最接近门店气质的皮肤，再按需要调整名称和颜色。</p>
                 </header>
 
-      <div class="settings-section site-template-section">
+      <div class="settings-section framework-section">
         <div class="settings-section-header">
           <div>
-            <h4>先选择整站结构</h4>
-            <p>整站结构会改变首页、作品页、详情页和简介页的排版；不会删除照片和资料。</p>
+            <h4>先选择整站框架</h4>
+            <p>框架会一起调整首页、作品详情、简介、套餐和咨询页；照片、分类和资料不会被删除。</p>
           </div>
         </div>
+        <input type="hidden" id="frameworkId" value="legacy-classic">
         <input type="hidden" id="siteTemplate" value="classic">
-        <div class="site-template-grid" role="group" aria-label="整站结构">
-          <button type="button" class="site-template-card" data-site-template="classic" onclick="applySiteTemplate('classic')">
-            <span class="site-template-visual classic"><i></i><b></b><em></em></span>
-            <span><strong>经典作品站</strong><small>沿用当前页面结构，适合内容和服务并重</small></span>
-            <span class="site-template-state">选择</span>
+        <div class="framework-grid" role="group" aria-label="整站框架">
+          <button type="button" class="framework-card" data-framework="cinematic-gallery" onclick="applyFramework('cinematic-gallery')">
+            <span class="framework-visual framework-visual-cinematic"><i></i><b></b><em></em></span>
+            <span class="framework-card-copy"><strong>影像叙事</strong><small>全屏暗场与通栏作品，品牌氛围最强</small></span>
+            <span class="framework-card-state">使用此框架</span>
           </button>
-          <button type="button" class="site-template-card" data-site-template="dark-gallery" onclick="applySiteTemplate('dark-gallery')">
-            <span class="site-template-visual dark-gallery"><i></i><b></b><em></em></span>
-            <span><strong>暗色品牌画廊</strong><small>沉浸封面、独立作品目录、通栏作品详情</small></span>
-            <span class="site-template-state">选择</span>
+          <button type="button" class="framework-card" data-framework="editorial-journal" onclick="applyFramework('editorial-journal')">
+            <span class="framework-visual framework-visual-editorial"><i></i><b></b><em></em></span>
+            <span class="framework-card-copy"><strong>编辑画册</strong><small>大幅封面与杂志网格，适合写真和高定</small></span>
+            <span class="framework-card-state">使用此框架</span>
           </button>
+          <button type="button" class="framework-card" data-framework="atelier-conversion" onclick="applyFramework('atelier-conversion')">
+            <span class="framework-visual framework-visual-atelier"><i></i><b></b><em></em></span>
+            <span class="framework-card-copy"><strong>门店高定</strong><small>服务与咨询路径更清楚，适合到店预约</small></span>
+            <span class="framework-card-state">使用此框架</span>
+          </button>
+        </div>
+        <div class="framework-legacy-note" id="frameworkLegacyNote">当前旧版装修会继续正常显示。选择上方任一框架后，才会启用新版整站骨架。</div>
+
+        <div class="decoration-field-group-heading framework-media-heading">
+          <strong>调整照片呈现</strong>
+          <span>人物被裁切时，只需修改位置，不用重新上传照片。</span>
+        </div>
+        <div class="settings-grid framework-media-grid">
+          <div class="form-group"><label>首页大图主体位置</label><select id="mediaHeroFocalPoint"><option value="center">居中</option><option value="top">靠上</option><option value="bottom">靠下</option><option value="left">靠左</option><option value="right">靠右</option></select></div>
+          <div class="form-group"><label>作品封面主体位置</label><select id="mediaGalleryFocalPoint"><option value="center">居中</option><option value="top">靠上</option><option value="bottom">靠下</option><option value="left">靠左</option><option value="right">靠右</option></select></div>
+          <div class="form-group"><label>首页大图明暗</label><select id="mediaHeroOverlay"><option value="light">明亮</option><option value="balanced">平衡</option><option value="strong">偏暗，文字更清楚</option></select></div>
+          <div class="form-group"><label>页面内容疏密</label><select id="frameworkSectionRhythm"><option value="tight">紧凑</option><option value="balanced">适中</option><option value="airy">宽松</option></select></div>
+          <div class="form-group"><label>页面动效</label><select id="frameworkMotion"><option value="subtle">轻微过渡</option><option value="none">关闭动效</option></select></div>
         </div>
         <details class="decoration-optional-controls site-template-options" id="darkGalleryOptions">
           <summary><span><strong>品牌画廊文字与排列</strong><small>使用暗色品牌画廊时可调整</small></span></summary>

@@ -1,6 +1,6 @@
 <view
-  class="booking-page theme-{{themePreset}} header-{{bookingDecoration.headerVariant}} form-{{bookingDecoration.formVariant}}"
-  style="{{themeStyle}}"
+  class="booking-page theme-{{themePreset}} {{decorationClass}} header-{{bookingDecoration.headerVariant}} form-{{bookingDecoration.formVariant}}"
+  style="{{themeStyle}} {{decorationStyle}}"
 >
   <block wx:for="{{bookingSections}}" wx:for-item="section" wx:key="id">
     <view wx:if="{{section.enabled && section.type === 'hero'}}" class="booking-hero">

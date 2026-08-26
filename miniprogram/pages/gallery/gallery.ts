@@ -40,6 +40,8 @@ Page({
   data: {
     themeStyle: '',
     themePreset: 'minimal',
+    decorationClass: '',
+    decorationStyle: '',
     siteTemplate: 'classic' as 'classic' | 'dark-gallery',
     pageTitle: '作品',
     showcase: { ...DEFAULT_DECORATION.showcase } as ShowcaseDecoration,
@@ -82,6 +84,8 @@ Page({
     this.setData({
       themeStyle: buildThemeStyle(data.theme),
       themePreset: getThemePreset(data.theme),
+      decorationClass: data.runtime.className,
+      decorationStyle: data.runtime.style,
       siteTemplate: data.siteTemplate,
       pageTitle: data.navigation.galleryText || '作品',
       showcase: data.showcase,

@@ -178,6 +178,17 @@ const TERMINOLOGY_PRESETS = {
 }
 
 const DEFAULT_DECORATION_CONFIG = {
+  schemaVersion: 2,
+  framework: {
+    id: 'legacy-classic',
+    motion: 'subtle',
+    sectionRhythm: 'balanced'
+  },
+  media: {
+    heroFocalPoint: 'center',
+    galleryFocalPoint: 'center',
+    heroOverlay: 'balanced'
+  },
   siteTemplate: 'classic',
   showcase: {
     heroActionText: '浏览作品',
@@ -849,6 +860,81 @@ const HOME_TEMPLATE_PRESETS = {
     cardContent: 'compact',
     galleryGap: 'standard',
     sectionOrder: ['hero', 'shortcuts', 'packages', 'schedule', 'portfolio', 'testimonials', 'serviceFlow', 'categories']
+  }
+}
+
+const FRAMEWORK_PRESETS = {
+  'cinematic-gallery': {
+    name: '影像叙事',
+    description: '全屏影像、暗场留白和通栏详情，适合强调品牌氛围与代表作品。',
+    siteTemplate: 'dark-gallery',
+    themePreset: 'dark-gallery',
+    navigationItems: ['portfolio', 'gallery', 'about'],
+    navigationLabels: {
+      portfolioText: '首页', galleryText: '作品', aboutText: '关于',
+      packagesText: '套餐', bookingText: '联系', storesText: '门店'
+    },
+    media: { heroFocalPoint: 'center', galleryFocalPoint: 'center', heroOverlay: 'strong' },
+    framework: { motion: 'subtle', sectionRhythm: 'tight' },
+    variants: {
+      navigationStyle: 'line', homeTemplate: 'editorial-cover', homeCardContent: 'image-only',
+      homeGap: 'tight', homeHero: 'immersive', homeGallery: 'masonry', homeColumns: 2,
+      homeRatio: 'portrait', aboutHeader: 'portrait', bookingHeader: 'image', bookingForm: 'lines',
+      packagesLayout: 'list', packageDetailLayout: 'editorial', seriesGallery: 'immersive', successLayout: 'centered'
+    },
+    sectionOrder: {
+      home: ['hero', 'categories', 'portfolio', 'testimonials', 'packages', 'schedule', 'serviceFlow', 'shortcuts'],
+      about: ['profile', 'bio', 'skills', 'team', 'testimonials', 'contact', 'stores', 'packages', 'serviceFlow', 'faq'],
+      booking: ['hero', 'notice', 'form', 'schedule', 'serviceFlow', 'faq']
+    }
+  },
+  'editorial-journal': {
+    name: '编辑画册',
+    description: '大幅封面、克制文字和杂志式网格，适合写真、妆造与高定品牌。',
+    siteTemplate: 'classic',
+    themePreset: 'gallery-monograph',
+    navigationItems: ['portfolio', 'about', 'booking'],
+    navigationLabels: {
+      portfolioText: '首页', galleryText: '作品', aboutText: '品牌',
+      packagesText: '服务', bookingText: '咨询', storesText: '门店'
+    },
+    media: { heroFocalPoint: 'center', galleryFocalPoint: 'center', heroOverlay: 'balanced' },
+    framework: { motion: 'subtle', sectionRhythm: 'airy' },
+    variants: {
+      navigationStyle: 'line', homeTemplate: 'split-catalog', homeCardContent: 'compact',
+      homeGap: 'airy', homeHero: 'immersive', homeGallery: 'mixed', homeColumns: 2,
+      homeRatio: 'portrait', aboutHeader: 'editorial', bookingHeader: 'image', bookingForm: 'lines',
+      packagesLayout: 'list', packageDetailLayout: 'editorial', seriesGallery: 'immersive', successLayout: 'centered'
+    },
+    sectionOrder: {
+      home: ['hero', 'categories', 'portfolio', 'testimonials', 'packages', 'schedule', 'serviceFlow', 'shortcuts'],
+      about: ['profile', 'bio', 'skills', 'team', 'testimonials', 'contact', 'stores', 'packages', 'serviceFlow', 'faq'],
+      booking: ['hero', 'notice', 'form', 'schedule', 'serviceFlow', 'faq']
+    }
+  },
+  'atelier-conversion': {
+    name: '门店高定',
+    description: '首图、服务、档期和咨询路径更清晰，适合以到店预约和成交为目标。',
+    siteTemplate: 'classic',
+    themePreset: 'luminous-portrait',
+    navigationItems: ['portfolio', 'packages', 'about', 'booking'],
+    navigationLabels: {
+      portfolioText: '首页', galleryText: '客片', aboutText: '介绍',
+      packagesText: '套餐', bookingText: '预约', storesText: '门店'
+    },
+    media: { heroFocalPoint: 'center', galleryFocalPoint: 'center', heroOverlay: 'light' },
+    framework: { motion: 'subtle', sectionRhythm: 'balanced' },
+    variants: {
+      navigationStyle: 'quiet', homeTemplate: 'service-led', homeCardContent: 'compact',
+      homeGap: 'standard', homeHero: 'compact', homeGallery: 'cards', homeColumns: 2,
+      homeRatio: 'square', aboutHeader: 'portrait', bookingHeader: 'compact', bookingForm: 'soft',
+      packagesLayout: 'cards', packageDetailLayout: 'compact', seriesGallery: 'framed', successLayout: 'compact'
+    },
+    sectionOrder: {
+      home: ['hero', 'shortcuts', 'packages', 'schedule', 'portfolio', 'testimonials', 'serviceFlow', 'categories'],
+      about: ['profile', 'contact', 'stores', 'packages', 'testimonials', 'skills', 'bio', 'team', 'serviceFlow', 'faq'],
+      booking: ['notice', 'form', 'schedule', 'hero', 'serviceFlow', 'faq']
+    }
   }
 }
 
@@ -4248,6 +4334,8 @@ function applyHomeTemplate(templateKey) {
 function setShowcaseEditorValues(decoration) {
   const normalized = normalizeDecorationConfig(decoration)
   const showcase = normalized.showcase
+  const frameworkIdInput = document.getElementById('frameworkId')
+  if (frameworkIdInput) frameworkIdInput.value = normalized.framework.id
   const siteTemplateInput = document.getElementById('siteTemplate')
   if (siteTemplateInput) siteTemplateInput.value = normalized.siteTemplate
   const values = {
@@ -4269,15 +4357,72 @@ function setShowcaseEditorValues(decoration) {
   const showTags = document.getElementById('showcaseShowTags')
   if (showSearch) showSearch.checked = showcase.showSearch !== false
   if (showTags) showTags.checked = showcase.showTags !== false
-  document.querySelectorAll('[data-site-template]').forEach(button => {
-    const active = button.dataset.siteTemplate === normalized.siteTemplate
+  setSelectValue('frameworkMotion', normalized.framework.motion)
+  setSelectValue('frameworkSectionRhythm', normalized.framework.sectionRhythm)
+  setSelectValue('mediaHeroFocalPoint', normalized.media.heroFocalPoint)
+  setSelectValue('mediaGalleryFocalPoint', normalized.media.galleryFocalPoint)
+  setSelectValue('mediaHeroOverlay', normalized.media.heroOverlay)
+  document.querySelectorAll('.framework-card[data-framework]').forEach(button => {
+    const active = button.dataset.framework === normalized.framework.id
     button.classList.toggle('active', active)
     button.setAttribute('aria-pressed', String(active))
-    const state = button.querySelector('.site-template-state')
-    if (state) state.textContent = active ? '正在使用' : '选择'
+    const state = button.querySelector('.framework-card-state')
+    if (state) state.textContent = active ? '当前框架' : '使用此框架'
   })
   const options = document.getElementById('darkGalleryOptions')
   if (options) options.hidden = normalized.siteTemplate !== 'dark-gallery'
+  const legacyNote = document.getElementById('frameworkLegacyNote')
+  if (legacyNote) legacyNote.hidden = normalized.framework.id !== 'legacy-classic'
+}
+
+function applyFramework(frameworkId) {
+  const preset = FRAMEWORK_PRESETS[frameworkId]
+  if (!preset || !decorationEditorState) return
+
+  decorationEditorState.schemaVersion = 2
+  decorationEditorState.framework = {
+    id: frameworkId,
+    ...preset.framework
+  }
+  decorationEditorState.media = deepClone(preset.media)
+  decorationEditorState.siteTemplate = preset.siteTemplate
+  decorationEditorState.navigation.style = preset.variants.navigationStyle
+  decorationEditorState.navigation.items = NAVIGATION_ITEM_KEYS.map(key => ({
+    key,
+    enabled: preset.navigationItems.includes(key)
+  }))
+  Object.assign(decorationEditorState.navigation, preset.navigationLabels)
+
+  if (frameworkId === 'cinematic-gallery') {
+    decorationEditorState.showcase = fillMissingObject(decorationEditorState.showcase, DEFAULT_DECORATION_CONFIG.showcase)
+  }
+
+  setSelectValue('themePreset', preset.themePreset)
+  applySelectedThemePreset()
+  applyDecorationVariantState(preset.variants)
+
+  Object.entries(preset.sectionOrder || {}).forEach(([pageKey, order]) => {
+    if (!decorationEditorState[pageKey]?.sections) return
+    decorationEditorState[pageKey].sections = reorderHomeSections(
+      decorationEditorState[pageKey].sections,
+      order
+    )
+  })
+
+  setShowcaseEditorValues(decorationEditorState)
+  setHomeLayoutEditorValues(decorationEditorState.home)
+  renderNavigationEditor()
+  renderDecorationEditors()
+  activeSkinPreviewPage = 'home'
+  markDecorationChanged({
+    key: `appearance:framework:${frameworkId}`,
+    stage: 'appearance',
+    label: `整站框架：${preset.name}`,
+    editorElement: document.querySelector(`.framework-card[data-framework="${frameworkId}"]`),
+    previewPage: 'home',
+    previewSelector: '#skinPreviewViewport'
+  })
+  updateThemePreview()
 }
 
 function applySiteTemplate(templateKey) {
@@ -4326,7 +4471,19 @@ function applySiteTemplate(templateKey) {
 
 function collectDecorationSettings() {
   const decoration = normalizeDecorationConfig(decorationEditorState)
-  decoration.siteTemplate = document.getElementById('siteTemplate')?.value === 'dark-gallery' ? 'dark-gallery' : 'classic'
+  const frameworkId = document.getElementById('frameworkId')?.value
+  decoration.schemaVersion = 2
+  decoration.framework = {
+    id: FRAMEWORK_PRESETS[frameworkId] ? frameworkId : decoration.framework.id,
+    motion: document.getElementById('frameworkMotion')?.value || DEFAULT_DECORATION_CONFIG.framework.motion,
+    sectionRhythm: document.getElementById('frameworkSectionRhythm')?.value || DEFAULT_DECORATION_CONFIG.framework.sectionRhythm
+  }
+  decoration.media = {
+    heroFocalPoint: document.getElementById('mediaHeroFocalPoint')?.value || DEFAULT_DECORATION_CONFIG.media.heroFocalPoint,
+    galleryFocalPoint: document.getElementById('mediaGalleryFocalPoint')?.value || DEFAULT_DECORATION_CONFIG.media.galleryFocalPoint,
+    heroOverlay: document.getElementById('mediaHeroOverlay')?.value || DEFAULT_DECORATION_CONFIG.media.heroOverlay
+  }
+  decoration.siteTemplate = decoration.framework.id === 'cinematic-gallery' ? 'dark-gallery' : 'classic'
   decoration.showcase = {
     ...decoration.showcase,
     heroActionText: document.getElementById('showcaseHeroActionText')?.value.trim() || DEFAULT_DECORATION_CONFIG.showcase.heroActionText,
@@ -5631,6 +5788,14 @@ function updateThemePreview() {
     soft: '0 4px 14px rgba(38, 49, 44, 0.05)',
     elevated: '0 10px 24px rgba(36, 31, 31, 0.12)'
   }
+  const focalPointMap = {
+    center: 'center center',
+    top: 'center top',
+    bottom: 'center bottom',
+    left: 'left center',
+    right: 'right center'
+  }
+  const heroOverlayMap = { light: '.2', balanced: '.42', strong: '.62' }
 
   preview.style.setProperty('--preview-primary', theme.primaryColor)
   preview.style.setProperty('--preview-secondary', theme.secondaryColor)
@@ -5646,8 +5811,14 @@ function updateThemePreview() {
   preview.style.setProperty('--preview-button-radius', buttonRadiusMap[theme.buttonStyle] || buttonRadiusMap.rounded)
   preview.style.setProperty('--preview-section-gap', densityMap[theme.layoutDensity] || densityMap.comfortable)
   preview.style.setProperty('--preview-card-shadow', cardShadowMap[theme.cardStyle] || 'none')
+  preview.style.setProperty('--preview-hero-position', focalPointMap[model.decoration.media.heroFocalPoint] || focalPointMap.center)
+  preview.style.setProperty('--preview-gallery-position', focalPointMap[model.decoration.media.galleryFocalPoint] || focalPointMap.center)
+  preview.style.setProperty('--preview-hero-overlay', heroOverlayMap[model.decoration.media.heroOverlay] || heroOverlayMap.balanced)
   preview.style.fontFamily = fontFamilies[theme.fontStyle] || fontFamilies.clean
   preview.dataset.skin = theme.preset
+  preview.dataset.framework = model.decoration.framework.id
+  preview.dataset.frameworkRhythm = model.decoration.framework.sectionRhythm
+  preview.dataset.frameworkMotion = model.decoration.framework.motion
   preview.dataset.siteTemplate = model.decoration.siteTemplate
   preview.dataset.heading = theme.headingStyle
   preview.dataset.decorations = theme.showDecorations ? 'on' : 'off'
@@ -5710,7 +5881,7 @@ function updateThemePreview() {
 
   const name = document.getElementById('skinPreviewName')
   const status = document.getElementById('skinPreviewStatus')
-  if (name) name.textContent = preset.name
+  if (name) name.textContent = FRAMEWORK_PRESETS[model.decoration.framework.id]?.name || preset.name
   if (status) {
     const customized = THEME_VISUAL_FIELDS.some(field => String(theme[field]).toLowerCase() !== String(preset[field]).toLowerCase())
     status.textContent = customized ? '当前草稿已微调，保存后生效' : '当前草稿，保存后生效'
@@ -6077,9 +6248,47 @@ function normalizeNavigationItems(items) {
 }
 
 function normalizeDecorationConfig(decoration) {
+  const source = decoration && typeof decoration === 'object' ? decoration : {}
   const normalized = fillMissingObject(decoration, DEFAULT_DECORATION_CONFIG)
   const pickValue = (value, allowed, fallback) => allowed.includes(value) ? value : fallback
-  normalized.siteTemplate = pickValue(normalized.siteTemplate, ['classic', 'dark-gallery'], DEFAULT_DECORATION_CONFIG.siteTemplate)
+  const migratedFrameworkId = source.framework?.id
+    || (source.siteTemplate === 'dark-gallery' ? 'cinematic-gallery' : DEFAULT_DECORATION_CONFIG.framework.id)
+  normalized.schemaVersion = 2
+  normalized.framework.id = pickValue(
+    migratedFrameworkId,
+    ['legacy-classic', ...Object.keys(FRAMEWORK_PRESETS)],
+    DEFAULT_DECORATION_CONFIG.framework.id
+  )
+  normalized.framework.motion = pickValue(
+    normalized.framework.motion,
+    ['none', 'subtle'],
+    DEFAULT_DECORATION_CONFIG.framework.motion
+  )
+  normalized.framework.sectionRhythm = pickValue(
+    normalized.framework.sectionRhythm,
+    ['tight', 'balanced', 'airy'],
+    DEFAULT_DECORATION_CONFIG.framework.sectionRhythm
+  )
+  normalized.media.heroFocalPoint = pickValue(
+    normalized.media.heroFocalPoint,
+    ['center', 'top', 'bottom', 'left', 'right'],
+    DEFAULT_DECORATION_CONFIG.media.heroFocalPoint
+  )
+  normalized.media.galleryFocalPoint = pickValue(
+    normalized.media.galleryFocalPoint,
+    ['center', 'top', 'bottom', 'left', 'right'],
+    DEFAULT_DECORATION_CONFIG.media.galleryFocalPoint
+  )
+  normalized.media.heroOverlay = pickValue(
+    normalized.media.heroOverlay,
+    ['light', 'balanced', 'strong'],
+    DEFAULT_DECORATION_CONFIG.media.heroOverlay
+  )
+  normalized.siteTemplate = normalized.framework.id === 'cinematic-gallery'
+    ? 'dark-gallery'
+    : normalized.framework.id === 'legacy-classic'
+      ? pickValue(normalized.siteTemplate, ['classic', 'dark-gallery'], DEFAULT_DECORATION_CONFIG.siteTemplate)
+      : 'classic'
   normalized.showcase = fillMissingObject(normalized.showcase, DEFAULT_DECORATION_CONFIG.showcase)
   normalized.showcase.heroActionText = String(normalized.showcase.heroActionText || DEFAULT_DECORATION_CONFIG.showcase.heroActionText).trim().slice(0, 12)
   normalized.showcase.heroActionTarget = pickValue(normalized.showcase.heroActionTarget, ['gallery', 'booking'], DEFAULT_DECORATION_CONFIG.showcase.heroActionTarget)

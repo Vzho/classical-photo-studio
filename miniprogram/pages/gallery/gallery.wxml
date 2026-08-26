@@ -1,4 +1,4 @@
-<view class="dark-gallery-page columns-{{showcase.galleryColumns}} mode-{{showcase.categoryMode}}" style="{{themeStyle}}">
+<view class="dark-gallery-page {{decorationClass}} columns-{{showcase.galleryColumns}} mode-{{showcase.categoryMode}}" style="{{themeStyle}} {{decorationStyle}}">
   <dark-site-header title="{{pageTitle}}" show-back="{{true}}" />
 
   <view class="gallery-body">

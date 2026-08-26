@@ -1,4 +1,4 @@
-<view class="packages-page theme-{{themePreset}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}}">
+<view class="packages-page theme-{{themePreset}} {{decorationClass}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}} {{decorationStyle}}">
   <block wx:for="{{decoration.sections}}" wx:key="id" wx:for-item="section">
     <block wx:if="{{section.enabled}}">
       <view class="page-header" wx:if="{{section.type === 'header'}}">

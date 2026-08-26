@@ -1,4 +1,4 @@
-<view class="tab-bar nav-style-{{navigationStyle}} theme-{{themePreset}} site-template-{{siteTemplate}}" style="{{themeStyle}}">
+<view class="tab-bar nav-style-{{navigationStyle}} theme-{{themePreset}} site-template-{{siteTemplate}} {{decorationClass}}" style="{{themeStyle}}">
   <view 
     wx:for="{{list}}" 
     wx:key="index" 

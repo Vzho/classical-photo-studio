@@ -4687,3 +4687,120 @@
   font-size: 12px;
   font-weight: 700;
 }
+
+/* 装修 V2 框架预览。与小程序端使用同一组框架和媒体字段。 */
+.customer-preview-phone .customer-preview-hero-image,
+.customer-preview-phone .customer-preview-profile-cover,
+.customer-preview-phone .customer-preview-dark-hero-image {
+  object-position: var(--preview-hero-position, center center);
+}
+
+.customer-preview-phone .customer-preview-work-image,
+.customer-preview-phone .customer-preview-series-image,
+.customer-preview-phone .customer-preview-dark-card-image {
+  object-position: var(--preview-gallery-position, center center);
+}
+
+.customer-preview-phone .customer-preview-hero-shade,
+.customer-preview-phone .customer-preview-dark-hero-shade {
+  opacity: var(--preview-hero-overlay, .42);
+}
+
+.customer-preview-phone[data-framework-rhythm="tight"] .customer-preview-page-section {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.customer-preview-phone[data-framework-rhythm="airy"] .customer-preview-page-section {
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
+
+.customer-preview-phone[data-framework="editorial-journal"] {
+  background: #f7f7f3;
+}
+
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-hero {
+  min-height: 520px;
+  border-radius: 0;
+}
+
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-hero-copy {
+  right: 22px;
+  bottom: 28px;
+  left: 22px;
+  max-width: 340px;
+}
+
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-hero-title {
+  font-family: "Songti SC", STSong, serif;
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1.06;
+}
+
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-categories {
+  border-top: 1px solid var(--preview-divider);
+  border-bottom: 1px solid var(--preview-divider);
+  background: #f7f7f3;
+}
+
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-page-section,
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-work-card,
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-package-card {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-page-section {
+  border: 0;
+}
+
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-work-image-wrap,
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-work-image {
+  border-radius: 0;
+}
+
+.customer-preview-phone[data-framework="editorial-journal"] .customer-preview-work-copy {
+  padding-right: 0;
+  padding-left: 0;
+  border-bottom: 1px solid var(--preview-divider);
+}
+
+.customer-preview-phone[data-framework="atelier-conversion"] {
+  background: #f3f6f4;
+}
+
+.customer-preview-phone[data-framework="atelier-conversion"] .customer-preview-hero {
+  min-height: 360px;
+  margin: 12px;
+  overflow: hidden;
+  border-radius: 7px;
+}
+
+.customer-preview-phone[data-framework="atelier-conversion"] .customer-preview-home-shortcuts,
+.customer-preview-phone[data-framework="atelier-conversion"] .customer-preview-page-section {
+  margin-right: 12px;
+  margin-left: 12px;
+  border: 1px solid var(--preview-divider);
+  border-radius: 6px;
+  background: var(--preview-surface);
+  box-shadow: none;
+}
+
+.customer-preview-phone[data-framework="atelier-conversion"] .customer-preview-work-card,
+.customer-preview-phone[data-framework="atelier-conversion"] .customer-preview-package-card {
+  overflow: hidden;
+  border: 1px solid var(--preview-divider);
+  border-radius: 5px;
+  background: var(--preview-surface);
+  box-shadow: none;
+}
+
+.customer-preview-phone[data-framework="cinematic-gallery"] .customer-preview-dark-featured,
+.customer-preview-phone[data-framework="cinematic-gallery"] .customer-preview-dark-home,
+.customer-preview-phone[data-framework="cinematic-gallery"] .customer-preview-dark-about,
+.customer-preview-phone[data-framework="cinematic-gallery"] .customer-preview-dark-series {
+  background: #101110;
+}

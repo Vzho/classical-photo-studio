@@ -20,6 +20,8 @@ Page({
   data: {
     themeStyle: '',
     themePreset: 'minimal',
+    decorationClass: '',
+    decorationStyle: '',
     packages: [] as PackageItem[],
     schedule: { enabled: false } as Partial<ScheduleContent>,
     testimonials: [] as TestimonialItem[],
@@ -44,11 +46,13 @@ Page({
   },
 
   async loadData() {
-    const { theme, packages, schedule, testimonials, consultButton, quickJump, share, terminology, decoration } = await getPackagesPageData()
+    const { theme, packages, schedule, testimonials, consultButton, quickJump, share, terminology, decoration, runtime } = await getPackagesPageData()
 
     this.setData({
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      decorationClass: runtime.className,
+      decorationStyle: runtime.style,
       packages: packages.map(item => ({
         ...item,
         includes: item.includes || [],

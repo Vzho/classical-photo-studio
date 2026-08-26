@@ -22,6 +22,8 @@ Page({
   data: {
     themeStyle: '',
     themePreset: 'minimal',
+    decorationClass: '',
+    decorationStyle: '',
     siteTemplate: 'classic' as 'classic' | 'dark-gallery',
     showcase: { ...DEFAULT_DECORATION.showcase } as ShowcaseDecoration,
     brandName: '品牌作品',
@@ -63,13 +65,15 @@ Page({
   },
 
   async loadSeriesImages(seriesId: string) {
-    const { images, seriesInfo, theme, consultButton, packages, testimonials, photographers, quickJump, share, terminology, decoration, siteTemplate, showcase } = await getSeriesPageData(seriesId)
+    const { images, seriesInfo, theme, consultButton, packages, testimonials, photographers, quickJump, share, terminology, decoration, siteTemplate, showcase, runtime } = await getSeriesPageData(seriesId)
     const seriesTitle = seriesInfo?.title || this.data.seriesTitle
     const seriesCategory = seriesInfo?.category || this.data.seriesCategory
 
     this.setData({
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
+      decorationClass: runtime.className,
+      decorationStyle: runtime.style,
       siteTemplate,
       showcase,
       brandName: String(theme?.brandName || seriesInfo?.title || '品牌作品'),

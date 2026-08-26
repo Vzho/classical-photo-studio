@@ -1,4 +1,4 @@
-<view class="package-detail-page theme-{{themePreset}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}}">
+<view class="package-detail-page theme-{{themePreset}} {{decorationClass}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}} {{decorationStyle}}">
   <view class="empty-state" wx:if="{{!packageItem}}">
     <app-icon name="briefcase-business" size="44" tone="muted" />
     <view class="empty-title">这个{{terminology.packageLabel}}暂时无法查看</view>
