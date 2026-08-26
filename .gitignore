@@ -29,6 +29,7 @@ output/
 
 # Environment Variables
 .env
+*.env
 admin/.env
 miniprogram/.env
 

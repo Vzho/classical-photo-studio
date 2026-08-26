@@ -17,6 +17,7 @@ import {
   TeamPhotographerItem
 } from '../../utils/cos'
 import { BookingDecoration, BookingFieldDecoration, DEFAULT_DECORATION, TerminologyDecoration } from '../../utils/decoration'
+import { resolveStoreSelection } from '../../utils/booking-selection'
 import { setPageNavigationTitle } from '../../utils/navigation'
 import { createShareMessage } from '../../utils/share'
 
@@ -128,6 +129,7 @@ Page({
     const selectedStyle = styleOptions.includes(this.data.formData.style)
       ? this.data.formData.style
       : styleOptions[0] || ''
+    const storeSelection = resolveStoreSelection(stores, this.data.formData.storeId)
 
     this.setData({
       bannerUrl: getCosUrl('banner/booking-banner.jpg'),
@@ -145,6 +147,8 @@ Page({
       photographers,
       packagePickerRange: getPickerNames(packages),
       storePickerRange: getPickerNames(stores),
+      selectedStoreIndex: storeSelection.pickerIndex,
+      selectedStoreName: storeSelection.storeName,
       photographerPickerRange: getPickerNames(photographers),
       schedule: {
         enabled: false,
@@ -177,6 +181,7 @@ Page({
       quickJumpVisible: shouldShowQuickJump(quickJump, 'booking'),
       share,
       'formData.style': selectedStyle,
+      'formData.storeId': storeSelection.storeId,
       minDate
     })
 
