@@ -208,7 +208,7 @@
 
 .customer-preview-image-empty,
 .customer-preview-image-missing {
-  background: var(--preview-muted-surface);
+  background: var(--preview-muted-surface, #f4f4f2);
 }
 
 .customer-preview-hero,
@@ -4803,4 +4803,134 @@
 .customer-preview-phone[data-framework="cinematic-gallery"] .customer-preview-dark-about,
 .customer-preview-phone[data-framework="cinematic-gallery"] .customer-preview-dark-series {
   background: #101110;
+}
+
+/* Decoration V3 repeatable modules and page skeletons */
+.customer-preview-repeatable > p {
+  margin: 0;
+  color: var(--preview-muted);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.customer-preview-repeatable-image,
+.customer-preview-repeatable-gallery figure {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: var(--preview-muted-surface);
+}
+
+.customer-preview-repeatable-image.ratio-1-1 { aspect-ratio: 1 / 1; }
+.customer-preview-repeatable-image.ratio-3-4 { aspect-ratio: 3 / 4; }
+.customer-preview-repeatable-image.ratio-4-5 { aspect-ratio: 4 / 5; }
+.customer-preview-repeatable-image.ratio-16-9 { aspect-ratio: 16 / 9; }
+
+.customer-preview-repeatable-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.customer-preview-repeatable-image.ratio-natural .customer-preview-repeatable-media {
+  height: auto;
+}
+
+.customer-preview-repeatable-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.customer-preview-repeatable-gallery.columns-1 { grid-template-columns: 1fr; }
+.customer-preview-repeatable-gallery.columns-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.customer-preview-repeatable-gallery.columns-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.customer-preview-repeatable-gallery figure {
+  aspect-ratio: 3 / 4;
+}
+
+.customer-preview-repeatable-gallery figcaption {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  overflow: hidden;
+  color: #fff;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customer-preview-repeatable-divider {
+  height: 1px;
+  margin: 18px 20px;
+  background: var(--preview-divider);
+}
+
+.customer-preview-repeatable-spacer { height: 24px; }
+.customer-preview-repeatable-spacer.gap-tight { height: 12px; }
+.customer-preview-repeatable-spacer.gap-airy { height: 44px; }
+
+.customer-preview-phone[data-page="about"][data-skeleton="brand-studio"] .customer-preview-profile-media {
+  height: 360px;
+}
+
+.customer-preview-phone[data-page="about"][data-skeleton="brand-studio"] .customer-preview-profile-card {
+  margin-top: -70px;
+  border: 1px solid var(--preview-divider);
+  border-radius: 0;
+  background: var(--preview-surface);
+}
+
+.customer-preview-phone[data-page="about"][data-skeleton="store-service"] .customer-preview-profile-media {
+  height: 180px;
+}
+
+.customer-preview-phone[data-page="booking"][data-skeleton="package-guided"] .customer-preview-booking-hero {
+  min-height: 360px;
+}
+
+.customer-preview-phone[data-page="booking"][data-skeleton="package-guided"] .customer-preview-booking-section {
+  margin: 10px 12px;
+  border: 1px solid var(--preview-divider);
+}
+
+.customer-preview-phone[data-page="booking"][data-skeleton="minimal-contact"] .customer-preview-booking-hero {
+  min-height: 180px;
+}
+
+.customer-preview-phone[data-page="booking"][data-skeleton="minimal-contact"] .customer-preview-notice,
+.customer-preview-phone[data-page="booking"][data-skeleton="minimal-contact"] .customer-preview-schedule-section {
+  display: none;
+}
+
+.customer-preview-phone[data-page="packages"][data-skeleton="price-catalog"] .customer-preview-package-card-full {
+  border-width: 0 0 1px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.customer-preview-phone[data-page="packages"][data-skeleton="comparison"] .customer-preview-package-card-full {
+  border-top: 4px solid var(--preview-secondary);
+}
+
+.customer-preview-phone[data-page="packageDetail"][data-skeleton="editorial-detail"] .customer-preview-detail-hero {
+  min-height: 300px;
+  padding-top: 58px;
+}
+
+.customer-preview-phone[data-page="packageDetail"][data-skeleton="compact-conversion"] .customer-preview-detail-hero button {
+  width: 100%;
+}
+
+.customer-preview-phone[data-page="stores"][data-skeleton="studio-profile"] .customer-preview-stores-header {
+  min-height: 360px;
+}
+
+.customer-preview-phone[data-page="success"][data-skeleton="compact-contact"] .customer-preview-result-hero {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  text-align: left;
 }

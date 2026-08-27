@@ -11,6 +11,7 @@ import {
 } from '../../utils/cos'
 import {
   DEFAULT_DECORATION,
+  DecorationPageDefinition,
   IconDecoration,
   NavigationDecoration,
   NavigationItemKey,
@@ -45,6 +46,7 @@ Page({
     siteTemplate: 'classic' as 'classic' | 'dark-gallery',
     pageTitle: '作品',
     showcase: { ...DEFAULT_DECORATION.showcase } as ShowcaseDecoration,
+    galleryDecoration: { ...DEFAULT_DECORATION.pages.gallery } as DecorationPageDefinition,
     categories: ['全部'] as string[],
     activeCategory: '全部',
     searchKeyword: '',
@@ -89,6 +91,7 @@ Page({
       siteTemplate: data.siteTemplate,
       pageTitle: data.navigation.galleryText || '作品',
       showcase: data.showcase,
+      galleryDecoration: data.galleryDecoration,
       categories,
       portfolioItems: data.portfolioItems,
       navigationItems,
@@ -103,9 +106,6 @@ Page({
       share: data.share
     }, () => this.applyFilters())
 
-    if (data.siteTemplate !== 'dark-gallery') {
-      wx.redirectTo({ url: '/pages/portfolio/portfolio' })
-    }
   },
 
   applyFilters() {

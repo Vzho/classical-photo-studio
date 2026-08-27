@@ -172,10 +172,18 @@ Page({
     // 首页大图优先使用后台逐张选择的精选照片；未选择时按系列封面和点赞数兜底。
     const seriesItems = portfolioItems.filter(item => item.isSeriesCover && item.seriesId)
     const selectedHomePhotos = Array.isArray(homeFeaturedItems) ? homeFeaturedItems : []
-    const bannerCandidates = (selectedHomePhotos.length ? selectedHomePhotos : seriesItems)
+    const heroModule = decoration.sections.find(section => section.enabled && section.type === 'hero') as any
+    const configuredHeroItems = heroModule?.source?.mode !== 'auto' && Array.isArray(heroModule?.resolvedItems)
+      ? heroModule.resolvedItems as PortfolioItem[]
+      : []
+    const usesConfiguredHero = configuredHeroItems.length > 0
+    const bannerCandidates = usesConfiguredHero
+      ? configuredHeroItems
+      : (selectedHomePhotos.length ? selectedHomePhotos : seriesItems)
     
-    const bannerItems = bannerCandidates
+    const bannerItems = [...bannerCandidates]
       .sort((a, b) => {
+        if (usesConfiguredHero) return 0
         if (selectedHomePhotos.length) {
           const sortA = Number.isFinite(a.homeSort) ? Number(a.homeSort) : Number.MAX_SAFE_INTEGER
           const sortB = Number.isFinite(b.homeSort) ? Number(b.homeSort) : Number.MAX_SAFE_INTEGER

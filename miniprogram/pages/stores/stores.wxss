@@ -56,6 +56,30 @@
   padding: 34rpx var(--page-padding) 0;
 }
 
+.stores-module {
+  padding-bottom: 28rpx;
+}
+
+.stores-section-heading {
+  padding: 38rpx var(--page-padding) 0;
+}
+
+.stores-section-title,
+.stores-contact-title {
+  font-family: var(--title-font-family);
+  font-size: 34rpx;
+  font-weight: var(--title-weight);
+}
+
+.stores-section-subtitle,
+.stores-contact text {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--text-muted);
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
 .store-card {
   margin-bottom: 24rpx;
   padding: 30rpx;
@@ -185,4 +209,51 @@
   margin-top: 8rpx;
   color: var(--text-muted);
   font-size: 24rpx;
+}
+
+.stores-contact {
+  display: flex;
+  margin: 24rpx var(--page-padding);
+  padding: 30rpx;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  border-top: 1rpx solid var(--divider);
+  border-bottom: 1rpx solid var(--divider);
+}
+
+.stores-contact-action {
+  min-width: 190rpx;
+  height: var(--button-small-height);
+  margin: 0;
+  padding: 0 24rpx;
+  border-radius: var(--button-radius);
+  background: var(--button-bg);
+  color: var(--button-text);
+  font-size: 24rpx;
+  line-height: var(--button-small-height);
+}
+
+.stores-contact-action::after {
+  display: none;
+}
+
+.skeleton-studio-profile .stores-hero {
+  height: 680rpx;
+}
+
+.skeleton-studio-profile .stores-hero-copy {
+  bottom: 72rpx;
+}
+
+.skeleton-studio-profile .stores-title {
+  font-size: 58rpx;
+}
+
+.skeleton-studio-profile .store-card {
+  padding: 0 0 34rpx;
+  border-width: 0 0 1rpx;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }

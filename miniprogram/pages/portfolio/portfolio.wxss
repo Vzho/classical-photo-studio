@@ -1194,3 +1194,106 @@
   font-size: 25rpx;
   border: 1rpx solid #555555;
 }
+
+.dark-home-categories-section {
+  min-height: 0;
+  padding-bottom: 0;
+}
+
+.dark-home-portfolio-section {
+  min-height: 0;
+  padding-top: 24rpx;
+}
+
+.dark-home-summary-module {
+  padding: 48rpx 34rpx;
+  border-top: 1rpx solid #2b2b2b;
+  background: #111111;
+}
+
+.dark-home-summary-title {
+  margin-bottom: 24rpx;
+  color: #ffffff;
+  font-size: 31rpx;
+  font-weight: 600;
+}
+
+.dark-home-summary-row {
+  display: flex;
+  padding: 18rpx 0;
+  justify-content: space-between;
+  gap: 24rpx;
+  color: #c9c9c9;
+  border-top: 1rpx solid #292929;
+  font-size: 25rpx;
+}
+
+.dark-home-summary-copy,
+.dark-home-summary-quote {
+  color: #b8b8b8;
+  font-size: 26rpx;
+  line-height: 1.75;
+}
+
+.dark-showcase-home.skeleton-wall .dark-home-swiper,
+.dark-showcase-home.skeleton-wall .dark-home-empty {
+  height: 420rpx;
+  min-height: 420rpx;
+}
+
+.dark-showcase-home.skeleton-wall .dark-home-copy {
+  top: 50%;
+}
+
+.dark-showcase-home.skeleton-wall .dark-home-action,
+.dark-showcase-home.skeleton-wall .dark-home-scroll-cue {
+  display: none;
+}
+
+.dark-showcase-home.skeleton-wall .dark-home-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rpx;
+}
+
+.dark-showcase-home.skeleton-wall .dark-home-card {
+  height: 310rpx;
+}
+
+/* V3 模块布局直接控制真机，不依赖旧版页面级字段。 */
+.portfolio-section.ratio-1-1 .item-image-wrap,
+.portfolio-section.ratio-3-4 .item-image-wrap,
+.portfolio-section.ratio-4-5 .item-image-wrap,
+.portfolio-section.ratio-16-9 .item-image-wrap {
+  height: auto;
+}
+
+.portfolio-section.ratio-1-1 .item-image-wrap { aspect-ratio: 1 / 1; }
+.portfolio-section.ratio-3-4 .item-image-wrap { aspect-ratio: 3 / 4; }
+.portfolio-section.ratio-4-5 .item-image-wrap { aspect-ratio: 4 / 5; }
+.portfolio-section.ratio-16-9 .item-image-wrap { aspect-ratio: 16 / 9; }
+
+.dark-home-portfolio-section.columns-1 .dark-home-grid { grid-template-columns: minmax(0, 1fr); }
+.dark-home-portfolio-section.columns-3 .dark-home-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dark-home-portfolio-section.columns-4 .dark-home-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dark-home-portfolio-section.columns-1 .dark-home-card { height: 860rpx; }
+.dark-home-portfolio-section.columns-3 .dark-home-card { height: 310rpx; }
+.dark-home-portfolio-section.columns-4 .dark-home-card { height: 220rpx; }
+.dark-home-portfolio-section.gap-tight .dark-home-grid { gap: 2rpx; }
+.dark-home-portfolio-section.gap-airy .dark-home-grid { gap: 22rpx; }
+
+.dark-home-portfolio-section.ratio-1-1 .dark-home-card,
+.dark-home-portfolio-section.ratio-3-4 .dark-home-card,
+.dark-home-portfolio-section.ratio-4-5 .dark-home-card,
+.dark-home-portfolio-section.ratio-16-9 .dark-home-card {
+  height: auto;
+}
+
+.dark-home-portfolio-section.ratio-1-1 .dark-home-card { aspect-ratio: 1 / 1; }
+.dark-home-portfolio-section.ratio-3-4 .dark-home-card { aspect-ratio: 3 / 4; }
+.dark-home-portfolio-section.ratio-4-5 .dark-home-card { aspect-ratio: 4 / 5; }
+.dark-home-portfolio-section.ratio-16-9 .dark-home-card { aspect-ratio: 16 / 9; }
+
+.dark-home-portfolio-section.mode-stack .dark-home-grid { display: block; }
+.dark-home-portfolio-section.mode-stack .dark-home-card + .dark-home-card { margin-top: 4rpx; }
+.dark-home-portfolio-section.mode-mixed:not(.columns-1) .dark-home-card:first-child { grid-column: 1 / -1; }
+.dark-home-portfolio-section.mode-mixed:not(.columns-1) .dark-home-card:first-child { aspect-ratio: 16 / 9; height: auto; }

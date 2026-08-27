@@ -1,71 +1,70 @@
-<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-about-page {{decorationClass}}" style="{{themeStyle}} {{decorationStyle}}">
+<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-about-page {{decorationClass}} skeleton-{{aboutDecoration.skeleton}}" style="{{themeStyle}} {{decorationStyle}}">
   <dark-site-header title="关于" show-back="{{true}}" />
-  <view class="dark-about-landing">
-    <view class="dark-about-profile">
-      <image class="dark-about-avatar" src="{{avatarUrl}}" mode="aspectFill" />
-      <view class="dark-about-name">{{photographer.name}}</view>
-      <view class="dark-about-title">{{photographer.title}}</view>
-      <view wx:if="{{photographer.location}}" class="dark-about-location">{{photographer.location}}</view>
+  <block wx:for="{{aboutSections}}" wx:for-item="section" wx:key="id">
+    <view wx:if="{{section.enabled && section.type === 'profile'}}" class="dark-about-landing">
+      <view class="dark-about-profile">
+        <image class="dark-about-avatar" src="{{avatarUrl}}" style="{{section.mediaStyle}}" mode="aspectFill" />
+        <view class="dark-about-name">{{photographer.name}}</view>
+        <view class="dark-about-title">{{photographer.title}}</view>
+        <view wx:if="{{photographer.location}}" class="dark-about-location">{{photographer.location}}</view>
+      </view>
     </view>
 
-    <view wx:if="{{showcase.aboutQuote}}" class="dark-about-quote">
+    <view wx:elif="{{section.enabled && section.type === 'bio' && (showcase.aboutQuote || photographer.bio)}}" class="dark-about-quote dark-about-section">
       <text class="dark-about-quote-open">“</text>
-      <view>{{showcase.aboutQuote}}</view>
+      <view>{{showcase.aboutQuote || photographer.bio}}</view>
       <text class="dark-about-quote-close">”</text>
     </view>
 
-    <view class="dark-about-contact">
-      <view wx:if="{{photographer.contact.wechat}}" bindtap="copyWechat"><app-icon name="{{icons.contact.wechat}}" size="38" tone="inverse" /></view>
-      <view wx:if="{{photographer.contact.email}}" bindtap="copyEmail"><app-icon name="{{icons.contact.email}}" size="38" tone="inverse" /></view>
-      <view wx:if="{{photographer.studio.address}}" bindtap="openStudioLocation"><app-icon name="{{icons.contact.location}}" size="38" tone="inverse" /></view>
+    <view wx:elif="{{section.enabled && section.type === 'skills' && photographer.skills && photographer.skills.length}}" class="dark-about-section">
+      <view class="dark-about-section-title">{{section.content.title || section.title || '专业能力'}}</view>
+      <view class="dark-about-skill-list"><text wx:for="{{photographer.skills}}" wx:key="*this">{{item}}</text></view>
     </view>
 
-    <view wx:if="{{consultButtonVisible}}" class="dark-about-action" bindtap="goBooking">{{consultButton.text || terminology.consultationLabel}}</view>
-  </view>
+    <view wx:elif="{{section.enabled && section.type === 'gallery' && section.resolvedItems.length}}" class="dark-about-wall {{section.layoutClass}}">
+      <image wx:for="{{section.resolvedItems}}" wx:for-item="galleryItem" wx:key="id" src="{{galleryItem.imageUrl}}" style="{{section.mediaStyle}}" mode="aspectFill" />
+    </view>
 
-  <view wx:if="{{galleryItems.length}}" class="dark-about-wall">
-    <image wx:for="{{galleryItems}}" wx:key="id" src="{{item.imageUrl}}" mode="aspectFill" />
-  </view>
+    <view wx:elif="{{section.enabled && section.type === 'team' && photographers.length}}" class="dark-about-section">
+      <view class="dark-about-section-title">{{section.content.title || section.title || '服务团队'}}</view>
+      <scroll-view scroll-x enhanced show-scrollbar="{{false}}"><view class="dark-about-team"><view wx:for="{{photographers}}" wx:for-item="member" wx:key="id"><image wx:if="{{member.avatar}}" src="{{member.avatar}}" mode="aspectFill" /><view>{{member.name}}</view><text>{{member.title}}</text></view></view></scroll-view>
+    </view>
 
-  <view wx:if="{{photographer.studio.address}}" class="dark-about-location-section">
-    <map
-      wx:if="{{canOpenStudioLocation}}"
-      class="dark-about-map"
-      latitude="{{studioLatitude}}"
-      longitude="{{studioLongitude}}"
-      scale="16"
-      markers="{{studioMarkers}}"
-      bindtap="openStudioLocation"
-    />
-    <view wx:else class="dark-about-map-placeholder" bindtap="openStudioLocation">
-      <app-icon name="map-pin" size="48" tone="primary" />
+    <view wx:elif="{{section.enabled && section.type === 'packages' && packages.length}}" class="dark-about-section">
+      <view class="dark-about-section-title">{{section.content.title || section.title || '服务套餐'}}</view>
+      <view class="dark-about-list-row" wx:for="{{packages}}" wx:for-item="packageItem" wx:key="id" bindtap="openPackageDetail" data-id="{{packageItem.id}}"><view><view>{{packageItem.name}}</view><text>{{packageItem.subtitle}}</text></view><text>{{packageItem.priceText}}</text></view>
     </view>
-    <view class="dark-about-address" bindtap="openStudioLocation">
-      <view>{{photographer.studio.name}}</view>
-      <text>{{photographer.studio.address}}</text>
-      <app-icon name="chevron-right" size="30" tone="primary" />
-    </view>
-  </view>
 
-  <view class="dark-about-footer">
-    <image wx:if="{{bannerUrl}}" class="dark-about-footer-image" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
-    <view class="dark-about-footer-shade"></view>
-    <view class="dark-about-footer-copy">
-      <view wx:if="{{photographer.contact.wechat}}">微信：{{photographer.contact.wechat}}</view>
-      <view wx:if="{{photographer.contact.email}}">邮箱：{{photographer.contact.email}}</view>
-      <view wx:if="{{photographer.studio.address}}">地址：{{photographer.studio.address}}</view>
+    <view wx:elif="{{section.enabled && section.type === 'serviceFlow' && serviceFlow.enabled && serviceFlow.steps.length}}" class="dark-about-section">
+      <view class="dark-about-section-title">{{section.content.title || section.title || '服务流程'}}</view>
+      <view class="dark-about-list-row" wx:for="{{serviceFlow.steps}}" wx:for-item="flowItem" wx:key="title"><text>0{{index + 1}}</text><view><view>{{flowItem.title}}</view><text>{{flowItem.description}}</text></view></view>
     </view>
-    <view class="dark-about-footer-icons">
-      <view wx:if="{{photographer.contact.wechat}}" bindtap="copyWechat"><app-icon name="{{icons.contact.wechat}}" size="34" tone="inverse" /></view>
-      <view wx:if="{{photographer.contact.email}}" bindtap="copyEmail"><app-icon name="{{icons.contact.email}}" size="34" tone="inverse" /></view>
-      <view wx:if="{{photographer.studio.address}}" bindtap="openStudioLocation"><app-icon name="{{icons.contact.location}}" size="34" tone="inverse" /></view>
+
+    <view wx:elif="{{section.enabled && section.type === 'stores' && photographer.studio.address}}" class="dark-about-location-section">
+      <map wx:if="{{canOpenStudioLocation}}" class="dark-about-map" latitude="{{studioLatitude}}" longitude="{{studioLongitude}}" scale="16" markers="{{studioMarkers}}" bindtap="openStudioLocation" />
+      <view wx:else class="dark-about-map-placeholder" bindtap="openStudioLocation"><app-icon name="map-pin" size="48" tone="primary" /></view>
+      <view class="dark-about-address" bindtap="openStudioLocation"><view>{{photographer.studio.name}}</view><text>{{photographer.studio.address}}</text><app-icon name="chevron-right" size="30" tone="primary" /></view>
     </view>
-  </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'testimonials' && testimonials.length}}" class="dark-about-section dark-about-review"><view class="dark-about-section-title">{{section.content.title || section.title || '客户评价'}}</view><view>“{{testimonials[0].content}}”</view><text>{{testimonials[0].name}}</text></view>
+
+    <view wx:elif="{{section.enabled && section.type === 'faq' && faq.enabled && faq.items.length}}" class="dark-about-section"><view class="dark-about-section-title">{{section.content.title || section.title || '常见问题'}}</view><view class="dark-about-faq" wx:for="{{faq.items}}" wx:for-item="faqItem" wx:key="question"><view>{{faqItem.question}}</view><text>{{faqItem.answer}}</text></view></view>
+
+    <view wx:elif="{{section.enabled && section.type === 'contact'}}" class="dark-about-footer">
+      <image wx:if="{{bannerUrl}}" class="dark-about-footer-image" src="{{bannerUrl}}" style="{{section.mediaStyle}}" mode="aspectFill" binderror="onBannerError" />
+      <view class="dark-about-footer-shade"></view>
+      <view class="dark-about-footer-copy"><view wx:if="{{photographer.contact.wechat}}">微信：{{photographer.contact.wechat}}</view><view wx:if="{{photographer.contact.email}}">邮箱：{{photographer.contact.email}}</view><view wx:if="{{photographer.studio.address}}">地址：{{photographer.studio.address}}</view></view>
+      <view class="dark-about-footer-icons"><view wx:if="{{photographer.contact.wechat}}" bindtap="copyWechat"><app-icon name="{{icons.contact.wechat}}" size="34" tone="inverse" /></view><view wx:if="{{photographer.contact.email}}" bindtap="copyEmail"><app-icon name="{{icons.contact.email}}" size="34" tone="inverse" /></view><view wx:if="{{photographer.studio.address}}" bindtap="openStudioLocation"><app-icon name="{{icons.contact.location}}" size="34" tone="inverse" /></view></view>
+      <view wx:if="{{consultButtonVisible}}" class="dark-about-action" bindtap="goBooking">{{section.content.actionText || consultButton.text || terminology.consultationLabel}}</view>
+    </view>
+
+    <decoration-block wx:elif="{{section.enabled && (section.type === 'richText' || section.type === 'image' || section.type === 'action' || section.type === 'divider' || section.type === 'spacer')}}" module="{{section}}" />
+  </block>
 
   <dark-floating-actions wx:if="{{consultButtonVisible}}" contact-text="{{terminology.consultationLabel}}" bindcontact="goBooking" />
 </view>
 
-<view wx:else class="about-page theme-{{themePreset}} {{decorationClass}} header-{{aboutDecoration.headerVariant}}" style="{{themeStyle}} {{decorationStyle}}">
+<view wx:else class="about-page theme-{{themePreset}} {{decorationClass}} skeleton-{{aboutDecoration.skeleton}} header-{{aboutDecoration.headerVariant}}" style="{{themeStyle}} {{decorationStyle}}">
   <block wx:for="{{aboutSections}}" wx:for-item="section" wx:key="id">
     <view wx:if="{{section.enabled && section.type === 'profile'}}" class="profile-section">
       <view class="profile-media">
@@ -253,6 +252,8 @@
         </view>
       </view>
     </view>
+
+    <decoration-block wx:elif="{{section.enabled && (section.type === 'richText' || section.type === 'image' || section.type === 'gallery' || section.type === 'action' || section.type === 'divider' || section.type === 'spacer')}}" module="{{section}}" />
   </block>
 
   <view wx:if="{{consultButtonVisible && !quickJumpVisible}}" class="bottom-action">

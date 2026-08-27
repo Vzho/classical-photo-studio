@@ -26,6 +26,7 @@ let activeIconTargetKey = ''
 let activeSkinPreviewPage = 'home'
 let activeDecorationStage = 'appearance'
 let activeDecorationPage = 'home'
+let activeDecorationModuleId = ''
 let decorationHasUnsavedChanges = false
 let skinPreviewQuickJumpOpen = false
 let adminInitializationPromise = null
@@ -178,7 +179,7 @@ const TERMINOLOGY_PRESETS = {
 }
 
 const DEFAULT_DECORATION_CONFIG = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   framework: {
     id: 'legacy-classic',
     motion: 'subtle',
@@ -257,7 +258,9 @@ const DEFAULT_DECORATION_CONFIG = {
       phone: 'phone'
     }
   },
+  pages: {},
   home: {
+    skeleton: 'full-image',
     template: 'editorial-cover',
     heroVariant: 'editorial',
     galleryVariant: 'editorial',
@@ -280,6 +283,7 @@ const DEFAULT_DECORATION_CONFIG = {
     ]
   },
   about: {
+    skeleton: 'portrait-story',
     headerVariant: 'editorial',
     sections: [
       createDecorationSection('profile'),
@@ -295,6 +299,7 @@ const DEFAULT_DECORATION_CONFIG = {
     ]
   },
   booking: {
+    skeleton: 'form-first',
     headerVariant: 'editorial',
     formVariant: 'lines',
     sections: [
@@ -317,6 +322,7 @@ const DEFAULT_DECORATION_CONFIG = {
     ]
   },
   packages: {
+    skeleton: 'premium-cards',
     layoutVariant: 'cards',
     sections: [
       createDecorationSection('header', '服务套餐', '了解价格范围和服务内容，再联系客服确认适合你的方案。'),
@@ -326,6 +332,7 @@ const DEFAULT_DECORATION_CONFIG = {
     ]
   },
   packageDetail: {
+    skeleton: 'editorial-detail',
     layoutVariant: 'editorial',
     sections: [
       createDecorationSection('hero', '服务方案'),
@@ -340,6 +347,7 @@ const DEFAULT_DECORATION_CONFIG = {
     ]
   },
   series: {
+    skeleton: 'cinematic-story',
     galleryVariant: 'immersive',
     sections: [
       createDecorationSection('hero'),
@@ -352,6 +360,7 @@ const DEFAULT_DECORATION_CONFIG = {
     ]
   },
   success: {
+    skeleton: 'centered-result',
     layoutVariant: 'centered',
     sections: [
       createDecorationSection('hero', '咨询内容已生成', '请复制并发送给客服。最终日期和服务方案以双方沟通确认为准。'),
@@ -937,6 +946,151 @@ const FRAMEWORK_PRESETS = {
     }
   }
 }
+
+const PAGE_SKELETON_REGISTRY = {
+  home: {
+    'full-image': { name: '全屏影像', description: '招牌照片先建立品牌印象，再展示分类和精选作品。', recommendedModules: ['hero', 'shortcuts', 'categories', 'portfolio', 'testimonials'], minimumModule: 'portfolio' },
+    editorial: { name: '编辑画册', description: '封面、文字和作品交错排列，适合高定与写真品牌。', recommendedModules: ['hero', 'categories', 'portfolio', 'richText', 'testimonials'], minimumModule: 'portfolio' },
+    wall: { name: '作品墙', description: '减少说明文字，用密集作品形成视觉冲击。', recommendedModules: ['portfolio', 'categories', 'hero', 'testimonials'], minimumModule: 'portfolio' },
+    conversion: { name: '门店转化', description: '先展示服务、档期和咨询路径，再展示代表作品。', recommendedModules: ['hero', 'packages', 'schedule', 'portfolio', 'testimonials', 'serviceFlow'], minimumModule: 'hero' }
+  },
+  gallery: {
+    'top-categories': { name: '顶部分类', description: '分类横向排列，适合分类数量较少的作品库。', recommendedModules: ['header', 'categories', 'portfolio'], minimumModule: 'portfolio' },
+    sidebar: { name: '侧边目录', description: '左侧分类、右侧作品，适合分类较多的门店。', recommendedModules: ['header', 'categories', 'portfolio'], minimumModule: 'portfolio' },
+    immersive: { name: '沉浸画廊', description: '隐藏多余说明，让顾客连续浏览大幅作品。', recommendedModules: ['hero', 'portfolio'], minimumModule: 'portfolio' }
+  },
+  series: {
+    'cinematic-story': { name: '电影故事', description: '大图开场并穿插系列介绍，适合有故事线的作品。', recommendedModules: ['hero', 'profile', 'gallery', 'action'], minimumModule: 'gallery' },
+    continuous: { name: '连续长图', description: '照片连续通栏展示，浏览过程不被打断。', recommendedModules: ['hero', 'gallery', 'action'], minimumModule: 'gallery' },
+    'editorial-album': { name: '编辑画册', description: '留白、文字与组合图片形成画册节奏。', recommendedModules: ['hero', 'profile', 'gallery', 'richText', 'packages', 'action'], minimumModule: 'gallery' }
+  },
+  about: {
+    'portrait-story': { name: '人物故事', description: '先展示主理人，再介绍理念与团队。', recommendedModules: ['profile', 'bio', 'skills', 'team', 'testimonials', 'contact'], minimumModule: 'profile' },
+    'brand-studio': { name: '品牌工作室', description: '突出品牌理念、代表作品和专业团队。', recommendedModules: ['profile', 'bio', 'gallery', 'team', 'serviceFlow', 'contact'], minimumModule: 'profile' },
+    'store-service': { name: '门店服务', description: '先说明服务能力，再展示门店和联系入口。', recommendedModules: ['profile', 'packages', 'serviceFlow', 'stores', 'contact', 'faq'], minimumModule: 'profile' }
+  },
+  packages: {
+    'premium-cards': { name: '高定卡片', description: '用大卡片呈现每个服务方案和价格。', recommendedModules: ['header', 'list', 'testimonials'], minimumModule: 'list' },
+    'price-catalog': { name: '价格目录', description: '紧凑列出套餐，方便顾客快速比较。', recommendedModules: ['header', 'schedule', 'list'], minimumModule: 'list' },
+    comparison: { name: '服务对比', description: '强调不同套餐包含内容和适用人群。', recommendedModules: ['header', 'list', 'richText', 'faq'], minimumModule: 'list' }
+  },
+  packageDetail: {
+    'editorial-detail': { name: '编辑详情', description: '完整展示套餐介绍、适合人群和服务内容。', recommendedModules: ['hero', 'info', 'suitable', 'includes', 'relatedSeries', 'team', 'testimonials', 'action'], minimumModule: 'info' },
+    'compact-conversion': { name: '紧凑转化', description: '优先显示价格、核心服务和咨询入口。', recommendedModules: ['hero', 'info', 'includes', 'action', 'relatedSeries', 'faq'], minimumModule: 'info' }
+  },
+  booking: {
+    'form-first': { name: '表单优先', description: '顾客进入页面后直接填写需求。', recommendedModules: ['notice', 'form', 'schedule', 'faq'], minimumModule: 'form' },
+    'package-guided': { name: '套餐引导', description: '先了解套餐与档期，再填写咨询需求。', recommendedModules: ['hero', 'packages', 'schedule', 'form', 'faq'], minimumModule: 'form' },
+    'minimal-contact': { name: '极简联系', description: '保留必要字段和联系入口，操作更短。', recommendedModules: ['hero', 'form', 'contact'], minimumModule: 'form' }
+  },
+  stores: {
+    'location-list': { name: '地点列表', description: '展示门店地址、营业时间和地图导航。', recommendedModules: ['header', 'stores', 'contact'], minimumModule: 'stores' },
+    'studio-profile': { name: '工作室介绍', description: '先介绍空间与服务，再展示地址和导航。', recommendedModules: ['hero', 'richText', 'gallery', 'stores', 'contact'], minimumModule: 'stores' }
+  },
+  success: {
+    'centered-result': { name: '居中结果', description: '突出咨询已生成和下一步操作。', recommendedModules: ['hero', 'summary', 'content', 'contact', 'actions'], minimumModule: 'hero' },
+    'compact-contact': { name: '紧凑联系', description: '以清单展示咨询摘要和客服入口。', recommendedModules: ['summary', 'content', 'actions', 'contact'], minimumModule: 'summary' }
+  }
+}
+
+const FRAMEWORK_SKELETON_PRESETS = {
+  'legacy-classic': { home: 'full-image', gallery: 'top-categories', series: 'cinematic-story', about: 'portrait-story', packages: 'premium-cards', packageDetail: 'editorial-detail', booking: 'form-first', stores: 'location-list', success: 'centered-result' },
+  'cinematic-gallery': { home: 'full-image', gallery: 'sidebar', series: 'continuous', about: 'brand-studio', packages: 'price-catalog', packageDetail: 'editorial-detail', booking: 'minimal-contact', stores: 'studio-profile', success: 'centered-result' },
+  'editorial-journal': { home: 'editorial', gallery: 'top-categories', series: 'editorial-album', about: 'portrait-story', packages: 'premium-cards', packageDetail: 'editorial-detail', booking: 'package-guided', stores: 'studio-profile', success: 'centered-result' },
+  'atelier-conversion': { home: 'conversion', gallery: 'top-categories', series: 'cinematic-story', about: 'store-service', packages: 'comparison', packageDetail: 'compact-conversion', booking: 'form-first', stores: 'location-list', success: 'compact-contact' }
+}
+
+const REPEATABLE_MODULE_TYPES = ['richText', 'image', 'gallery', 'action', 'divider', 'spacer']
+const DECORATION_MODULE_LIBRARY = {
+  hero: { name: '页面首图', description: '页面开头的大图和品牌文字', repeatable: false },
+  categories: { name: '作品分类', description: '让顾客按分类查看作品', repeatable: false },
+  shortcuts: { name: '常用入口', description: '档期、评价等快捷入口', repeatable: false },
+  portfolio: { name: '精选作品', description: '按指定来源展示作品', repeatable: false },
+  profile: { name: '人物资料', description: '主理人或门店基础资料', repeatable: false },
+  bio: { name: '品牌介绍', description: '门店理念和服务特色', repeatable: false },
+  skills: { name: '擅长风格', description: '展示门店擅长内容', repeatable: false },
+  contact: { name: '联系方式', description: '电话、微信和位置入口', repeatable: false },
+  stores: { name: '门店列表', description: '地址、营业时间和导航', repeatable: false },
+  team: { name: '服务团队', description: '摄影师、造型师等人员', repeatable: false },
+  packages: { name: '推荐套餐', description: '展示部分推荐服务', repeatable: false },
+  schedule: { name: '近期档期', description: '展示可沟通时间', repeatable: false },
+  testimonials: { name: '客户评价', description: '展示精选评价', repeatable: false },
+  serviceFlow: { name: '服务流程', description: '从沟通到交付的步骤', repeatable: false },
+  faq: { name: '常见问题', description: '展示顾客常问内容', repeatable: false },
+  notice: { name: '预约说明', description: '填写前的提示信息', repeatable: false },
+  form: { name: '咨询表单', description: '收集顾客拍摄需求', repeatable: false },
+  header: { name: '页面标题', description: '页面名称和简短说明', repeatable: false },
+  list: { name: '内容列表', description: '套餐或业务内容列表', repeatable: false },
+  info: { name: '套餐信息', description: '价格与主要信息', repeatable: false },
+  suitable: { name: '适合人群', description: '套餐适合的顾客', repeatable: false },
+  includes: { name: '包含服务', description: '套餐包含的服务项', repeatable: false },
+  relatedSeries: { name: '相关作品', description: '与套餐关联的作品', repeatable: false },
+  summary: { name: '咨询摘要', description: '顾客填写内容的摘要', repeatable: false },
+  content: { name: '完整咨询', description: '可复制的咨询内容', repeatable: false },
+  actions: { name: '结果操作', description: '复制和联系客服按钮', repeatable: false },
+  richText: { name: '图文介绍', description: '可重复添加的标题和正文', repeatable: true },
+  image: { name: '单张图片', description: '可独立裁切的一张照片', repeatable: true },
+  gallery: { name: '照片画廊', description: '可选择多张照片和排列方式', repeatable: true },
+  action: { name: '行动按钮', description: '引导顾客查看或咨询', repeatable: true },
+  divider: { name: '分隔线', description: '分隔上下内容', repeatable: true },
+  spacer: { name: '留白', description: '增加内容之间的呼吸感', repeatable: true }
+}
+
+let decorationModuleSequence = 0
+
+function createDecorationModuleInstance(pageKey, type, overrides = {}) {
+  decorationModuleSequence += 1
+  const columns = [1, 2, 3, 4].includes(Number(overrides.layout?.columns)) ? Number(overrides.layout.columns) : 2
+  const showText = columns === 4 ? false : overrides.layout?.showText !== false
+  return {
+    id: String(overrides.id || `module-${pageKey}-${type}-${Date.now().toString(36)}-${decorationModuleSequence.toString(36)}`),
+    type,
+    enabled: overrides.enabled !== false,
+    variant: String(overrides.variant || 'default'),
+    content: {
+      title: '', subtitle: '', body: '', actionText: '', actionTarget: '', icon: '',
+      showTitle: showText, showCategory: showText, showDescription: false,
+      ...(overrides.content || {})
+    },
+    layout: { mode: 'grid', ratio: 'natural', gap: 'standard', ...(overrides.layout || {}), columns, showText },
+    source: { mode: 'auto', seriesIds: [], photos: [], limit: 12, ...(overrides.source || {}) },
+    media: { ratio: 'natural', overlay: 42, brightness: 0, focusX: 50, focusY: 50, ...(overrides.media || {}) }
+  }
+}
+
+function legacySectionToModule(pageKey, section, index) {
+  const ratio = pageKey === 'home' && section.type === 'portfolio' ? '3:4' : 'natural'
+  return createDecorationModuleInstance(pageKey, section.type, {
+    id: `legacy-${pageKey}-${section.type}-${index + 1}`,
+    enabled: section.enabled !== false,
+    variant: section.variant,
+    content: {
+      title: section.title || '', subtitle: section.subtitle || '', actionText: section.actionText || '', icon: section.icon || ''
+    },
+    layout: { ratio },
+    media: { ratio }
+  })
+}
+
+function createDefaultDecorationPages() {
+  const fromSections = (pageKey, skeleton, sections) => ({
+    skeleton,
+    modules: sections.map((section, index) => legacySectionToModule(pageKey, section, index))
+  })
+  return {
+    home: fromSections('home', 'full-image', DEFAULT_DECORATION_CONFIG.home.sections),
+    gallery: fromSections('gallery', 'top-categories', [createDecorationSection('header', '作品欣赏'), createDecorationSection('categories'), createDecorationSection('portfolio')]),
+    series: fromSections('series', 'cinematic-story', DEFAULT_DECORATION_CONFIG.series.sections),
+    about: fromSections('about', 'portrait-story', DEFAULT_DECORATION_CONFIG.about.sections),
+    packages: fromSections('packages', 'premium-cards', DEFAULT_DECORATION_CONFIG.packages.sections),
+    packageDetail: fromSections('packageDetail', 'editorial-detail', DEFAULT_DECORATION_CONFIG.packageDetail.sections),
+    booking: fromSections('booking', 'form-first', DEFAULT_DECORATION_CONFIG.booking.sections),
+    stores: fromSections('stores', 'location-list', [createDecorationSection('header', '门店信息'), createDecorationSection('stores', '门店地址'), createDecorationSection('contact', '联系门店')]),
+    success: fromSections('success', 'centered-result', DEFAULT_DECORATION_CONFIG.success.sections)
+  }
+}
+
+DEFAULT_DECORATION_CONFIG.pages = createDefaultDecorationPages()
 
 const DECORATION_PRESET_VARIANTS = {
   minimal: {
@@ -2695,12 +2849,10 @@ function getDecorationSplitParts() {
 }
 
 function getDecorationPreviewWidthBounds(workspaceWidth) {
-  const minPreview = workspaceWidth <= 900 ? 260 : 300
-  const minEditor = Math.min(640, Math.max(420, workspaceWidth * 0.55))
-  const maxPreview = Math.max(
-    minPreview,
-    Math.min(workspaceWidth * 0.5, workspaceWidth - minEditor)
-  )
+  const minEditorPercent = 55
+  const maxEditorPercent = 82
+  const minPreview = workspaceWidth * ((100 - maxEditorPercent) / 100)
+  const maxPreview = workspaceWidth * ((100 - minEditorPercent) / 100)
 
   return { minPreview, maxPreview }
 }
@@ -2732,6 +2884,7 @@ function setDecorationPreviewWidth(targetWidth, { persist = false } = {}) {
   const previewWidth = Math.round(Math.min(maxPreview, Math.max(minPreview, targetWidth)))
   workspace.style.setProperty('--decoration-preview-width', `${previewWidth}px`)
   updateDecorationSplitterAria(previewWidth)
+  window.requestAnimationFrame(updateSkinPreviewScale)
 
   if (persist) {
     try {
@@ -2750,7 +2903,7 @@ function restoreDecorationSplitter() {
   const { workspace, preview } = getDecorationSplitParts()
   if (!workspace || !preview) return
 
-  if (window.matchMedia('(max-width: 760px)').matches) {
+  if (window.matchMedia('(max-width: 1100px)').matches) {
     workspace.style.removeProperty('--decoration-preview-width')
     return
   }
@@ -2815,7 +2968,7 @@ function setupDecorationSplitter() {
   }
 
   splitter.addEventListener('pointerdown', event => {
-    if (event.button !== 0 || window.matchMedia('(max-width: 760px)').matches) return
+    if (event.button !== 0 || window.matchMedia('(max-width: 1100px)').matches) return
     event.preventDefault()
     dragging = true
     splitter.classList.add('is-dragging')
@@ -2848,11 +3001,10 @@ function setupDecorationSplitter() {
   window.addEventListener('resize', () => {
     cancelAnimationFrame(resizeFrame)
     resizeFrame = requestAnimationFrame(() => {
-      if (!window.matchMedia('(max-width: 760px)').matches) {
-        toggleDecorationMobilePreview(false)
-      }
+      if (!window.matchMedia('(max-width: 1100px)').matches) toggleDecorationPreviewDrawer(false)
       if (document.getElementById('themeSettingsModal')?.classList.contains('active')) {
         restoreDecorationSplitter()
+        window.requestAnimationFrame(updateSkinPreviewScale)
       }
     })
   })
@@ -2867,7 +3019,12 @@ function getWorksManagementPreviewPage() {
 function mountSharedCustomerPreview(host, pageKey) {
   const sharedPreview = document.getElementById('sharedCustomerPreview')
   if (!host || !sharedPreview) return
-  if (sharedPreview.parentElement !== host) host.replaceChildren(sharedPreview)
+  if (sharedPreview.parentElement !== host) {
+    const drawerClose = host.classList?.contains('decoration-preview-pane')
+      ? host.querySelector('.decoration-preview-drawer-close')
+      : null
+    host.replaceChildren(...(drawerClose ? [drawerClose] : []), sharedPreview)
+  }
   activeSkinPreviewPage = SKIN_PREVIEW_PAGE_KEYS.has(pageKey) ? pageKey : 'home'
   updateThemePreview()
   requestAnimationFrame(updateSkinPreviewScale)
@@ -3189,7 +3346,7 @@ function normalizeCustomIconPath(value) {
 }
 
 function getNavigationIconKey(targetKey) {
-  const match = /^icons\.navigation\.(portfolio|about|packages|booking|stores)$/.exec(String(targetKey || ''))
+  const match = /^icons\.navigation\.(portfolio|gallery|about|packages|booking|stores)$/.exec(String(targetKey || ''))
   return match?.[1] || ''
 }
 
@@ -3238,6 +3395,29 @@ function renderIconPickerButton(value, targetKey, allowEmpty = false) {
 
 function getIconTarget(targetKey) {
   const parts = String(targetKey || '').split('.')
+
+  if (parts[0] === 'module') {
+    const pageKey = parts[1]
+    const moduleId = parts.slice(2).join('.')
+    const module = decorationEditorState?.pages?.[pageKey]?.modules?.find(item => item.id === moduleId)
+    const fallback = getDefaultDecorationModule(pageKey, module?.type)
+    if (!module) return null
+
+    return {
+      label: `${DECORATION_MODULE_LIBRARY[module.type]?.name || '模块'}图标`,
+      current: module.content.icon || '',
+      defaultValue: fallback?.content?.icon || '',
+      allowEmpty: true,
+      set(value) {
+        module.content.icon = value
+        syncLegacyDecorationFromPages(decorationEditorState)
+      },
+      render() {
+        renderDecorationModuleInspector()
+        renderDecorationModuleTree()
+      }
+    }
+  }
 
   if (parts[0] === 'section') {
     const pageKey = parts[1]
@@ -3686,11 +3866,502 @@ function renderBookingFieldEditor() {
   }).join('')
 }
 
+function getDecorationPageState(pageKey = activeDecorationPage) {
+  return decorationEditorState?.pages?.[pageKey] || null
+}
+
+function getDecorationModuleState(moduleId = activeDecorationModuleId, pageKey = activeDecorationPage) {
+  return getDecorationPageState(pageKey)?.modules?.find(module => module.id === moduleId) || null
+}
+
+function createDecorationModuleChangeContext(pageKey, module, detail = 'content') {
+  const moduleName = DECORATION_MODULE_LIBRARY[module?.type]?.name || '页面模块'
+  const hostKey = `module:${pageKey}:${module?.id || 'unknown'}`
+  return {
+    key: `pages:${hostKey}:${detail}`,
+    stage: 'pages',
+    label: `${DECORATION_PAGE_GUIDE[pageKey]?.name || '页面'} · ${moduleName}`,
+    hostKey,
+    editorSelector: `[data-decoration-change-host="${hostKey}"]`,
+    previewPage: pageKey,
+    previewSelector: `[data-preview-module="${module?.id || ''}"]`
+  }
+}
+
+function syncDecorationWorkbenchSelectors() {
+  const pageSelect = document.getElementById('decorationPageSelect')
+  const frameworkSelect = document.getElementById('decorationFrameworkSelect')
+  const skeletonSelect = document.getElementById('decorationSkeletonSelect')
+  const page = getDecorationPageState()
+  if (pageSelect) pageSelect.value = activeDecorationPage
+  if (frameworkSelect) frameworkSelect.value = decorationEditorState?.framework?.id || 'legacy-classic'
+  if (skeletonSelect && page) {
+    const skeletons = PAGE_SKELETON_REGISTRY[activeDecorationPage] || {}
+    skeletonSelect.innerHTML = Object.entries(skeletons).map(([key, definition]) => (
+      `<option value="${escapeHtml(key)}">${escapeHtml(definition.name)}</option>`
+    )).join('')
+    skeletonSelect.value = page.skeleton
+    skeletonSelect.title = skeletons[page.skeleton]?.description || ''
+  }
+}
+
+function handleDecorationFrameworkSelect(frameworkId) {
+  if (!decorationEditorState) return
+  if (frameworkId === 'legacy-classic') {
+    decorationEditorState.framework.id = frameworkId
+    markDecorationChanged({
+      key: 'appearance:framework:legacy-classic',
+      stage: 'appearance',
+      label: '整站框架：保留当前风格',
+      editorElement: document.getElementById('decorationFrameworkSelect'),
+      previewSelector: '#skinPreviewViewport'
+    })
+    syncDecorationWorkbenchSelectors()
+    updateThemePreview()
+    return
+  }
+  applyFramework(frameworkId)
+  syncDecorationWorkbenchSelectors()
+}
+
+function getAllowedDecorationModuleTypes(pageKey) {
+  const skeletonTypes = Object.values(PAGE_SKELETON_REGISTRY[pageKey] || {})
+    .flatMap(definition => definition.recommendedModules)
+  const existingTypes = getDecorationPageState(pageKey)?.modules?.map(module => module.type) || []
+  return Array.from(new Set([...skeletonTypes, ...existingTypes, ...REPEATABLE_MODULE_TYPES]))
+    .filter(type => DECORATION_MODULE_LIBRARY[type])
+}
+
+function renderDecorationModuleLibrary() {
+  const container = document.getElementById('decorationModuleLibrary')
+  const page = getDecorationPageState()
+  if (!container || !page) return
+  const existingByType = new Map(page.modules.map(module => [module.type, module]))
+  const markup = getAllowedDecorationModuleTypes(activeDecorationPage).map(type => {
+    const definition = DECORATION_MODULE_LIBRARY[type]
+    const existing = existingByType.get(type)
+    const isRepeatable = definition.repeatable === true
+    if (existing && !isRepeatable && existing.enabled !== false) return ''
+    const action = existing && !isRepeatable
+      ? `restoreDecorationModule('${existing.id}')`
+      : `addDecorationModule('${type}')`
+    const actionText = existing && !isRepeatable ? '恢复' : '添加'
+    return `
+      <button type="button" onclick="${action}">
+        <span>${escapeHtml(definition.name)}</span>
+        <small>${escapeHtml(definition.description)}</small>
+        <b>${actionText}</b>
+      </button>
+    `
+  }).join('')
+  container.innerHTML = markup || '<span class="decoration-module-library-empty">当前页面的可用模块都已添加</span>'
+}
+
+function renderDecorationModuleTree() {
+  const container = document.getElementById('decorationModuleTree')
+  const page = getDecorationPageState()
+  if (!container || !page) return
+  if (!page.modules.some(module => module.id === activeDecorationModuleId)) {
+    activeDecorationModuleId = page.modules.find(module => module.enabled)?.id || page.modules[0]?.id || ''
+  }
+  const visibleModules = page.modules.filter(module => module.enabled)
+  container.innerHTML = page.modules.map(module => {
+    const definition = DECORATION_MODULE_LIBRARY[module.type] || { name: module.type, description: '' }
+    const visibleIndex = visibleModules.findIndex(item => item.id === module.id)
+    const selected = module.id === activeDecorationModuleId
+    const repeatable = definition.repeatable === true
+    const canMoveUp = module.enabled && visibleIndex > 0
+    const canMoveDown = module.enabled && visibleIndex >= 0 && visibleIndex < visibleModules.length - 1
+    const hostKey = `module:${activeDecorationPage}:${module.id}`
+    return `
+      <article class="decoration-module-tree-item ${selected ? 'is-selected' : ''} ${module.enabled ? '' : 'is-disabled'} ${hasDecorationChangeForHost(hostKey) ? 'decoration-field-modified' : ''}"
+        data-decoration-change-host="${escapeHtml(hostKey)}" onclick="selectDecorationModule('${module.id}')">
+        <div class="decoration-module-tree-main">
+          <span class="decoration-order">${module.enabled ? visibleIndex + 1 : '—'}</span>
+          <div><strong>${escapeHtml(definition.name)}</strong><small>${module.enabled ? (module.content.title || definition.description) : '已移出页面，可随时恢复'}</small></div>
+        </div>
+        <div class="decoration-module-tree-actions" onclick="event.stopPropagation()">
+          ${module.enabled ? `
+            <button type="button" class="icon-control" title="向上移动" aria-label="向上移动" onclick="moveDecorationModule('${module.id}', -1)" ${canMoveUp ? '' : 'disabled'}>↑</button>
+            <button type="button" class="icon-control" title="向下移动" aria-label="向下移动" onclick="moveDecorationModule('${module.id}', 1)" ${canMoveDown ? '' : 'disabled'}>↓</button>
+            ${repeatable ? `<button type="button" class="icon-control" title="复制模块" aria-label="复制模块" onclick="duplicateDecorationModule('${module.id}')">⧉</button>` : ''}
+            <button type="button" class="decoration-module-hide" onclick="toggleDecorationModule('${module.id}', false)">移出</button>
+          ` : `<button type="button" class="decoration-module-restore" onclick="restoreDecorationModule('${module.id}')">恢复</button>`}
+          ${repeatable ? `<button type="button" class="decoration-module-delete" title="永久删除" aria-label="永久删除" onclick="deleteDecorationModule('${module.id}')">删除</button>` : ''}
+        </div>
+      </article>
+    `
+  }).join('')
+  renderDecorationModuleLibrary()
+}
+
+function getDecorationSeriesChoices() {
+  const choices = []
+  ;(Array.isArray(portfolioData.themes) ? portfolioData.themes : []).forEach(theme => {
+    ;(Array.isArray(theme?.series) ? theme.series : []).forEach(series => {
+      const themeId = String(theme?.id || '').trim()
+      const rawSeriesId = String(series?.id || '').trim()
+      const seriesId = themeId && rawSeriesId ? `series-${themeId}-${rawSeriesId}` : ''
+      if (!seriesId) return
+      choices.push({ id: seriesId, title: series.title || '未命名作品集', series })
+    })
+  })
+  return choices
+}
+
+function getDecorationPhotoChoices() {
+  const choices = []
+  getDecorationSeriesChoices().forEach(({ id: seriesId, title: seriesTitle, series }) => {
+      ;(Array.isArray(series.photos) ? series.photos : []).forEach(photo => {
+        const rawPath = typeof photo === 'string'
+          ? photo
+          : String(photo?.path || photo?.key || photo?.name || photo?.url || '')
+        const cleanPath = rawPath.split('?')[0]
+        const photoName = cleanPath.split('/').pop() || ''
+        if (!photoName) return
+        choices.push({
+          seriesId,
+          seriesTitle,
+          photoName,
+          imageUrl: getSkinPreviewAssetUrl(rawPath)
+        })
+      })
+  })
+  return choices
+}
+
+function renderDecorationSourceEditor(module) {
+  const sourceTypes = new Set(['hero', 'portfolio', 'gallery', 'image', 'relatedSeries'])
+  if (!sourceTypes.has(module.type)) return ''
+  const seriesChoices = getDecorationSeriesChoices()
+  const photoChoices = getDecorationPhotoChoices()
+  const selectedPhotos = new Set(module.source.photos.map(photo => `${photo.seriesId}\u0000${photo.photoName}`))
+  return `
+    <section class="decoration-inspector-group">
+      <header><strong>展示哪些照片</strong><span>配置中只保存作品集和文件名，不保存临时链接</span></header>
+      <label class="form-group">照片来源
+        <select onchange="updateDecorationModuleField('source', 'mode', this.value, this)">
+          <option value="auto" ${module.source.mode === 'auto' ? 'selected' : ''}>自动精选</option>
+          <option value="series" ${module.source.mode === 'series' ? 'selected' : ''}>指定作品集</option>
+          <option value="photos" ${module.source.mode === 'photos' ? 'selected' : ''}>指定照片</option>
+        </select>
+      </label>
+      ${module.source.mode === 'series' ? `
+        <div class="decoration-source-options">
+          ${seriesChoices.length ? seriesChoices.map(series => `
+            <label><input type="checkbox" ${module.source.seriesIds.includes(series.id) ? 'checked' : ''} onchange="toggleDecorationModuleSeriesSource(${escapeHtml(JSON.stringify(series.id))}, this.checked)"><span>${escapeHtml(series.title)}</span></label>
+          `).join('') : '<p>暂时没有作品集，请先在作品管理中上传。</p>'}
+        </div>
+      ` : ''}
+      ${module.source.mode === 'photos' ? `
+        <div class="decoration-photo-source-grid">
+          ${photoChoices.length ? photoChoices.map(photo => {
+            const key = `${photo.seriesId}\u0000${photo.photoName}`
+            return `<label title="${escapeHtml(photo.seriesTitle)} · ${escapeHtml(photo.photoName)}"><input type="checkbox" ${selectedPhotos.has(key) ? 'checked' : ''} onchange="toggleDecorationModulePhotoSource(${escapeHtml(JSON.stringify(photo.seriesId))}, ${escapeHtml(JSON.stringify(photo.photoName))}, this.checked)">${photo.imageUrl ? `<img src="${escapeHtml(photo.imageUrl)}" alt="" loading="lazy">` : '<span></span>'}<small>${escapeHtml(photo.seriesTitle)}</small></label>`
+          }).join('') : '<p>暂时没有可选择的照片，请先在作品管理中上传。</p>'}
+        </div>
+      ` : ''}
+      <label class="form-group decoration-source-limit">最多显示
+        <input type="number" min="1" max="100" value="${module.source.limit}" onchange="updateDecorationModuleField('source', 'limit', this.value, this)">
+      </label>
+    </section>
+  `
+}
+
+function getDecorationInspectorImage(module) {
+  const selected = module.source.photos[0]
+  if (selected) {
+    const choice = getDecorationPhotoChoices().find(item => item.seriesId === selected.seriesId && item.photoName === selected.photoName)
+    if (choice?.imageUrl) return choice.imageUrl
+  }
+  const model = getSkinPreviewModel(getManagementPreviewTheme())
+  return model.heroImage || model.seriesItems?.[0]?.imageUrl || ''
+}
+
+function renderDecorationModuleInspector() {
+  const container = document.getElementById('decorationModuleInspector')
+  const module = getDecorationModuleState()
+  if (!container) return
+  if (!module) {
+    container.innerHTML = '<div class="decoration-module-inspector-empty"><strong>先选择一个模块</strong><span>点击左侧内容，即可修改文字、照片和排列方式。</span></div>'
+    return
+  }
+  const definition = DECORATION_MODULE_LIBRARY[module.type] || { name: module.type, description: '' }
+  const supportsMedia = new Set(['hero', 'portfolio', 'gallery', 'image', 'relatedSeries']).has(module.type)
+  const supportsLayout = new Set(['portfolio', 'gallery', 'image', 'relatedSeries']).has(module.type)
+  const inspectorImage = supportsMedia ? getDecorationInspectorImage(module) : ''
+  const textSourceNote = new Set(['categories', 'profile', 'stores', 'form', 'list', 'info', 'summary', 'content']).has(module.type)
+    ? '<p class="decoration-inspector-note">主要内容会从对应的作品、门店资料或业务设置中自动带入，这里只调整标题和展示方式。</p>'
+    : ''
+  container.innerHTML = `
+    <div class="decoration-inspector-title">
+      <div><strong>${escapeHtml(definition.name)}</strong><span>${escapeHtml(definition.description)}</span></div>
+      <label class="compact-toggle"><input type="checkbox" ${module.enabled ? 'checked' : ''} onchange="toggleDecorationModule('${module.id}', this.checked)"><span>显示</span></label>
+    </div>
+    ${textSourceNote}
+    <section class="decoration-inspector-group">
+      <header><strong>文字内容</strong><span>留空时使用业务资料中的默认文字</span></header>
+      <div class="decoration-inspector-fields">
+        <label>标题<input type="text" maxlength="40" value="${escapeHtml(module.content.title)}" oninput="updateDecorationModuleField('content', 'title', this.value, this)"></label>
+        <label>补充说明<input type="text" maxlength="80" value="${escapeHtml(module.content.subtitle)}" oninput="updateDecorationModuleField('content', 'subtitle', this.value, this)"></label>
+        <label class="decoration-inspector-wide">正文<textarea maxlength="500" rows="4" oninput="updateDecorationModuleField('content', 'body', this.value, this)">${escapeHtml(module.content.body)}</textarea></label>
+        <label>按钮文字<input type="text" maxlength="12" value="${escapeHtml(module.content.actionText)}" oninput="updateDecorationModuleField('content', 'actionText', this.value, this)"></label>
+        <label>点击后前往
+          <select onchange="updateDecorationModuleField('content', 'actionTarget', this.value, this)">
+            <option value="" ${!module.content.actionTarget ? 'selected' : ''}>不设置跳转</option>
+            <option value="gallery" ${module.content.actionTarget === 'gallery' ? 'selected' : ''}>作品画廊</option>
+            <option value="packages" ${module.content.actionTarget === 'packages' ? 'selected' : ''}>套餐列表</option>
+            <option value="booking" ${module.content.actionTarget === 'booking' ? 'selected' : ''}>预约咨询</option>
+            <option value="stores" ${module.content.actionTarget === 'stores' ? 'selected' : ''}>门店信息</option>
+          </select>
+        </label>
+        <div class="decoration-icon-field decoration-inspector-wide"><span>标题图标</span>${renderIconPickerButton(module.content.icon, `module.${activeDecorationPage}.${module.id}`, true)}</div>
+      </div>
+    </section>
+    ${renderDecorationSourceEditor(module)}
+    ${supportsLayout ? `
+      <section class="decoration-inspector-group">
+        <header><strong>排列方式</strong><span>四栏会自动隐藏卡片文字</span></header>
+        <div class="decoration-inspector-fields">
+          <label>照片排列<select onchange="updateDecorationModuleField('layout', 'mode', this.value, this)">
+            <option value="grid" ${module.layout.mode === 'grid' ? 'selected' : ''}>整齐网格</option>
+            <option value="masonry" ${module.layout.mode === 'masonry' ? 'selected' : ''}>自然瀑布</option>
+            <option value="horizontal" ${module.layout.mode === 'horizontal' ? 'selected' : ''}>横向画廊</option>
+            <option value="mixed" ${module.layout.mode === 'mixed' ? 'selected' : ''}>大小图混排</option>
+            <option value="stack" ${module.layout.mode === 'stack' ? 'selected' : ''}>连续长图</option>
+          </select></label>
+          <label>每行照片数<select onchange="updateDecorationModuleField('layout', 'columns', this.value, this)">
+            ${[1, 2, 3, 4].map(value => `<option value="${value}" ${module.layout.columns === value ? 'selected' : ''}>${value} 张</option>`).join('')}
+          </select></label>
+          <label>照片比例<select onchange="updateDecorationModuleField('layout', 'ratio', this.value, this)">
+            ${[['natural', '原图'], ['1:1', '1:1 方形'], ['3:4', '3:4 竖图'], ['4:5', '4:5 竖图'], ['16:9', '16:9 横图']].map(([value, label]) => `<option value="${value}" ${module.layout.ratio === value ? 'selected' : ''}>${label}</option>`).join('')}
+          </select></label>
+          <label>照片间距<select onchange="updateDecorationModuleField('layout', 'gap', this.value, this)">
+            <option value="tight" ${module.layout.gap === 'tight' ? 'selected' : ''}>紧凑</option>
+            <option value="standard" ${module.layout.gap === 'standard' ? 'selected' : ''}>标准</option>
+            <option value="airy" ${module.layout.gap === 'airy' ? 'selected' : ''}>宽松</option>
+          </select></label>
+          <label class="decoration-inspector-check decoration-inspector-wide"><input type="checkbox" ${module.layout.showText ? 'checked' : ''} ${module.layout.columns === 4 ? 'disabled' : ''} onchange="updateDecorationModuleField('layout', 'showText', this.checked, this)"><span>显示照片标题和说明</span></label>
+        </div>
+      </section>
+    ` : ''}
+    ${supportsMedia ? `
+      <section class="decoration-inspector-group">
+        <header><strong>图片裁切</strong><span>点击照片可指定人物或主体位置</span></header>
+        <button type="button" class="decoration-focus-board ratio-${String(module.media.ratio).replace(':', '-')}" onclick="updateDecorationModuleFocus(event)" aria-label="设置图片焦点">
+          ${inspectorImage ? `<img src="${escapeHtml(inspectorImage)}" alt="裁切预览" style="object-position:${module.media.focusX}% ${module.media.focusY}%;filter:brightness(${100 + module.media.brightness}%);">` : '<span>上传照片后可设置焦点</span>'}
+          <i style="left:${module.media.focusX}%;top:${module.media.focusY}%"></i>
+        </button>
+        <div class="decoration-inspector-fields">
+          <label>裁切比例<select onchange="updateDecorationModuleField('media', 'ratio', this.value, this)">
+            ${[['natural', '跟随排列'], ['1:1', '1:1 方形'], ['3:4', '3:4 竖图'], ['4:5', '4:5 竖图'], ['16:9', '16:9 横图']].map(([value, label]) => `<option value="${value}" ${module.media.ratio === value ? 'selected' : ''}>${label}</option>`).join('')}
+          </select></label>
+          <label>图片明暗 <output>${module.media.brightness}</output><input type="range" min="-40" max="40" value="${module.media.brightness}" oninput="updateDecorationModuleField('media', 'brightness', this.value, this)"></label>
+          <label>文字遮罩 <output>${module.media.overlay}%</output><input type="range" min="0" max="80" value="${module.media.overlay}" oninput="updateDecorationModuleField('media', 'overlay', this.value, this)"></label>
+        </div>
+      </section>
+    ` : ''}
+  `
+}
+
+function selectDecorationModule(moduleId, options = {}) {
+  if (!getDecorationPageState()?.modules?.some(module => module.id === moduleId)) return
+  activeDecorationModuleId = moduleId
+  renderDecorationModuleTree()
+  renderDecorationModuleInspector()
+  if (options.scroll !== false) {
+    window.requestAnimationFrame(() => {
+      document.getElementById('decorationModuleInspector')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    })
+  }
+}
+
+function moveDecorationModule(moduleId, direction) {
+  const page = getDecorationPageState()
+  const moved = page?.modules?.find(module => module.id === moduleId)
+  if (!page || !moved || !moved.enabled) return
+  const visible = page.modules.filter(module => module.enabled)
+  const hidden = page.modules.filter(module => !module.enabled)
+  const index = visible.indexOf(moved)
+  const target = index + Number(direction)
+  if (index < 0 || target < 0 || target >= visible.length) return
+  visible.splice(index, 1)
+  visible.splice(target, 0, moved)
+  page.modules = [...visible, ...hidden]
+  syncLegacyDecorationFromPages(decorationEditorState)
+  renderDecorationModuleTree()
+  markDecorationChanged(createDecorationModuleChangeContext(activeDecorationPage, moved, 'order'))
+  updateThemePreview()
+}
+
+function toggleDecorationModule(moduleId, enabled) {
+  const page = getDecorationPageState()
+  const module = page?.modules?.find(item => item.id === moduleId)
+  if (!page || !module) return
+  if (!enabled && page.modules.filter(item => item.enabled).length <= 1) {
+    showToast('页面至少保留一个显示中的模块', 'error')
+    renderDecorationModuleInspector()
+    return
+  }
+  module.enabled = Boolean(enabled)
+  page.modules = [...page.modules.filter(item => item.enabled), ...page.modules.filter(item => !item.enabled)]
+  syncLegacyDecorationFromPages(decorationEditorState)
+  activeDecorationModuleId = module.id
+  renderDecorationModuleTree()
+  renderDecorationModuleInspector()
+  markDecorationChanged(createDecorationModuleChangeContext(activeDecorationPage, module, enabled ? 'restored' : 'removed'))
+  updateThemePreview()
+}
+
+function restoreDecorationModule(moduleId) {
+  toggleDecorationModule(moduleId, true)
+}
+
+function addDecorationModule(type) {
+  const page = getDecorationPageState()
+  const definition = DECORATION_MODULE_LIBRARY[type]
+  if (!page || !definition) return
+  const existing = page.modules.find(module => module.type === type)
+  if (existing && !definition.repeatable) {
+    restoreDecorationModule(existing.id)
+    return
+  }
+  const module = createDecorationModuleInstance(activeDecorationPage, type)
+  page.modules.splice(page.modules.filter(item => item.enabled).length, 0, module)
+  activeDecorationModuleId = module.id
+  syncLegacyDecorationFromPages(decorationEditorState)
+  renderDecorationModuleTree()
+  renderDecorationModuleInspector()
+  markDecorationChanged(createDecorationModuleChangeContext(activeDecorationPage, module, 'added'))
+  updateThemePreview()
+}
+
+function duplicateDecorationModule(moduleId) {
+  const page = getDecorationPageState()
+  const index = page?.modules?.findIndex(module => module.id === moduleId) ?? -1
+  const source = index >= 0 ? page.modules[index] : null
+  if (!source || !REPEATABLE_MODULE_TYPES.includes(source.type)) return
+  const duplicate = createDecorationModuleInstance(activeDecorationPage, source.type, deepClone(source))
+  duplicate.id = createDecorationModuleInstance(activeDecorationPage, source.type).id
+  page.modules.splice(index + 1, 0, duplicate)
+  activeDecorationModuleId = duplicate.id
+  syncLegacyDecorationFromPages(decorationEditorState)
+  renderDecorationModuleTree()
+  renderDecorationModuleInspector()
+  markDecorationChanged(createDecorationModuleChangeContext(activeDecorationPage, duplicate, 'duplicated'))
+  updateThemePreview()
+}
+
+function deleteDecorationModule(moduleId) {
+  const page = getDecorationPageState()
+  const module = page?.modules?.find(item => item.id === moduleId)
+  if (!page || !module || !REPEATABLE_MODULE_TYPES.includes(module.type)) return
+  if (module.enabled && page.modules.filter(item => item.enabled).length <= 1) {
+    showToast('页面至少保留一个显示中的模块', 'error')
+    return
+  }
+  const name = DECORATION_MODULE_LIBRARY[module.type]?.name || '此模块'
+  if (!window.confirm(`确定永久删除“${name}”吗？删除后无法恢复。`)) return
+  page.modules = page.modules.filter(item => item.id !== moduleId)
+  activeDecorationModuleId = page.modules.find(item => item.enabled)?.id || page.modules[0]?.id || ''
+  syncLegacyDecorationFromPages(decorationEditorState)
+  renderDecorationModuleTree()
+  renderDecorationModuleInspector()
+  markDecorationChanged({
+    key: `pages:module:${activeDecorationPage}:${moduleId}:deleted`,
+    stage: 'pages',
+    label: `${DECORATION_PAGE_GUIDE[activeDecorationPage]?.name || '页面'} · 删除${name}`,
+    previewPage: activeDecorationPage,
+    previewSelector: '#skinPreviewViewport'
+  })
+  updateThemePreview()
+}
+
+function updateDecorationModuleField(group, field, value, input) {
+  const module = getDecorationModuleState()
+  if (!module || !module[group] || !(field in module[group])) return
+  let normalizedValue = value
+  if (group === 'layout' && field === 'columns') normalizedValue = clampDecorationNumber(value, 1, 4, 2)
+  if (group === 'source' && field === 'limit') normalizedValue = Math.round(clampDecorationNumber(value, 1, 100, 12))
+  if (group === 'media' && field === 'brightness') normalizedValue = clampDecorationNumber(value, -40, 40, 0)
+  if (group === 'media' && field === 'overlay') normalizedValue = clampDecorationNumber(value, 0, 80, 42)
+  if (group === 'layout' && field === 'showText') normalizedValue = Boolean(value)
+  module[group][field] = normalizedValue
+  if (group === 'layout' && field === 'ratio') module.media.ratio = normalizedValue
+  if (module.layout.columns === 4) {
+    module.layout.showText = false
+    module.content.showTitle = false
+    module.content.showCategory = false
+    module.content.showDescription = false
+  }
+  syncLegacyDecorationFromPages(decorationEditorState)
+  if (input) input.closest('.decoration-inspector-group, .decoration-inspector-title')?.classList.add('decoration-field-modified')
+  markDecorationChanged(createDecorationModuleChangeContext(activeDecorationPage, module, `${group}.${field}`))
+  if (['mode', 'columns', 'ratio', 'showText'].includes(field) || group === 'source') {
+    renderDecorationModuleInspector()
+  } else if (input?.type === 'range') {
+    const output = input.parentElement?.querySelector('output')
+    if (output) output.textContent = field === 'overlay' ? `${normalizedValue}%` : String(normalizedValue)
+  }
+  renderDecorationModuleTree()
+  updateThemePreview()
+}
+
+function toggleDecorationModuleSeriesSource(seriesId, checked) {
+  const module = getDecorationModuleState()
+  if (!module) return
+  const ids = new Set(module.source.seriesIds)
+  if (checked) ids.add(String(seriesId))
+  else ids.delete(String(seriesId))
+  module.source.seriesIds = Array.from(ids)
+  syncLegacyDecorationFromPages(decorationEditorState)
+  markDecorationChanged(createDecorationModuleChangeContext(activeDecorationPage, module, 'source.series'))
+  updateThemePreview()
+}
+
+function toggleDecorationModulePhotoSource(seriesId, photoName, checked) {
+  const module = getDecorationModuleState()
+  if (!module) return
+  const key = `${seriesId}\u0000${photoName}`
+  const references = new Map(module.source.photos.map(photo => [`${photo.seriesId}\u0000${photo.photoName}`, photo]))
+  if (checked) references.set(key, { seriesId: String(seriesId), photoName: String(photoName) })
+  else references.delete(key)
+  module.source.photos = Array.from(references.values())
+  syncLegacyDecorationFromPages(decorationEditorState)
+  markDecorationChanged(createDecorationModuleChangeContext(activeDecorationPage, module, 'source.photos'))
+  updateThemePreview()
+}
+
+function updateDecorationModuleFocus(event) {
+  const module = getDecorationModuleState()
+  const board = event?.currentTarget
+  if (!module || !board) return
+  const rect = board.getBoundingClientRect()
+  module.media.focusX = Math.round(clampDecorationNumber(((event.clientX - rect.left) / rect.width) * 100, 0, 100, 50))
+  module.media.focusY = Math.round(clampDecorationNumber(((event.clientY - rect.top) / rect.height) * 100, 0, 100, 50))
+  syncLegacyDecorationFromPages(decorationEditorState)
+  renderDecorationModuleInspector()
+  markDecorationChanged(createDecorationModuleChangeContext(activeDecorationPage, module, 'media.focus'))
+  updateThemePreview()
+}
+
+function toggleDecorationPreviewDrawer(force) {
+  const workbench = document.querySelector('.decoration-workspace')
+  if (!workbench) return
+  const open = typeof force === 'boolean' ? force : !workbench.classList.contains('preview-drawer-open')
+  workbench.classList.toggle('preview-drawer-open', open)
+  document.getElementById('decorationPreviewDrawerButton')?.setAttribute('aria-expanded', String(open))
+  if (open) window.requestAnimationFrame(updateSkinPreviewScale)
+}
+
 function renderDecorationEditors() {
   ['home', 'about', 'booking', 'packages', 'packageDetail', 'series', 'success']
     .forEach(renderDecorationSectionEditor)
   renderBookingFieldEditor()
   renderGlobalIconEditors()
+  syncDecorationWorkbenchSelectors()
+  renderDecorationModuleTree()
+  renderDecorationModuleInspector()
 }
 
 function updateDecorationSectionValue(pageKey, index, fieldName, value) {
@@ -3861,6 +4532,12 @@ function createBookingFieldChangeContext(fieldId, detail = 'content') {
 
 function createIconChangeContext(targetKey) {
   const parts = String(targetKey || '').split('.')
+  if (parts[0] === 'module') {
+    const pageKey = parts[1]
+    const moduleId = parts.slice(2).join('.')
+    const module = decorationEditorState?.pages?.[pageKey]?.modules?.find(item => item.id === moduleId)
+    return createDecorationModuleChangeContext(pageKey, module, 'icon')
+  }
   if (parts[0] === 'section') {
     const pageKey = parts[1]
     const section = decorationEditorState?.[pageKey]?.sections?.[Number(parts[2])]
@@ -4108,6 +4785,7 @@ function goToNextDecorationStage() {
 }
 
 function switchDecorationPage(pageKey) {
+  if (!PAGE_SKELETON_REGISTRY[pageKey]) return
   const guide = DECORATION_PAGE_GUIDE[pageKey] || DECORATION_PAGE_GUIDE.home
   activeDecorationPage = pageKey
   document.querySelectorAll('[data-decoration-tab]').forEach(tab => {
@@ -4128,6 +4806,11 @@ function switchDecorationPage(pageKey) {
     activeSkinPreviewPage = pageKey
     skinPreviewQuickJumpOpen = false
   }
+  const page = getDecorationPageState(pageKey)
+  activeDecorationModuleId = page?.modules?.find(module => module.enabled)?.id || page?.modules?.[0]?.id || ''
+  syncDecorationWorkbenchSelectors()
+  renderDecorationModuleTree()
+  renderDecorationModuleInspector()
   updateThemePreview()
 }
 
@@ -4317,6 +5000,26 @@ function applyHomeTemplate(templateKey) {
   setHomeCardVisibility(home, preset.cardContent)
   home.galleryGap = preset.galleryGap
   home.sections = reorderHomeSections(home.sections, preset.sectionOrder)
+  const skeleton = HOME_TEMPLATE_SKELETONS[templateKey] || 'full-image'
+  applyDecorationSkeleton('home', skeleton, { render: false, mark: false })
+  const portfolioModule = decorationEditorState.pages.home.modules.find(module => module.type === 'portfolio')
+  if (portfolioModule) {
+    portfolioModule.layout.mode = preset.galleryVariant === 'editorial' || preset.galleryVariant === 'cards'
+      ? 'grid'
+      : preset.galleryVariant
+    portfolioModule.layout.columns = preset.galleryColumns
+    portfolioModule.layout.ratio = preset.imageRatio === 'portrait'
+      ? '3:4'
+      : preset.imageRatio === 'square'
+        ? '1:1'
+        : 'natural'
+    portfolioModule.layout.gap = preset.galleryGap
+    portfolioModule.layout.showText = preset.cardContent !== 'image-only' && preset.galleryColumns !== 4
+    portfolioModule.content.showTitle = portfolioModule.layout.showText
+    portfolioModule.content.showCategory = portfolioModule.layout.showText
+    portfolioModule.content.showDescription = preset.cardContent === 'full' && portfolioModule.layout.showText
+  }
+  syncLegacyDecorationFromPages(decorationEditorState)
 
   setHomeLayoutEditorValues(home)
   renderDecorationSectionEditor('home')
@@ -4379,7 +5082,7 @@ function applyFramework(frameworkId) {
   const preset = FRAMEWORK_PRESETS[frameworkId]
   if (!preset || !decorationEditorState) return
 
-  decorationEditorState.schemaVersion = 2
+  decorationEditorState.schemaVersion = 3
   decorationEditorState.framework = {
     id: frameworkId,
     ...preset.framework
@@ -4408,6 +5111,12 @@ function applyFramework(frameworkId) {
       order
     )
   })
+
+  const skeletonPreset = FRAMEWORK_SKELETON_PRESETS[frameworkId] || FRAMEWORK_SKELETON_PRESETS['legacy-classic']
+  Object.entries(skeletonPreset).forEach(([pageKey, skeleton]) => {
+    applyDecorationSkeleton(pageKey, skeleton, { render: false, mark: false })
+  })
+  syncLegacyDecorationFromPages(decorationEditorState)
 
   setShowcaseEditorValues(decorationEditorState)
   setHomeLayoutEditorValues(decorationEditorState.home)
@@ -4472,7 +5181,7 @@ function applySiteTemplate(templateKey) {
 function collectDecorationSettings() {
   const decoration = normalizeDecorationConfig(decorationEditorState)
   const frameworkId = document.getElementById('frameworkId')?.value
-  decoration.schemaVersion = 2
+  decoration.schemaVersion = 3
   decoration.framework = {
     id: FRAMEWORK_PRESETS[frameworkId] ? frameworkId : decoration.framework.id,
     motion: document.getElementById('frameworkMotion')?.value || DEFAULT_DECORATION_CONFIG.framework.motion,
@@ -4758,8 +5467,11 @@ function getSkinPreviewSeriesItems() {
       if (series?.enabled === false) continue
       const photos = getVisibleSeriesPhotos(series)
       if (!photos.length) continue
+      const stableSeriesId = `series-${theme.id}-${series.id}`
       items.push({
-        id: String(series.id || `${theme.id || category}-${items.length}`),
+        id: stableSeriesId,
+        seriesId: stableSeriesId,
+        photoName: photos[0],
         title: String(series.title || category).trim() || category,
         category,
         imageUrl: getSkinPreviewPhotoUrl(photos[0], 900),
@@ -4790,11 +5502,13 @@ function getSkinPreviewFeaturedItems() {
       if (series?.enabled === false) continue
       const selectedPhotos = getHomeFeaturedPhotos(series)
       const homeSort = Number.isFinite(Number(series.homeSort)) ? Number(series.homeSort) : Number.MAX_SAFE_INTEGER
+      const stableSeriesId = `series-${theme.id}-${series.id}`
 
       selectedPhotos.forEach((photoName, photoIndex) => {
         items.push({
           id: `${theme.id || category}-${series.id || items.length}-${photoIndex}`,
-          seriesId: String(series.id || `${theme.id || category}-${items.length}`),
+          seriesId: stableSeriesId,
+          photoName,
           title: String(series.title || category).trim() || category,
           category,
           imageUrl: getSkinPreviewPhotoUrl(photoName, 900),
@@ -4809,9 +5523,33 @@ function getSkinPreviewFeaturedItems() {
   return items
 }
 
+function getSkinPreviewPhotoItems() {
+  const items = []
+  for (const theme of Array.isArray(portfolioData?.themes) ? portfolioData.themes : []) {
+    if (theme?.enabled === false) continue
+    const category = String(theme?.name || '作品').trim() || '作品'
+    for (const series of Array.isArray(theme?.series) ? theme.series : []) {
+      if (series?.enabled === false) continue
+      const stableSeriesId = `series-${theme.id}-${series.id}`
+      getVisibleSeriesPhotos(series).forEach((photoName, photoIndex) => {
+        items.push({
+          id: `${stableSeriesId}-${photoIndex}`,
+          seriesId: stableSeriesId,
+          photoName,
+          title: String(series.title || category).trim() || category,
+          category,
+          imageUrl: getSkinPreviewPhotoUrl(photoName, 900)
+        })
+      })
+    }
+  }
+  return items
+}
+
 function getSkinPreviewImages() {
   const seriesItems = getSkinPreviewSeriesItems()
   const featuredItems = getSkinPreviewFeaturedItems()
+  const photoItems = getSkinPreviewPhotoItems()
   const bannerCandidates = (featuredItems.length ? featuredItems : seriesItems)
     .slice()
     .sort((left, right) => {
@@ -4832,6 +5570,7 @@ function getSkinPreviewImages() {
     hero,
     work: seriesItems[1]?.imageUrl || seriesItems[0]?.imageUrl || hero,
     seriesItems,
+    photoItems,
     bannerItems: bannerCandidates.slice(0, 12)
   }
 }
@@ -5008,6 +5747,7 @@ function getSkinPreviewModel(theme) {
     stores,
     categories,
     seriesItems: previewImages.seriesItems,
+    sourceItems: previewImages.photoItems,
     bannerItems: previewImages.bannerItems,
     heroImage: previewImages.hero,
     aboutCover: getSkinPreviewAssetUrl('banner/about-banner.jpg') || previewImages.hero,
@@ -5037,11 +5777,11 @@ function renderSkinPreviewIcon(name, className = '', customIconPath = '') {
   return `<img class="customer-preview-icon ${escapeHtml(className)}" src="/mini-icons/${normalized}.svg" alt="">`
 }
 
-function renderSkinPreviewImage(url, className, alt, fallbackUrl = '') {
+function renderSkinPreviewImage(url, className, alt, fallbackUrl = '', inlineStyle = '') {
   const safeUrl = escapeHtml(url)
   if (!safeUrl) return `<span class="${escapeHtml(className)} customer-preview-image-empty"></span>`
   const safeFallback = escapeHtml(fallbackUrl)
-  return `<img class="${escapeHtml(className)}" src="${safeUrl}" data-fallback="${safeFallback}" alt="${escapeHtml(alt)}" onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){this.src=this.dataset.fallback}else{this.hidden=true;this.parentElement?.classList.add('customer-preview-image-missing')}">`
+  return `<img class="${escapeHtml(className)}" style="${escapeHtml(inlineStyle)}" src="${safeUrl}" data-fallback="${safeFallback}" alt="${escapeHtml(alt)}" onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){this.src=this.dataset.fallback}else{this.hidden=true;this.parentElement?.classList.add('customer-preview-image-missing')}">`
 }
 
 function renderSkinPreviewHeading(section, trailing = '') {
@@ -5057,6 +5797,66 @@ function renderSkinPreviewHeading(section, trailing = '') {
       ${trailing ? `<div class="customer-preview-section-trailing">${escapeHtml(trailing)}</div>` : ''}
     </div>
   `
+}
+
+function getSkinPreviewSectionAttribute(section) {
+  const type = escapeHtml(section?.type || '')
+  const moduleId = escapeHtml(section?.id || '')
+  return `data-preview-section="${type}"${moduleId ? ` data-preview-module="${moduleId}"` : ''}`
+}
+
+function getSkinPreviewModuleItems(section, model) {
+  const source = section?.source || {}
+  const items = Array.isArray(model.sourceItems) ? model.sourceItems : []
+  let selected = Array.isArray(model.seriesItems) ? model.seriesItems : items
+  if (source.mode === 'series' && Array.isArray(source.seriesIds) && source.seriesIds.length) {
+    const ids = new Set(source.seriesIds)
+    selected = items.filter(item => ids.has(item.seriesId))
+  } else if (source.mode === 'photos' && Array.isArray(source.photos) && source.photos.length) {
+    const references = new Set(source.photos.map(item => `${item.seriesId}\u0000${item.photoName}`))
+    selected = items.filter(item => references.has(`${item.seriesId || ''}\u0000${item.photoName || item.fileName || ''}`))
+  }
+  return selected.slice(0, Math.max(1, Math.min(100, Number(source.limit) || 12)))
+}
+
+function renderSkinPreviewRepeatableModule(section, model) {
+  const content = section?.content || section || {}
+  const type = String(section?.type || '')
+  const attribute = getSkinPreviewSectionAttribute(section)
+  const heading = renderSkinPreviewHeading({
+    ...section,
+    title: content.title ?? section?.title,
+    subtitle: content.subtitle ?? section?.subtitle,
+    icon: content.icon ?? section?.icon
+  })
+  const items = getSkinPreviewModuleItems(section, model)
+  const focusX = Number(section?.media?.focusX) || 50
+  const focusY = Number(section?.media?.focusY) || 50
+  const brightness = 100 + (Number(section?.media?.brightness) || 0)
+  const imageStyle = `object-position:${focusX}% ${focusY}%;filter:brightness(${brightness}%);`
+
+  if (type === 'richText') {
+    const body = String(content.body || content.subtitle || '在这里补充品牌故事、服务说明或到店提示。')
+    return `<section class="customer-preview-page-section customer-preview-repeatable" ${attribute}>${heading}<p>${escapeHtml(body).replace(/\r?\n/g, '<br>')}</p></section>`
+  }
+  if (type === 'image') {
+    const item = items[0] || model.seriesItems[0]
+    return `<section class="customer-preview-page-section customer-preview-repeatable" ${attribute}>${heading}<div class="customer-preview-repeatable-image ratio-${escapeHtml(String(section?.media?.ratio || 'natural').replace(':', '-'))}">${renderSkinPreviewImage(item?.imageUrl || model.heroImage, 'customer-preview-repeatable-media', content.title || '图片', '', imageStyle)}</div></section>`
+  }
+  if (type === 'gallery') {
+    const columns = Number(section?.layout?.columns) || 2
+    return `<section class="customer-preview-page-section customer-preview-repeatable" ${attribute}>${heading}<div class="customer-preview-repeatable-gallery columns-${columns}">${items.slice(0, 8).map(item => `<figure>${renderSkinPreviewImage(item.imageUrl, 'customer-preview-repeatable-media', item.title || '作品', '', imageStyle)}${section?.layout?.showText === false ? '' : `<figcaption>${escapeHtml(item.title || '')}</figcaption>`}</figure>`).join('') || '<div class="customer-preview-empty">选择照片后在这里显示</div>'}</div></section>`
+  }
+  if (type === 'action') {
+    return `<section class="customer-preview-page-section customer-preview-action-section" ${attribute}>${heading}<button type="button" tabindex="-1">${content.icon ? renderSkinPreviewIcon(content.icon) : ''}${escapeHtml(content.actionText || '立即咨询')}</button></section>`
+  }
+  if (type === 'divider') {
+    return `<div class="customer-preview-repeatable-divider" ${attribute}></div>`
+  }
+  if (type === 'spacer') {
+    return `<div class="customer-preview-repeatable-spacer gap-${escapeHtml(section?.layout?.gap || 'standard')}" ${attribute}></div>`
+  }
+  return ''
 }
 
 function renderSkinPreviewDarkHeader(title, showBack = false) {
@@ -5103,22 +5903,29 @@ function renderSkinPreviewDarkHome(model) {
 
 function renderSkinPreviewGallery(model) {
   const showcase = model.decoration.showcase
+  const page = model.decoration.pages.gallery
+  const sections = modulesToLegacySections(page.modules).filter(section => section.enabled !== false)
+  const headerSection = sections.find(section => ['header', 'hero'].includes(section.type))
+  const categorySection = sections.find(section => section.type === 'categories')
+  const portfolioSection = sections.find(section => section.type === 'portfolio')
   const cards = model.seriesItems.slice(0, 8).map(item => `
     <article class="customer-preview-dark-gallery-card">
       <div class="customer-preview-dark-gallery-media">${renderSkinPreviewImage(item.imageUrl, 'customer-preview-dark-gallery-image', item.title)}</div>
       <div class="customer-preview-dark-gallery-copy"><strong>${escapeHtml(item.title)}</strong><b>♡</b>${showcase.showTags ? `<small>#${escapeHtml(item.tags?.[0] || item.category || '')}</small>` : ''}</div>
     </article>
   `).join('')
+  const repeatableModules = sections.map(section => renderSkinPreviewRepeatableModule(section, model)).join('')
   return `
-    <section class="customer-preview-dark-gallery">
-      ${renderSkinPreviewDarkHeader(model.decoration.navigation.galleryText || showcase.galleryTitle, true)}
-      <div class="customer-preview-dark-gallery-body mode-${escapeHtml(showcase.categoryMode)}">
-        <nav>${model.categories.slice(0, 7).map((item, index) => `<span class="${index === 0 ? 'active' : ''}">${escapeHtml(item)}</span>`).join('')}</nav>
-        <main>
+    <section class="customer-preview-dark-gallery customer-preview-gallery-v3 skeleton-${escapeHtml(page.skeleton)}">
+      ${headerSection ? `<div ${getSkinPreviewSectionAttribute(headerSection)}>${renderSkinPreviewDarkHeader(headerSection.title || model.decoration.navigation.galleryText || showcase.galleryTitle, true)}</div>` : ''}
+      <div class="customer-preview-dark-gallery-body mode-${page.skeleton === 'sidebar' ? 'sidebar' : 'top'}">
+        ${categorySection ? `<nav ${getSkinPreviewSectionAttribute(categorySection)}>${model.categories.slice(0, 7).map((item, index) => `<span class="${index === 0 ? 'active' : ''}">${escapeHtml(item)}</span>`).join('')}</nav>` : ''}
+        ${portfolioSection ? `<main ${getSkinPreviewSectionAttribute(portfolioSection)}>
           <div class="customer-preview-dark-gallery-title"><i></i><span>全部</span><div>${renderSkinPreviewIcon('images')}${showcase.showSearch ? renderSkinPreviewIcon('search') : ''}</div></div>
-          <div class="customer-preview-dark-gallery-grid columns-${showcase.galleryColumns}">${cards}</div>
-        </main>
+          <div class="customer-preview-dark-gallery-grid columns-${portfolioSection.layout?.columns || showcase.galleryColumns} mode-${escapeHtml(portfolioSection.layout?.mode || 'grid')}">${cards}</div>
+        </main>` : ''}
       </div>
+      ${repeatableModules}
     </section>
   `
 }
@@ -5172,7 +5979,7 @@ function renderSkinPreviewHome(model) {
 
   return decoration.home.sections.map(section => {
     if (section.enabled === false) return ''
-    const previewSectionAttribute = `data-preview-section="${escapeHtml(section.type)}"`
+    const previewSectionAttribute = getSkinPreviewSectionAttribute(section)
 
     if (section.type === 'hero') {
       return `
@@ -5281,7 +6088,7 @@ function renderSkinPreviewHome(model) {
       `
     }
 
-    return ''
+    return renderSkinPreviewRepeatableModule(section, model)
   }).join('')
 }
 
@@ -5315,7 +6122,7 @@ function renderSkinPreviewAbout(model) {
   const sections = model.decoration.about.sections
   return sections.map(section => {
     if (section.enabled === false) return ''
-    const previewSectionAttribute = `data-preview-section="${escapeHtml(section.type)}"`
+    const previewSectionAttribute = getSkinPreviewSectionAttribute(section)
     if (section.type === 'profile') return renderSkinPreviewProfile(model)
 
     if (section.type === 'bio' && model.profile.bio) {
@@ -5360,12 +6167,13 @@ function renderSkinPreviewAbout(model) {
       const review = model.testimonials[0]
       return `<section class="customer-preview-page-section customer-preview-about-section customer-preview-review-section" ${previewSectionAttribute}>${renderSkinPreviewHeading(section)}<blockquote>“${escapeHtml(review.content || '')}”</blockquote><span>${escapeHtml([review.name, review.shootType].filter(Boolean).join(' · '))}</span></section>`
     }
-    return ''
+    return renderSkinPreviewRepeatableModule(section, model)
   }).join('')
 }
 
 function renderSkinPreviewStores(model) {
-  const section = model.decoration.about.sections.find(item => item.type === 'stores') || { title: '门店信息', subtitle: '' }
+  const page = model.decoration.pages.stores
+  const sections = modulesToLegacySections(page.modules).filter(section => section.enabled !== false)
   const stores = model.stores.length
     ? model.stores
     : (model.profile.studio?.name || model.profile.studio?.address
@@ -5375,18 +6183,19 @@ function renderSkinPreviewStores(model) {
             businessHours: ''
           }]
         : [])
-  return `
-    <section class="customer-preview-secondary-header customer-preview-stores-header">
-      <span>到店服务</span>
-      <strong>${escapeHtml(section.title || '门店信息')}</strong>
-      <small>${escapeHtml(section.subtitle || '查看地址、营业时间和到店方式')}</small>
-    </section>
-    <section class="customer-preview-page-section customer-preview-stores-page">
-      <div class="customer-preview-simple-list">${stores.slice(0, 3).map((item, index) => `
-        <div><b>0${index + 1}</b><span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.address || item.businessHours || '地址待完善')}</small></span></div>
-      `).join('') || '<div class="customer-preview-empty">在“店铺资料”中新增门店后，这里会显示地址和导航。</div>'}</div>
-    </section>
-  `
+  return `<div class="customer-preview-stores-v3 skeleton-${escapeHtml(page.skeleton)}">${sections.map(section => {
+    const attribute = getSkinPreviewSectionAttribute(section)
+    if (section.type === 'header' || section.type === 'hero') {
+      return `<section class="customer-preview-secondary-header customer-preview-stores-header" ${attribute}><span>到店服务</span><strong>${escapeHtml(section.title || '门店信息')}</strong><small>${escapeHtml(section.subtitle || '查看地址、营业时间和到店方式')}</small></section>`
+    }
+    if (section.type === 'stores') {
+      return `<section class="customer-preview-page-section customer-preview-stores-page" ${attribute}><div class="customer-preview-simple-list">${stores.slice(0, 3).map((item, index) => `<div><b>0${index + 1}</b><span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.address || item.businessHours || '地址待完善')}</small></span></div>`).join('') || '<div class="customer-preview-empty">在“店铺资料”中新增门店后，这里会显示地址和导航。</div>'}</div></section>`
+    }
+    if (section.type === 'contact') {
+      return `<section class="customer-preview-page-section customer-preview-contact-list" ${attribute}>${renderSkinPreviewHeading(section)}<div>${renderSkinPreviewIcon('phone')}<span><small>联系电话</small><strong>${escapeHtml(model.profile.contact?.phone || '到店前请联系客服')}</strong></span></div></section>`
+    }
+    return renderSkinPreviewRepeatableModule(section, model)
+  }).join('')}</div>`
 }
 
 function renderSkinPreviewBookingField(field, model) {
@@ -5402,7 +6211,7 @@ function renderSkinPreviewBooking(model) {
   const { booking, terminology } = model.decoration
   return booking.sections.map(section => {
     if (section.enabled === false) return ''
-    const previewSectionAttribute = `data-preview-section="${escapeHtml(section.type)}"`
+    const previewSectionAttribute = getSkinPreviewSectionAttribute(section)
 
     if (section.type === 'hero') {
       return `
@@ -5441,7 +6250,7 @@ function renderSkinPreviewBooking(model) {
     if (section.type === 'faq' && model.modules.faq && model.faq.enabled !== false) {
       return `<section class="customer-preview-page-section customer-preview-booking-section" ${previewSectionAttribute}>${renderSkinPreviewHeading(section)}<div class="customer-preview-faq">${(model.faq.items || []).slice(0, 2).map(item => `<div><strong>${escapeHtml(item.question)}</strong><span>${escapeHtml(item.answer)}</span></div>`).join('')}</div></section>`
     }
-    return ''
+    return renderSkinPreviewRepeatableModule(section, model)
   }).join('')
 }
 
@@ -5480,7 +6289,7 @@ function renderSkinPreviewPackages(model) {
   const packages = model.packages.length ? model.packages.slice(0, 2) : [getSkinPreviewPackage(model)]
   return decoration.sections.map(section => {
     if (section.enabled === false) return ''
-    const previewSectionAttribute = `data-preview-section="${escapeHtml(section.type)}"`
+    const previewSectionAttribute = getSkinPreviewSectionAttribute(section)
     if (section.type === 'header') {
       return `<section class="customer-preview-secondary-header" ${previewSectionAttribute}>${renderSkinPreviewHeading(section)}</section>`
     }
@@ -5494,7 +6303,7 @@ function renderSkinPreviewPackages(model) {
       const review = model.testimonials[0]
       return `<section class="customer-preview-page-section customer-preview-review-section" ${previewSectionAttribute}>${renderSkinPreviewHeading(section)}<blockquote>“${escapeHtml(review.content || '')}”</blockquote><span>${escapeHtml([review.name, review.shootType].filter(Boolean).join(' · '))}</span></section>`
     }
-    return ''
+    return renderSkinPreviewRepeatableModule(section, model)
   }).join('')
 }
 
@@ -5504,7 +6313,7 @@ function renderSkinPreviewPackageDetail(model) {
   const terms = model.decoration.terminology
   return decoration.sections.map(section => {
     if (section.enabled === false) return ''
-    const previewSectionAttribute = `data-preview-section="${escapeHtml(section.type)}"`
+    const previewSectionAttribute = getSkinPreviewSectionAttribute(section)
     if (section.type === 'hero') {
       return `<section class="customer-preview-detail-hero" ${previewSectionAttribute}>${section.title ? `<span>${escapeHtml(section.title)}</span>` : ''}<strong>${escapeHtml(packageItem.name)}</strong><b>${escapeHtml(packageItem.priceText)}</b><small>${escapeHtml(packageItem.subtitle)}</small><button type="button" tabindex="-1">${renderSkinPreviewIcon('message-circle')}${escapeHtml(terms.consultationLabel)}</button></section>`
     }
@@ -5539,7 +6348,7 @@ function renderSkinPreviewPackageDetail(model) {
     if (section.type === 'faq' && model.modules.faq && model.faq.enabled !== false) {
       return `<section class="customer-preview-page-section" ${previewSectionAttribute}>${renderSkinPreviewHeading(section)}<div class="customer-preview-faq">${(model.faq.items || []).slice(0, 2).map(item => `<div><strong>${escapeHtml(item.question)}</strong><span>${escapeHtml(item.answer)}</span></div>`).join('')}</div></section>`
     }
-    return ''
+    return renderSkinPreviewRepeatableModule(section, model)
   }).join('')
 }
 
@@ -5561,7 +6370,7 @@ function renderSkinPreviewSeries(model) {
   const terms = model.decoration.terminology
   return decoration.sections.map(section => {
     if (section.enabled === false) return ''
-    const previewSectionAttribute = `data-preview-section="${escapeHtml(section.type)}"`
+    const previewSectionAttribute = getSkinPreviewSectionAttribute(section)
     if (section.type === 'hero') {
       return `<section class="customer-preview-series-hero" ${previewSectionAttribute}><span>${escapeHtml(item.category)}</span><strong>${escapeHtml(item.title)}</strong><small>共 ${item.photoCount || images.length} 张${escapeHtml(terms.workLabel)}</small>${item.description ? `<p>${escapeHtml(item.description)}</p>` : ''}</section>`
     }
@@ -5584,7 +6393,7 @@ function renderSkinPreviewSeries(model) {
     if (section.type === 'action') {
       return `<section class="customer-preview-page-section customer-preview-action-section" ${previewSectionAttribute}><button type="button" tabindex="-1">${renderSkinPreviewIcon('message-circle')}${escapeHtml(section.actionText || `${terms.consultationLabel}同款风格`)}</button></section>`
     }
-    return ''
+    return renderSkinPreviewRepeatableModule(section, model)
   }).join('')
 }
 
@@ -5601,7 +6410,7 @@ function renderSkinPreviewSuccess(model) {
   const wechat = model.profile.contact?.wechat || '客服微信号'
   return decoration.sections.map(section => {
     if (section.enabled === false) return ''
-    const previewSectionAttribute = `data-preview-section="${escapeHtml(section.type)}"`
+    const previewSectionAttribute = getSkinPreviewSectionAttribute(section)
     if (section.type === 'hero') {
       return `<section class="customer-preview-result-hero" ${previewSectionAttribute}>${renderSkinPreviewIcon(section.icon || 'circle-check')}<strong>${escapeHtml(section.title)}</strong>${section.subtitle ? `<span>${escapeHtml(section.subtitle)}</span>` : ''}</section>`
     }
@@ -5617,7 +6426,7 @@ function renderSkinPreviewSuccess(model) {
     if (section.type === 'actions') {
       return `<section class="customer-preview-page-section customer-preview-result-actions" ${previewSectionAttribute}><button type="button" tabindex="-1">${renderSkinPreviewIcon('copy')}${escapeHtml(section.actionText || `复制${terms.consultationLabel}内容`)}</button><span>联系${escapeHtml(terms.customerServiceLabel)}确定日期</span></section>`
     }
-    return ''
+    return renderSkinPreviewRepeatableModule(section, model)
   }).join('')
 }
 
@@ -5725,13 +6534,16 @@ function updateSkinPreviewScale() {
   phone.dataset.previewScale = scale.toFixed(3)
 }
 
-function focusDecorationSectionFromPreview(pageKey, sectionType) {
+function focusDecorationSectionFromPreview(pageKey, sectionType, moduleId = '') {
   if (!DECORATION_PAGE_GUIDE[pageKey] || !sectionType) return
   switchDecorationStage('pages')
   switchDecorationPage(pageKey)
+  if (moduleId) selectDecorationModule(moduleId, { scroll: false })
 
   window.requestAnimationFrame(() => {
-    const row = document.querySelector(`[data-decoration-change-host="section:${pageKey}:${sectionType}"]`)
+    const row = moduleId
+      ? document.querySelector(`[data-decoration-change-host="module:${pageKey}:${moduleId}"]`)
+      : document.querySelector(`[data-decoration-change-host="section:${pageKey}:${sectionType}"]`)
     if (!row) return
     const details = row.querySelector('.decoration-row-details')
     if (details) details.open = true
@@ -5747,6 +6559,7 @@ function bindSkinPreviewSectionNavigation(viewport) {
   if (!viewport) return
   viewport.querySelectorAll('[data-preview-section]').forEach(section => {
     const sectionType = section.dataset.previewSection
+    const moduleId = section.dataset.previewModule || ''
     section.setAttribute('role', 'button')
     section.setAttribute('tabindex', '0')
     section.setAttribute('aria-label', `编辑${DECORATION_SECTION_NAMES[activeSkinPreviewPage]?.[sectionType] || '当前模块'}`)
@@ -5754,7 +6567,7 @@ function bindSkinPreviewSectionNavigation(viewport) {
     const activate = event => {
       if (event.type === 'keydown' && !['Enter', ' '].includes(event.key)) return
       event.preventDefault()
-      focusDecorationSectionFromPreview(activeSkinPreviewPage, sectionType)
+      focusDecorationSectionFromPreview(activeSkinPreviewPage, sectionType, moduleId)
     }
     section.addEventListener('click', activate)
     section.addEventListener('keydown', activate)
@@ -5770,9 +6583,6 @@ function updateThemePreview() {
   const theme = getManagementPreviewTheme()
   const preset = THEME_PRESETS[theme.preset] || THEME_PRESETS.minimal
   const model = getSkinPreviewModel(theme)
-  if (model.decoration.siteTemplate !== 'dark-gallery' && activeSkinPreviewPage === 'gallery') {
-    activeSkinPreviewPage = 'home'
-  }
   const fontFamilies = {
     clean: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     elegant: '"Songti SC", STSong, serif',
@@ -5836,6 +6646,7 @@ function updateThemePreview() {
   preview.dataset.packageDetailLayout = model.decoration.packageDetail.layoutVariant
   preview.dataset.seriesGallery = model.decoration.series.galleryVariant
   preview.dataset.successLayout = model.decoration.success.layoutVariant
+  preview.dataset.skeleton = model.decoration.pages?.[activeSkinPreviewPage]?.skeleton || ''
   const usesCustomNavigation = CUSTOM_NAVIGATION_PREVIEW_PAGES.has(activeSkinPreviewPage)
     || (model.decoration.siteTemplate === 'dark-gallery' && activeSkinPreviewPage === 'series')
   preview.dataset.navigationMode = usesCustomNavigation ? 'custom' : 'native'
@@ -5868,7 +6679,7 @@ function updateThemePreview() {
   renderSkinPreviewQuickJump(model)
 
   document.querySelectorAll('[data-skin-preview-page]').forEach(button => {
-    if (button.dataset.skinPreviewPage === 'gallery') button.hidden = model.decoration.siteTemplate !== 'dark-gallery'
+    button.hidden = false
     const active = button.dataset.skinPreviewPage === activeSkinPreviewPage
     button.classList.toggle('active', active)
     button.setAttribute('aria-selected', String(active))
@@ -6066,10 +6877,44 @@ function applySelectedThemePreset() {
   updateThemePreview()
 }
 
+function validateDecorationBeforeSave(decoration) {
+  const errors = []
+  const labels = [
+    ['portfolioText', '首页入口'],
+    ['galleryText', '作品入口'],
+    ['aboutText', '简介入口'],
+    ['packagesText', '套餐入口'],
+    ['bookingText', '咨询入口'],
+    ['storesText', '门店入口']
+  ]
+  labels.forEach(([key, label]) => {
+    if (Array.from(String(decoration?.navigation?.[key] || '').trim()).length > 6) {
+      errors.push(`${label}文字最多 6 个中文字符`)
+    }
+  })
+  const enabledNavigation = decoration?.navigation?.items?.filter(item => item.enabled).length || 0
+  if (enabledNavigation < 2 || enabledNavigation > 5) {
+    errors.push('底部导航需要显示 2～5 个入口')
+  }
+  Object.entries(decoration?.pages || {}).forEach(([pageKey, page]) => {
+    if (!Array.isArray(page?.modules) || !page.modules.some(module => module.enabled)) {
+      errors.push(`${DECORATION_PAGE_GUIDE[pageKey]?.name || '页面'}至少保留一个显示中的模块`)
+    }
+  })
+  return errors
+}
+
 async function saveThemeSettings() {
   ensureV11Config()
 
   const brandName = document.getElementById('themeBrandName').value.trim()
+
+  const nextDecoration = collectDecorationSettings()
+  const validationErrors = validateDecorationBeforeSave(nextDecoration)
+  if (validationErrors.length) {
+    showToast(validationErrors[0], 'error')
+    return
+  }
 
   portfolioData.theme = {
     ...(portfolioData.theme || {}),
@@ -6078,7 +6923,7 @@ async function saveThemeSettings() {
     // 旧版字段继续保留，实际页面顺序由 decoration.*.sections 控制。
     homeLayout: portfolioData.theme?.homeLayout || 'portfolio-first',
   }
-  portfolioData.decoration = collectDecorationSettings()
+  portfolioData.decoration = compactDecorationForStorage(nextDecoration)
   portfolioData.modules = {
     ...(portfolioData.modules || {}),
     theme: document.getElementById('themeEnabled').checked
@@ -6241,10 +7086,410 @@ function normalizeNavigationItems(items) {
     next.enabled = true
   }
 
+  let enabledCount = 0
+  normalized.forEach(item => {
+    if (!item.enabled) return
+    enabledCount += 1
+    if (enabledCount > 5) item.enabled = false
+  })
+
   return [
     ...normalized.filter(item => item.enabled),
     ...normalized.filter(item => !item.enabled)
   ]
+}
+
+function clampDecorationNumber(value, min, max, fallback) {
+  const numeric = Number(value)
+  if (!Number.isFinite(numeric)) return fallback
+  return Math.min(max, Math.max(min, numeric))
+}
+
+function normalizeDecorationStringList(value) {
+  if (!Array.isArray(value)) return []
+  return Array.from(new Set(value.map(item => String(item || '').trim()).filter(Boolean)))
+}
+
+function normalizeDecorationPhotoReferences(value) {
+  if (!Array.isArray(value)) return []
+  const seen = new Set()
+  const photos = []
+
+  value.forEach(rawItem => {
+    if (!rawItem || typeof rawItem !== 'object') return
+    const seriesId = String(rawItem.seriesId || '').trim()
+    const photoName = String(rawItem.photoName || '').trim()
+    if (!seriesId || !photoName || /[?&]|:\/\//.test(photoName)) return
+    const key = `${seriesId}\u0000${photoName}`
+    if (seen.has(key)) return
+    seen.add(key)
+    photos.push({ seriesId, photoName })
+  })
+
+  return photos
+}
+
+function getDefaultDecorationSkeleton(pageKey) {
+  return Object.keys(PAGE_SKELETON_REGISTRY[pageKey] || {})[0] || ''
+}
+
+function normalizeDecorationSkeleton(pageKey, value) {
+  const skeleton = String(value || '')
+  return PAGE_SKELETON_REGISTRY[pageKey]?.[skeleton]
+    ? skeleton
+    : getDefaultDecorationSkeleton(pageKey)
+}
+
+function getDefaultDecorationModule(pageKey, type) {
+  return DEFAULT_DECORATION_CONFIG.pages?.[pageKey]?.modules?.find(item => item.type === type)
+}
+
+function normalizeDecorationModule(rawItem, pageKey, fallbackIndex = 0) {
+  if (!rawItem || typeof rawItem !== 'object') return null
+  const type = String(rawItem.type || '').trim()
+  if (!DECORATION_MODULE_LIBRARY[type]) return null
+
+  const fallback = getDefaultDecorationModule(pageKey, type)
+    || createDecorationModuleInstance(pageKey, type, { id: `fallback-${pageKey}-${type}` })
+  const rawContent = rawItem.content && typeof rawItem.content === 'object' ? rawItem.content : {}
+  const rawLayout = rawItem.layout && typeof rawItem.layout === 'object' ? rawItem.layout : {}
+  const rawSource = rawItem.source && typeof rawItem.source === 'object' ? rawItem.source : {}
+  const rawMedia = rawItem.media && typeof rawItem.media === 'object' ? rawItem.media : {}
+  const columns = [1, 2, 3, 4].includes(Number(rawLayout.columns))
+    ? Number(rawLayout.columns)
+    : fallback.layout.columns
+  const showText = columns === 4
+    ? false
+    : typeof rawLayout.showText === 'boolean'
+      ? rawLayout.showText
+      : fallback.layout.showText
+  const ratio = ['natural', '1:1', '3:4', '4:5', '16:9'].includes(rawLayout.ratio)
+    ? rawLayout.ratio
+    : fallback.layout.ratio
+  const mediaRatio = ['natural', '1:1', '3:4', '4:5', '16:9'].includes(rawMedia.ratio)
+    ? rawMedia.ratio
+    : ratio
+  const sourceMode = ['auto', 'series', 'photos'].includes(rawSource.mode)
+    ? rawSource.mode
+    : fallback.source.mode
+
+  const rawId = String(rawItem.id || '').trim()
+  const id = /^[A-Za-z0-9_-]+$/.test(rawId)
+    ? rawId
+    : `module-${pageKey}-${type}-${fallbackIndex + 1}`
+
+  return {
+    id,
+    type,
+    enabled: rawItem.enabled !== false,
+    variant: String(rawItem.variant || fallback.variant || 'default'),
+    content: {
+      title: String(rawContent.title ?? rawItem.title ?? fallback.content.title ?? ''),
+      subtitle: String(rawContent.subtitle ?? rawItem.subtitle ?? fallback.content.subtitle ?? ''),
+      body: String(rawContent.body ?? fallback.content.body ?? ''),
+      actionText: String(rawContent.actionText ?? rawItem.actionText ?? fallback.content.actionText ?? ''),
+      actionTarget: String(rawContent.actionTarget ?? fallback.content.actionTarget ?? ''),
+      icon: normalizeConfigurableIcon(rawContent.icon ?? rawItem.icon, fallback.content.icon || '', true),
+      showTitle: columns === 4 ? false : rawContent.showTitle !== false,
+      showCategory: columns === 4 ? false : rawContent.showCategory !== false,
+      showDescription: columns === 4 ? false : rawContent.showDescription === true
+    },
+    layout: {
+      mode: ['grid', 'masonry', 'horizontal', 'mixed', 'stack'].includes(rawLayout.mode)
+        ? rawLayout.mode
+        : fallback.layout.mode,
+      columns,
+      ratio,
+      gap: ['tight', 'standard', 'airy'].includes(rawLayout.gap) ? rawLayout.gap : fallback.layout.gap,
+      showText
+    },
+    source: {
+      mode: sourceMode,
+      seriesIds: normalizeDecorationStringList(rawSource.seriesIds),
+      photos: normalizeDecorationPhotoReferences(rawSource.photos),
+      limit: Math.round(clampDecorationNumber(rawSource.limit, 1, 100, fallback.source.limit))
+    },
+    media: {
+      ratio: mediaRatio,
+      overlay: clampDecorationNumber(rawMedia.overlay, 0, 80, fallback.media.overlay),
+      brightness: clampDecorationNumber(rawMedia.brightness, -40, 40, fallback.media.brightness),
+      focusX: clampDecorationNumber(rawMedia.focusX, 0, 100, fallback.media.focusX),
+      focusY: clampDecorationNumber(rawMedia.focusY, 0, 100, fallback.media.focusY)
+    }
+  }
+}
+
+function createMinimumDecorationPage(pageKey, skeleton) {
+  const resolvedSkeleton = normalizeDecorationSkeleton(pageKey, skeleton)
+  const minimumType = PAGE_SKELETON_REGISTRY[pageKey][resolvedSkeleton].minimumModule
+  return {
+    skeleton: resolvedSkeleton,
+    modules: [createDecorationModuleInstance(pageKey, minimumType)]
+  }
+}
+
+function normalizeV3DecorationPage(rawPage, pageKey) {
+  if (rawPage === undefined || rawPage === null) {
+    return createMinimumDecorationPage(pageKey, getDefaultDecorationSkeleton(pageKey))
+  }
+  if (!rawPage || typeof rawPage !== 'object') {
+    return createMinimumDecorationPage(pageKey, getDefaultDecorationSkeleton(pageKey))
+  }
+  const skeleton = normalizeDecorationSkeleton(pageKey, rawPage.skeleton)
+  const seenUniqueTypes = new Set()
+  const modules = Array.isArray(rawPage.modules)
+    ? rawPage.modules
+      .map((item, index) => normalizeDecorationModule(item, pageKey, index))
+      .filter(Boolean)
+      .filter(module => {
+        if (REPEATABLE_MODULE_TYPES.includes(module.type)) return true
+        if (seenUniqueTypes.has(module.type)) return false
+        seenUniqueTypes.add(module.type)
+        return true
+      })
+    : []
+
+  if (!modules.length) return createMinimumDecorationPage(pageKey, skeleton)
+
+  const usedIds = new Set()
+  modules.forEach(module => {
+    if (!module.id || usedIds.has(module.id)) {
+      module.id = createDecorationModuleInstance(pageKey, module.type).id
+    }
+    usedIds.add(module.id)
+  })
+  if (!modules.some(module => module.enabled)) modules[0].enabled = true
+  return { skeleton, modules }
+}
+
+const HOME_TEMPLATE_SKELETONS = {
+  'editorial-cover': 'full-image',
+  'split-catalog': 'editorial',
+  'gallery-wall': 'wall',
+  'service-led': 'conversion'
+}
+
+function getLegacyDecorationSkeleton(pageKey, source) {
+  if (pageKey === 'home') return HOME_TEMPLATE_SKELETONS[source.home?.template] || 'full-image'
+  if (pageKey === 'gallery') return source.showcase?.categoryMode === 'sidebar' ? 'sidebar' : 'top-categories'
+  if (pageKey === 'series') return source.series?.galleryVariant === 'framed' ? 'editorial-album' : 'cinematic-story'
+  if (pageKey === 'about') return source.about?.headerVariant === 'portrait' ? 'portrait-story' : 'brand-studio'
+  if (pageKey === 'packages') return source.packages?.layoutVariant === 'list' ? 'price-catalog' : 'premium-cards'
+  if (pageKey === 'packageDetail') return source.packageDetail?.layoutVariant === 'compact' ? 'compact-conversion' : 'editorial-detail'
+  if (pageKey === 'booking') return source.booking?.formVariant === 'soft' ? 'package-guided' : 'form-first'
+  if (pageKey === 'stores') return 'location-list'
+  return source.success?.layoutVariant === 'compact' ? 'compact-contact' : 'centered-result'
+}
+
+function migrateLegacyDecorationPage(pageKey, source, normalizedLegacy) {
+  const skeleton = normalizeDecorationSkeleton(pageKey, getLegacyDecorationSkeleton(pageKey, source))
+  let rawSections = source[pageKey]?.sections
+  if (!Array.isArray(rawSections)) {
+    rawSections = ['gallery', 'stores'].includes(pageKey)
+      ? DEFAULT_DECORATION_CONFIG.pages[pageKey].modules.map(module => ({
+        id: module.type,
+        type: module.type,
+        enabled: module.enabled,
+        title: module.content.title,
+        subtitle: module.content.subtitle,
+        actionText: module.content.actionText,
+        icon: module.content.icon,
+        variant: module.variant
+      }))
+      : normalizedLegacy[pageKey]?.sections
+  }
+  const modules = Array.isArray(rawSections)
+    ? rawSections
+      .map((item, index) => {
+        const module = normalizeDecorationModule(item, pageKey, index)
+        if (module) module.id = `legacy-${pageKey}-${module.type}-${index + 1}`
+        return module
+      })
+      .filter(Boolean)
+    : []
+  if (!modules.length) return createMinimumDecorationPage(pageKey, skeleton)
+
+  const portfolioModule = modules.find(module => ['portfolio', 'gallery'].includes(module.type))
+  if (pageKey === 'home' && portfolioModule) {
+    const legacyHome = source.home || {}
+    const columns = [1, 2, 3, 4].includes(Number(legacyHome.galleryColumns))
+      ? Number(legacyHome.galleryColumns)
+      : portfolioModule.layout.columns
+    const modeMap = { editorial: 'grid', cards: 'grid', masonry: 'masonry', horizontal: 'horizontal', mixed: 'mixed' }
+    const ratioMap = { portrait: '3:4', square: '1:1', natural: 'natural' }
+    const showText = columns !== 4 && legacyHome.cardContent !== 'image-only'
+    portfolioModule.layout = {
+      ...portfolioModule.layout,
+      mode: modeMap[legacyHome.galleryVariant] || portfolioModule.layout.mode,
+      columns,
+      ratio: ratioMap[legacyHome.imageRatio] || portfolioModule.layout.ratio,
+      gap: ['tight', 'standard', 'airy'].includes(legacyHome.galleryGap) ? legacyHome.galleryGap : portfolioModule.layout.gap,
+      showText
+    }
+    portfolioModule.media.ratio = portfolioModule.layout.ratio
+    portfolioModule.content.showTitle = showText && legacyHome.showTitle !== false
+    portfolioModule.content.showCategory = showText && legacyHome.showCategory !== false
+    portfolioModule.content.showDescription = showText && legacyHome.showDescription === true
+  }
+  if (pageKey === 'gallery' && portfolioModule) {
+    portfolioModule.layout.columns = [2, 3].includes(Number(source.showcase?.galleryColumns))
+      ? Number(source.showcase.galleryColumns)
+      : portfolioModule.layout.columns
+  }
+  if (!modules.some(module => module.enabled)) modules[0].enabled = true
+  return { skeleton, modules }
+}
+
+function normalizeDecorationPages(source, normalizedLegacy) {
+  const hasV3Pages = Number(source.schemaVersion) >= 3 && source.pages && typeof source.pages === 'object'
+  return Object.keys(PAGE_SKELETON_REGISTRY).reduce((pages, pageKey) => {
+    pages[pageKey] = hasV3Pages
+      ? normalizeV3DecorationPage(source.pages[pageKey], pageKey)
+      : migrateLegacyDecorationPage(pageKey, source, normalizedLegacy)
+    return pages
+  }, {})
+}
+
+function modulesToLegacySections(modules) {
+  return modules.map(module => ({
+    id: module.id,
+    type: module.type,
+    enabled: module.enabled,
+    icon: module.content.icon,
+    title: module.content.title,
+    subtitle: module.content.subtitle,
+    actionText: module.content.actionText,
+    variant: module.variant,
+    content: module.content,
+    layout: module.layout,
+    source: module.source,
+    media: module.media,
+    mediaStyle: `object-position: ${module.media.focusX}% ${module.media.focusY}%; filter: brightness(${100 + module.media.brightness}%);`,
+    mediaRatioClass: String(module.media.ratio).replace(':', '-'),
+    overlayStyle: `opacity: ${module.media.overlay / 100};`,
+    layoutClass: `mode-${module.layout.mode} columns-${module.layout.columns} ratio-${String(module.layout.ratio).replace(':', '-')} gap-${module.layout.gap} ${module.layout.showText ? 'show-text' : 'image-only'}`
+  }))
+}
+
+function syncLegacyDecorationFromPages(decoration) {
+  const pages = decoration.pages
+  const homePortfolio = pages.home.modules.find(module => module.type === 'portfolio')
+  const homeLayout = homePortfolio?.layout || {}
+  const homeContent = homePortfolio?.content || {}
+  const homeVisibility = {
+    showTitle: homeLayout.showText !== false && homeContent.showTitle !== false,
+    showCategory: homeLayout.showText !== false && homeContent.showCategory !== false,
+    showDescription: homeLayout.showText !== false && homeContent.showDescription === true
+  }
+
+  decoration.home = {
+    ...decoration.home,
+    skeleton: pages.home.skeleton,
+    template: Object.keys(HOME_TEMPLATE_SKELETONS).find(key => HOME_TEMPLATE_SKELETONS[key] === pages.home.skeleton) || decoration.home.template,
+    galleryVariant: homeLayout.mode === 'grid' ? decoration.home.galleryVariant : homeLayout.mode,
+    galleryColumns: homeLayout.columns || decoration.home.galleryColumns,
+    imageRatio: ({ '1:1': 'square', '3:4': 'portrait' })[homeLayout.ratio] || 'natural',
+    ...homeVisibility,
+    cardContent: homeLayout.showText === false ? 'image-only' : getHomeCardContentFromVisibility(homeVisibility),
+    galleryGap: homeLayout.gap || decoration.home.galleryGap,
+    sections: modulesToLegacySections(pages.home.modules)
+  }
+  decoration.about = {
+    ...decoration.about,
+    skeleton: pages.about.skeleton,
+    headerVariant: pages.about.skeleton === 'portrait-story' ? 'portrait' : pages.about.skeleton === 'store-service' ? 'minimal' : 'editorial',
+    sections: modulesToLegacySections(pages.about.modules)
+  }
+  decoration.booking = {
+    ...decoration.booking,
+    skeleton: pages.booking.skeleton,
+    headerVariant: pages.booking.skeleton === 'package-guided' ? 'image' : pages.booking.skeleton === 'minimal-contact' ? 'compact' : 'editorial',
+    formVariant: pages.booking.skeleton === 'package-guided' ? 'soft' : 'lines',
+    sections: modulesToLegacySections(pages.booking.modules)
+  }
+  decoration.packages = {
+    ...decoration.packages,
+    skeleton: pages.packages.skeleton,
+    layoutVariant: pages.packages.skeleton === 'premium-cards' ? 'cards' : 'list',
+    sections: modulesToLegacySections(pages.packages.modules)
+  }
+  decoration.packageDetail = {
+    ...decoration.packageDetail,
+    skeleton: pages.packageDetail.skeleton,
+    layoutVariant: pages.packageDetail.skeleton === 'compact-conversion' ? 'compact' : 'editorial',
+    sections: modulesToLegacySections(pages.packageDetail.modules)
+  }
+  decoration.series = {
+    ...decoration.series,
+    skeleton: pages.series.skeleton,
+    galleryVariant: pages.series.skeleton === 'editorial-album' ? 'framed' : 'immersive',
+    sections: modulesToLegacySections(pages.series.modules)
+  }
+  decoration.success = {
+    ...decoration.success,
+    skeleton: pages.success.skeleton,
+    layoutVariant: pages.success.skeleton === 'compact-contact' ? 'compact' : 'centered',
+    sections: modulesToLegacySections(pages.success.modules)
+  }
+  return decoration
+}
+
+function compactDecorationForStorage(decoration) {
+  const compact = deepClone(decoration)
+  const toCompatibilitySections = modules => modules.map(module => ({
+    id: module.id,
+    type: module.type,
+    enabled: module.enabled,
+    icon: module.content?.icon || '',
+    title: module.content?.title || '',
+    subtitle: module.content?.subtitle || '',
+    actionText: module.content?.actionText || '',
+    variant: module.variant || 'default'
+  }))
+
+  compact.schemaVersion = 3
+  ;['home', 'about', 'booking', 'packages', 'packageDetail', 'series', 'success'].forEach(pageKey => {
+    if (!compact[pageKey] || !compact.pages?.[pageKey]) return
+    compact[pageKey].sections = toCompatibilitySections(compact.pages[pageKey].modules)
+  })
+  return compact
+}
+
+function applyDecorationSkeleton(pageKey, skeleton, options = {}) {
+  if (!decorationEditorState?.pages?.[pageKey]) return null
+  const resolvedSkeleton = normalizeDecorationSkeleton(pageKey, skeleton)
+  const definition = PAGE_SKELETON_REGISTRY[pageKey][resolvedSkeleton]
+  const currentPage = normalizeV3DecorationPage(decorationEditorState.pages[pageKey], pageKey)
+  const remaining = currentPage.modules.slice()
+  const ordered = []
+
+  definition.recommendedModules.forEach(type => {
+    const index = remaining.findIndex(module => module.type === type)
+    if (index >= 0) ordered.push(remaining.splice(index, 1)[0])
+    else ordered.push(createDecorationModuleInstance(pageKey, type))
+  })
+  ordered.push(...remaining)
+  if (!ordered.some(module => module.enabled)) ordered[0].enabled = true
+  decorationEditorState.pages[pageKey] = { skeleton: resolvedSkeleton, modules: ordered }
+  syncLegacyDecorationFromPages(decorationEditorState)
+  if (options.render !== false) {
+    activeDecorationModuleId = ordered.find(module => module.enabled)?.id || ordered[0]?.id || ''
+    renderDecorationModuleTree()
+    renderDecorationModuleInspector()
+    syncDecorationWorkbenchSelectors()
+    updateThemePreview()
+  }
+  if (options.mark !== false) {
+    markDecorationChanged({
+      key: `pages:${pageKey}:skeleton:${resolvedSkeleton}`,
+      stage: 'pages',
+      label: `${DECORATION_PAGE_GUIDE[pageKey]?.name || '页面'}骨架：${definition.name}`,
+      editorElement: document.getElementById('decorationSkeletonSelect'),
+      previewPage: pageKey,
+      previewSelector: '#skinPreviewViewport'
+    })
+  }
+  return decorationEditorState.pages[pageKey]
 }
 
 function normalizeDecorationConfig(decoration) {
@@ -6253,7 +7498,7 @@ function normalizeDecorationConfig(decoration) {
   const pickValue = (value, allowed, fallback) => allowed.includes(value) ? value : fallback
   const migratedFrameworkId = source.framework?.id
     || (source.siteTemplate === 'dark-gallery' ? 'cinematic-gallery' : DEFAULT_DECORATION_CONFIG.framework.id)
-  normalized.schemaVersion = 2
+  normalized.schemaVersion = 3
   normalized.framework.id = pickValue(
     migratedFrameworkId,
     ['legacy-classic', ...Object.keys(FRAMEWORK_PRESETS)],
@@ -6449,6 +7694,9 @@ function normalizeDecorationConfig(decoration) {
       defaultBookingFieldsById.get(field.id)?.icon || 'image'
     )
   }))
+
+  normalized.pages = normalizeDecorationPages(source, normalized)
+  syncLegacyDecorationFromPages(normalized)
 
   return normalized
 }

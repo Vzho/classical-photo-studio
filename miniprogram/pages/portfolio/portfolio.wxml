@@ -1,75 +1,47 @@
-<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-showcase-home {{decorationClass}}" style="{{themeStyle}} {{decorationStyle}}">
+<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-showcase-home {{decorationClass}} skeleton-{{homeDecoration.skeleton}}" style="{{themeStyle}} {{decorationStyle}}">
   <dark-site-header title="{{homeBanner.logoText}}" />
+  <view class="dark-home-modules">
+    <block wx:for="{{homeSections}}" wx:key="id" wx:for-item="section">
+      <block wx:if="{{section.enabled && section.type === 'hero'}}">
+        <swiper wx:if="{{bannerItems.length}}" class="dark-home-swiper" circular autoplay interval="5600" duration="900" indicator-dots="{{false}}">
+          <swiper-item wx:for="{{bannerItems}}" wx:key="id" wx:for-item="bannerItem" bindtap="onBannerTap" data-item="{{bannerItem}}">
+            <image class="dark-home-image" style="{{section.mediaStyle}}" src="{{bannerItem.imageUrl}}" mode="aspectFill" binderror="onBannerImageError" data-id="{{bannerItem.id}}" />
+            <view class="dark-home-shade" style="{{section.overlayStyle}}"></view>
+            <view class="dark-home-copy"><view class="dark-home-title">{{section.content.title || homeBanner.logoText}}</view><view class="dark-home-title-line"></view><view class="dark-home-description">{{section.content.subtitle || homeBanner.description || bannerItem.title}}</view></view>
+            <view class="dark-home-action" catchtap="onShowcaseAction">{{section.content.actionText || showcase.heroActionText}}</view>
+            <view class="dark-home-scroll-cue" catchtap="scrollToFeatured"><app-icon name="chevron-down" size="40" tone="inverse" /><app-icon name="chevron-down" size="40" tone="inverse" /></view>
+          </swiper-item>
+        </swiper>
+        <view wx:else class="dark-home-empty"><view class="dark-home-copy"><view class="dark-home-title">{{section.content.title || homeBanner.logoText}}</view><view class="dark-home-title-line"></view><view class="dark-home-description">{{section.content.subtitle || homeBanner.description}}</view></view><view class="dark-home-action" bindtap="onShowcaseAction">{{section.content.actionText || showcase.heroActionText}}</view></view>
+      </block>
 
-  <swiper
-    wx:if="{{bannerItems.length}}"
-    class="dark-home-swiper"
-    circular
-    autoplay
-    interval="5600"
-    duration="900"
-    indicator-dots="{{false}}"
-  >
-    <swiper-item wx:for="{{bannerItems}}" wx:key="id" wx:for-item="bannerItem" bindtap="onBannerTap" data-item="{{bannerItem}}">
-      <image class="dark-home-image" src="{{bannerItem.imageUrl}}" mode="aspectFill" binderror="onBannerImageError" data-id="{{bannerItem.id}}" />
-      <view class="dark-home-shade"></view>
-      <view class="dark-home-copy">
-        <view class="dark-home-title">{{homeBanner.logoText}}</view>
-        <view class="dark-home-title-line"></view>
-        <view class="dark-home-description">{{homeBanner.description || bannerItem.title}}</view>
+      <view wx:elif="{{section.enabled && section.type === 'categories'}}" class="dark-home-featured dark-home-categories-section">
+        <view class="dark-home-gallery-head"><text>{{section.content.title || showcase.galleryTitle}}</text><view class="dark-home-gallery-subtitle">{{section.content.subtitle || showcase.gallerySubtitle}}</view></view>
+        <scroll-view class="dark-home-category-scroll" scroll-x enhanced show-scrollbar="{{false}}"><view class="dark-home-categories"><view wx:for="{{categories}}" wx:key="*this" class="dark-home-category-item {{activeCategory === item ? 'active' : ''}}" bindtap="onCategoryTap" data-category="{{item}}">{{item}}</view></view></scroll-view>
       </view>
-      <view class="dark-home-action" catchtap="onShowcaseAction">{{showcase.heroActionText}}</view>
-      <view class="dark-home-scroll-cue" catchtap="scrollToFeatured">
-        <app-icon name="chevron-down" size="40" tone="inverse" />
-        <app-icon name="chevron-down" size="40" tone="inverse" />
-      </view>
-    </swiper-item>
-  </swiper>
 
-  <view wx:else class="dark-home-empty">
-    <view class="dark-home-copy">
-      <view class="dark-home-title">{{homeBanner.logoText}}</view>
-      <view class="dark-home-title-line"></view>
-      <view class="dark-home-description">{{homeBanner.description}}</view>
-    </view>
-    <view class="dark-home-action" bindtap="onShowcaseAction">{{showcase.heroActionText}}</view>
-    <view class="dark-home-scroll-cue" bindtap="scrollToFeatured">
-      <app-icon name="chevron-down" size="40" tone="inverse" />
-      <app-icon name="chevron-down" size="40" tone="inverse" />
-    </view>
-  </view>
+      <view wx:elif="{{section.enabled && section.type === 'portfolio'}}" id="dark-home-featured" class="dark-home-featured dark-home-portfolio-section {{section.layoutClass}}">
+        <view class="dark-home-grid">
+          <view class="dark-home-card" wx:for="{{section.source.mode === 'auto' ? filteredItems : section.resolvedItems}}" wx:key="id" wx:for-item="portfolioItem" wx:if="{{index < section.source.limit}}" bindtap="onItemTap" data-item="{{portfolioItem}}">
+            <image src="{{portfolioItem.imageUrl}}" style="{{section.mediaStyle}}" mode="aspectFill" lazy-load binderror="onItemImageError" data-id="{{portfolioItem.id}}" />
+            <view class="dark-home-card-shade"></view><view wx:if="{{section.layout.showText}}" class="dark-home-card-title">{{portfolioItem.title}}</view>
+          </view>
+        </view>
+        <view class="dark-home-gallery-action" bindtap="goGallery">{{section.content.actionText || '查看全部'}}{{terminology.workLabel}}</view>
+      </view>
 
-  <view id="dark-home-featured" class="dark-home-featured">
-    <view class="dark-home-gallery-head">
-      <text>{{showcase.galleryTitle}}</text>
-      <view class="dark-home-gallery-subtitle">{{showcase.gallerySubtitle}}</view>
-    </view>
-    <scroll-view class="dark-home-category-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-      <view class="dark-home-categories">
-        <view
-          wx:for="{{categories}}"
-          wx:key="*this"
-          class="dark-home-category-item {{activeCategory === item ? 'active' : ''}}"
-          bindtap="onCategoryTap"
-          data-category="{{item}}"
-        >{{item}}</view>
-      </view>
-    </scroll-view>
-    <view class="dark-home-grid">
-      <view class="dark-home-card" wx:for="{{filteredItems}}" wx:key="id" wx:for-item="portfolioItem" wx:if="{{index < 4}}" bindtap="onItemTap" data-item="{{portfolioItem}}">
-        <image src="{{portfolioItem.imageUrl}}" mode="aspectFill" lazy-load binderror="onItemImageError" data-id="{{portfolioItem.id}}" />
-        <view class="dark-home-card-shade"></view>
-        <view class="dark-home-card-title">{{portfolioItem.title}}</view>
-      </view>
-    </view>
-    <view class="dark-home-gallery-action" bindtap="goGallery">查看全部{{terminology.workLabel}}</view>
+      <view wx:elif="{{section.enabled && section.type === 'packages' && packages.length}}" class="dark-home-summary-module"><view class="dark-home-summary-title">{{section.content.title}}</view><view wx:for="{{packages}}" wx:key="id" class="dark-home-summary-row"><text>{{item.name}}</text><text>{{item.priceText}}</text></view></view>
+      <view wx:elif="{{section.enabled && section.type === 'schedule' && schedule.enabled}}" class="dark-home-summary-module"><view class="dark-home-summary-title">{{section.content.title || schedule.title}}</view><view class="dark-home-summary-copy">{{schedule.availableText}}</view></view>
+      <view wx:elif="{{section.enabled && section.type === 'testimonials' && testimonials.length}}" class="dark-home-summary-module"><view class="dark-home-summary-title">{{section.content.title}}</view><view class="dark-home-summary-quote">“{{testimonials[0].content}}”</view></view>
+      <decoration-block wx:elif="{{section.enabled && (section.type === 'richText' || section.type === 'image' || section.type === 'gallery' || section.type === 'action' || section.type === 'divider' || section.type === 'spacer')}}" module="{{section}}" />
+    </block>
   </view>
 
   <dark-floating-actions wx:if="{{consultButtonVisible}}" contact-text="{{terminology.consultationLabel}}" bindcontact="goBooking" />
 </view>
 
 <view wx:else
-  class="portfolio-page theme-{{themePreset}} {{decorationClass}} template-{{homeDecoration.template}} hero-{{homeDecoration.heroVariant}} gallery-{{homeDecoration.galleryVariant}} columns-{{homeDecoration.galleryColumns}} ratio-{{homeDecoration.imageRatio}} content-{{homeDecoration.cardContent}} gap-{{homeDecoration.galleryGap}}"
+  class="portfolio-page theme-{{themePreset}} {{decorationClass}} skeleton-{{homeDecoration.skeleton}} template-{{homeDecoration.template}} hero-{{homeDecoration.heroVariant}} gallery-{{homeDecoration.galleryVariant}} columns-{{homeDecoration.galleryColumns}} ratio-{{homeDecoration.imageRatio}} content-{{homeDecoration.cardContent}} gap-{{homeDecoration.galleryGap}}"
   style="{{themeStyle}} {{decorationStyle}}"
 >
   <block wx:for="{{homeSections}}" wx:for-item="section" wx:key="id">
@@ -95,12 +67,13 @@
         >
           <image
             class="hero-image"
+            style="{{section.mediaStyle}}"
             src="{{bannerItem.imageUrl}}"
             mode="aspectFill"
             binderror="onBannerImageError"
             data-id="{{bannerItem.id}}"
           />
-          <view class="hero-shade"></view>
+          <view class="hero-shade" style="{{section.overlayStyle}}"></view>
           <view class="hero-brand">{{homeBanner.logoText}}</view>
           <view class="hero-content">
             <view class="hero-kicker">
@@ -115,8 +88,8 @@
       </swiper>
 
       <view wx:else class="hero-fallback">
-        <image wx:if="{{bannerUrl}}" class="hero-image" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
-        <view class="hero-shade"></view>
+        <image wx:if="{{bannerUrl}}" class="hero-image" style="{{section.mediaStyle}}" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
+        <view class="hero-shade" style="{{section.overlayStyle}}"></view>
         <view class="hero-brand">{{homeBanner.logoText}}</view>
         <view class="hero-content">
           <view class="hero-kicker">
@@ -166,7 +139,7 @@
       </view>
     </view>
 
-    <view wx:elif="{{section.enabled && section.type === 'portfolio'}}" class="page-section portfolio-section">
+    <view wx:elif="{{section.enabled && section.type === 'portfolio'}}" class="page-section portfolio-section {{section.layoutClass}}">
       <view class="section-heading" wx:if="{{section.title || section.subtitle}}">
         <view class="section-heading-main">
           <view class="section-title-row" wx:if="{{section.title}}">
@@ -175,12 +148,12 @@
           </view>
           <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
         </view>
-        <view class="section-count">{{filteredItems.length}} 组</view>
+        <view class="section-count">{{section.source.mode === 'auto' ? filteredItems.length : section.resolvedItems.length}} 组</view>
       </view>
 
       <view class="portfolio-grid">
         <view
-          wx:for="{{filteredItems}}"
+          wx:for="{{section.source.mode === 'auto' ? filteredItems : section.resolvedItems}}"
           wx:for-item="portfolioItem"
           wx:key="id"
           class="portfolio-item"
@@ -190,6 +163,7 @@
           <view class="item-image-wrap">
             <image
               class="item-image"
+              style="{{section.mediaStyle}}"
               src="{{portfolioItem.imageUrl}}"
               mode="{{homeDecoration.imageRatio === 'natural' ? 'widthFix' : 'aspectFill'}}"
               lazy-load
@@ -220,7 +194,7 @@
         </view>
       </view>
 
-      <view wx:if="{{!filteredItems.length}}" class="empty-gallery">
+      <view wx:if="{{!(section.source.mode === 'auto' ? filteredItems.length : section.resolvedItems.length)}}" class="empty-gallery">
         <app-icon name="images" size="44" tone="muted" />
         <text>当前分类还没有{{terminology.workLabel}}</text>
       </view>
@@ -311,6 +285,8 @@
         </view>
       </view>
     </view>
+
+    <decoration-block wx:elif="{{section.enabled && (section.type === 'richText' || section.type === 'image' || section.type === 'gallery' || section.type === 'action' || section.type === 'divider' || section.type === 'spacer')}}" module="{{section}}" />
   </block>
 
   <quick-jump

@@ -1,4 +1,4 @@
-<view class="package-detail-page theme-{{themePreset}} {{decorationClass}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}} {{decorationStyle}}">
+<view class="package-detail-page theme-{{themePreset}} {{decorationClass}} skeleton-{{decoration.skeleton}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}} {{decorationStyle}}">
   <view class="empty-state" wx:if="{{!packageItem}}">
     <app-icon name="briefcase-business" size="44" tone="muted" />
     <view class="empty-title">这个{{terminology.packageLabel}}暂时无法查看</view>
@@ -116,6 +116,8 @@
             <view class="faq-answer">{{item.answer}}</view>
           </view>
         </view>
+
+        <decoration-block wx:if="{{section.type === 'richText' || section.type === 'image' || section.type === 'gallery' || section.type === 'action' || section.type === 'divider' || section.type === 'spacer'}}" module="{{section}}" />
       </block>
     </block>
   </block>

@@ -267,3 +267,33 @@
   margin-bottom: 16rpx;
   font-size: 28rpx;
 }
+
+/* V3 page skeletons */
+.skeleton-editorial-detail .detail-hero {
+  min-height: 470rpx;
+  padding-top: 92rpx;
+}
+
+.skeleton-editorial-detail .hero-title {
+  max-width: 580rpx;
+  font-size: 58rpx;
+}
+
+.skeleton-editorial-detail .detail-section:nth-child(2n) {
+  margin-right: calc(-1 * var(--page-padding));
+  margin-left: calc(-1 * var(--page-padding));
+  padding-right: var(--page-padding);
+  padding-left: var(--page-padding);
+  background: var(--surface);
+}
+
+.skeleton-compact-conversion .detail-hero {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg-light);
+}
+
+.skeleton-compact-conversion .hero-action {
+  width: 100%;
+}

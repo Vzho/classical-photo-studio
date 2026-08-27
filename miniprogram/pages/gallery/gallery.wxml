@@ -1,56 +1,71 @@
-<view class="dark-gallery-page {{decorationClass}} columns-{{showcase.galleryColumns}} mode-{{showcase.categoryMode}}" style="{{themeStyle}} {{decorationStyle}}">
-  <dark-site-header title="{{pageTitle}}" show-back="{{true}}" />
+<view class="dark-gallery-page theme-{{themePreset}} site-{{siteTemplate}} {{decorationClass}} columns-{{showcase.galleryColumns}} mode-{{showcase.categoryMode}} skeleton-{{galleryDecoration.skeleton}}" style="{{themeStyle}} {{decorationStyle}}">
+  <block wx:for="{{galleryDecoration.modules}}" wx:key="id" wx:for-item="moduleItem">
+    <block wx:if="{{moduleItem.enabled && (moduleItem.type === 'header' || moduleItem.type === 'hero')}}">
+      <dark-site-header wx:if="{{siteTemplate === 'dark-gallery'}}" title="{{moduleItem.content.title || pageTitle}}" show-back="{{true}}" />
+      <view wx:else class="gallery-light-header">
+        <view class="gallery-light-kicker">{{moduleItem.content.subtitle || 'PORTFOLIO'}}</view>
+        <view class="gallery-light-title">{{moduleItem.content.title || pageTitle}}</view>
+      </view>
+    </block>
+  </block>
 
   <view class="gallery-body">
-    <scroll-view
-      class="gallery-categories"
-      scroll-x="{{showcase.categoryMode === 'top'}}"
-      scroll-y="{{showcase.categoryMode === 'sidebar'}}"
-      enhanced
-      show-scrollbar="{{false}}"
-    >
-      <view class="gallery-category-track">
-        <view
-          wx:for="{{categories}}"
-          wx:key="*this"
-          class="gallery-category {{activeCategory === item ? 'active' : ''}}"
-          bindtap="onCategoryTap"
-          data-category="{{item}}"
-        >{{item}}</view>
-      </view>
-    </scroll-view>
-
-    <view class="gallery-content">
-      <view class="gallery-toolbar">
-        <view class="gallery-current"><view class="gallery-current-line"></view>{{activeCategory}}</view>
-        <view class="gallery-tools">
-          <view class="gallery-tool active" aria-label="网格布局"><app-icon name="grid-2x2" size="34" tone="inverse" /></view>
-          <view wx:if="{{showcase.showSearch}}" class="gallery-tool" bindtap="toggleSearch" aria-label="搜索"><app-icon name="search" size="34" tone="inverse" /></view>
+    <block wx:for="{{galleryDecoration.modules}}" wx:key="id" wx:for-item="moduleItem">
+      <scroll-view
+        wx:if="{{moduleItem.enabled && moduleItem.type === 'categories'}}"
+        class="gallery-categories"
+        scroll-x="{{galleryDecoration.skeleton !== 'sidebar'}}"
+        scroll-y="{{galleryDecoration.skeleton === 'sidebar'}}"
+        enhanced
+        show-scrollbar="{{false}}"
+      >
+        <view class="gallery-category-track">
+          <view
+            wx:for="{{categories}}"
+            wx:key="*this"
+            class="gallery-category {{activeCategory === item ? 'active' : ''}}"
+            bindtap="onCategoryTap"
+            data-category="{{item}}"
+          >{{item}}</view>
         </view>
-      </view>
+      </scroll-view>
 
-      <view wx:if="{{showcase.showSearch && searchOpen}}" class="gallery-search">
-        <app-icon name="search" size="28" tone="muted" />
-        <input value="{{searchKeyword}}" bindinput="onSearchInput" focus="{{searchOpen}}" placeholder="搜索作品或风格" placeholder-class="gallery-search-placeholder" />
-      </view>
-
-      <view class="gallery-grid">
-        <view class="gallery-card" wx:for="{{filteredItems}}" wx:key="id" bindtap="onItemTap" data-item="{{item}}">
-          <view class="gallery-card-media">
-            <image class="gallery-image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load binderror="onImageError" data-id="{{item.id}}" />
+      <view wx:elif="{{moduleItem.enabled && moduleItem.type === 'portfolio'}}" class="gallery-content {{moduleItem.layoutClass}}">
+        <view class="gallery-toolbar">
+          <view class="gallery-current"><view class="gallery-current-line"></view>{{moduleItem.content.title || activeCategory}}</view>
+          <view class="gallery-tools">
+            <view class="gallery-tool active" aria-label="网格布局"><app-icon name="grid-2x2" size="34" tone="inverse" /></view>
+            <view wx:if="{{showcase.showSearch}}" class="gallery-tool" bindtap="toggleSearch" aria-label="搜索"><app-icon name="search" size="34" tone="inverse" /></view>
           </view>
-          <view class="gallery-card-copy">
-            <view class="gallery-card-title">{{item.title}}</view>
-            <app-icon name="heart" size="31" tone="inverse" />
-            <view wx:if="{{showcase.showTags}}" class="gallery-card-tags">
-              <text wx:if="{{item.category}}">#{{item.category}}</text>
-              <text wx:for="{{item.tags}}" wx:key="*this" wx:if="{{index < 2}}">#{{item}}</text>
+        </view>
+
+        <view wx:if="{{showcase.showSearch && searchOpen}}" class="gallery-search">
+          <app-icon name="search" size="28" tone="muted" />
+          <input value="{{searchKeyword}}" bindinput="onSearchInput" focus="{{searchOpen}}" placeholder="搜索作品或风格" placeholder-class="gallery-search-placeholder" />
+        </view>
+
+        <scroll-view class="gallery-grid-scroll" scroll-x="{{moduleItem.layout.mode === 'horizontal'}}" enhanced show-scrollbar="{{false}}">
+          <view class="gallery-grid">
+            <view class="gallery-card" wx:for="{{moduleItem.source.mode === 'auto' ? filteredItems : moduleItem.resolvedItems}}" wx:key="id" bindtap="onItemTap" data-item="{{item}}">
+              <view class="gallery-card-media">
+                <image class="gallery-image" style="{{moduleItem.mediaStyle}}" src="{{item.imageUrl}}" mode="{{moduleItem.layout.ratio === 'natural' ? 'widthFix' : 'aspectFill'}}" lazy-load binderror="onImageError" data-id="{{item.id}}" />
+              </view>
+              <view wx:if="{{moduleItem.layout.showText}}" class="gallery-card-copy">
+                <view class="gallery-card-title">{{item.title}}</view>
+                <app-icon name="heart" size="31" tone="inverse" />
+                <view wx:if="{{showcase.showTags}}" class="gallery-card-tags">
+                  <text wx:if="{{item.category}}">#{{item.category}}</text>
+                  <text wx:for="{{item.tags}}" wx:key="*this" wx:if="{{index < 2}}">#{{item}}</text>
+                </view>
+              </view>
             </view>
           </view>
-        </view>
+        </scroll-view>
+        <view wx:if="{{!(moduleItem.source.mode === 'auto' ? filteredItems.length : moduleItem.resolvedItems.length)}}" class="gallery-empty">当前条件下暂无作品</view>
       </view>
-      <view wx:if="{{!filteredItems.length}}" class="gallery-empty">当前条件下暂无作品</view>
-    </view>
+
+      <decoration-block wx:elif="{{moduleItem.enabled && (moduleItem.type === 'richText' || moduleItem.type === 'image' || moduleItem.type === 'gallery' || moduleItem.type === 'action' || moduleItem.type === 'divider' || moduleItem.type === 'spacer')}}" module="{{moduleItem}}" />
+    </block>
   </view>
 
   <view class="gallery-bottom-nav nav-style-{{navigationStyle}}">

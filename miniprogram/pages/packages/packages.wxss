@@ -269,3 +269,41 @@
 .layout-list .package-actions {
   margin-top: 22rpx;
 }
+
+/* V3 page skeletons */
+.skeleton-price-catalog .page-header {
+  padding-bottom: 28rpx;
+  border-bottom: 2rpx solid var(--text-main);
+}
+
+.skeleton-price-catalog .package-list {
+  gap: 0;
+}
+
+.skeleton-price-catalog .package-card {
+  padding-right: 0;
+  padding-left: 0;
+  border-width: 0 0 1rpx;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.skeleton-price-catalog .package-block {
+  display: none;
+}
+
+.skeleton-comparison .package-card {
+  border-top: 6rpx solid var(--secondary);
+}
+
+.skeleton-comparison .package-meta,
+.skeleton-comparison .include-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.skeleton-comparison .package-actions {
+  padding-top: 22rpx;
+  border-top: 1rpx solid var(--divider);
+}

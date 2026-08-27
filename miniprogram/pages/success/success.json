@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "咨询内容"
+  "navigationBarTitleText": "咨询内容",
+  "usingComponents": {
+    "decoration-block": "/components/decoration-block/decoration-block"
+  }
 }

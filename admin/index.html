@@ -4988,10 +4988,66 @@
                 <header class="decoration-stage-header">
                   <span>第 4 步</span>
                   <h4>调整每个页面的内容</h4>
-                  <p>先选择页面，再决定显示哪些内容以及展示顺序。</p>
+                  <p>选择页面和骨架，再按顾客看到的顺序调整模块。修改后可直接在右侧查看效果。</p>
                 </header>
 
-      <div class="settings-section">
+                <div class="decoration-builder-v3">
+                  <div class="decoration-builder-toolbar">
+                    <label>
+                      <span>正在装修</span>
+                      <select id="decorationPageSelect" onchange="switchDecorationPage(this.value)">
+                        <option value="home">作品首页</option>
+                        <option value="gallery">作品画廊</option>
+                        <option value="series">作品详情</option>
+                        <option value="about">店铺简介</option>
+                        <option value="packages">套餐列表</option>
+                        <option value="packageDetail">套餐详情</option>
+                        <option value="booking">预约咨询</option>
+                        <option value="stores">门店信息</option>
+                        <option value="success">咨询结果</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>整站框架</span>
+                      <select id="decorationFrameworkSelect" onchange="handleDecorationFrameworkSelect(this.value)">
+                        <option value="legacy-classic">保留当前风格</option>
+                        <option value="cinematic-gallery">影像叙事</option>
+                        <option value="editorial-journal">编辑画册</option>
+                        <option value="atelier-conversion">门店高定</option>
+                      </select>
+                    </label>
+                    <label class="decoration-builder-skeleton-field">
+                      <span>页面骨架</span>
+                      <select id="decorationSkeletonSelect" onchange="applyDecorationSkeleton(activeDecorationPage, this.value)"></select>
+                    </label>
+                    <button type="button" class="btn btn-secondary decoration-preview-drawer-button" id="decorationPreviewDrawerButton" onclick="toggleDecorationPreviewDrawer()">查看预览</button>
+                  </div>
+
+                  <div class="decoration-builder-context">
+                    <strong id="decorationCurrentPageName">作品首页</strong>
+                    <span id="decorationCurrentPageDescription">顾客打开小程序后首先看到的作品页面。</span>
+                  </div>
+
+                  <div class="decoration-builder-editor-grid">
+                    <section class="decoration-module-tree-panel" aria-label="页面模块">
+                      <header>
+                        <div><strong>页面内容</strong><span>上下排列就是顾客看到的顺序</span></div>
+                        <details class="decoration-module-add-menu">
+                          <summary>添加模块</summary>
+                          <div id="decorationModuleLibrary" class="decoration-module-library-grid"></div>
+                        </details>
+                      </header>
+                      <div id="decorationModuleTree" class="decoration-module-tree"></div>
+                    </section>
+
+                    <section class="decoration-module-inspector-panel" aria-label="模块设置">
+                      <header><strong>模块设置</strong><span>只显示当前模块可修改的内容</span></header>
+                      <div id="decorationModuleInspector" class="decoration-module-inspector"></div>
+                    </section>
+                  </div>
+                </div>
+
+      <div class="settings-section decoration-v2-compat-controls" hidden aria-hidden="true">
         <div class="settings-section-header">
           <div>
             <h4>选择需要修改的页面</h4>
@@ -5021,7 +5077,7 @@
 
         <div class="decoration-current-page">
           <span>正在修改</span>
-          <div><strong id="decorationCurrentPageName">作品首页</strong><small id="decorationCurrentPageDescription">顾客打开小程序后首先看到的作品页面。</small></div>
+          <div><strong>作品首页</strong><small>顾客打开小程序后首先看到的作品页面。</small></div>
         </div>
 
         <div class="decorator-panel active" data-decoration-panel="home">
@@ -5253,6 +5309,7 @@
         </div>
 
         <section class="decoration-preview-pane" aria-label="顾客端预览栏">
+          <button type="button" class="decoration-preview-drawer-close" onclick="toggleDecorationPreviewDrawer(false)">返回编辑</button>
           <div class="customer-preview-workbench" id="sharedCustomerPreview">
             <div class="customer-preview-toolbar">
               <div class="customer-preview-toolbar-copy">

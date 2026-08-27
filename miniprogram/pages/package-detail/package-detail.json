@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "套餐详情"
+  "navigationBarTitleText": "套餐详情",
+  "usingComponents": {
+    "decoration-block": "/components/decoration-block/decoration-block"
+  }
 }

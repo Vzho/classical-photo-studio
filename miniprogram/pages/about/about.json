@@ -2,6 +2,7 @@
   "navigationBarTitleText": "店铺简介",
   "navigationStyle": "custom",
   "usingComponents": {
+    "decoration-block": "/components/decoration-block/decoration-block",
     "dark-site-header": "/components/dark-site-header/dark-site-header",
     "dark-floating-actions": "/components/dark-floating-actions/dark-floating-actions"
   }

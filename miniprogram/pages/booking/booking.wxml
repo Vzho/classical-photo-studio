@@ -1,10 +1,11 @@
 <view
-  class="booking-page theme-{{themePreset}} {{decorationClass}} header-{{bookingDecoration.headerVariant}} form-{{bookingDecoration.formVariant}}"
+  class="booking-page theme-{{themePreset}} {{decorationClass}} skeleton-{{bookingDecoration.skeleton}} header-{{bookingDecoration.headerVariant}} form-{{bookingDecoration.formVariant}}"
   style="{{themeStyle}} {{decorationStyle}}"
 >
   <block wx:for="{{bookingSections}}" wx:for-item="section" wx:key="id">
     <view wx:if="{{section.enabled && section.type === 'hero'}}" class="booking-hero">
-      <image wx:if="{{bannerUrl}}" class="booking-hero-image" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
+      <image wx:if="{{section.source.mode !== 'auto' && section.resolvedItems.length}}" class="booking-hero-image" src="{{section.resolvedItems[0].imageUrl}}" style="{{section.mediaStyle}}" mode="aspectFill" />
+      <image wx:elif="{{bannerUrl}}" class="booking-hero-image" src="{{bannerUrl}}" style="{{section.mediaStyle}}" mode="aspectFill" binderror="onBannerError" />
       <view wx:else class="booking-hero-fallback"></view>
       <view class="booking-hero-shade"></view>
       <view class="booking-hero-content">
@@ -196,6 +197,8 @@
         </view>
       </view>
     </view>
+
+    <decoration-block wx:elif="{{section.enabled && (section.type === 'richText' || section.type === 'image' || section.type === 'gallery' || section.type === 'action' || section.type === 'divider' || section.type === 'spacer')}}" module="{{section}}" />
   </block>
 
   <quick-jump

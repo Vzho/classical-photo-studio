@@ -73,7 +73,9 @@ function checkNormalization() {
   assert.strictEqual(normalized.navigation.storesText, DEFAULT_DECORATION.navigation.storesText)
   assert.deepStrictEqual(normalized.navigation.items, DEFAULT_DECORATION.navigation.items)
   assert.strictEqual(normalized.terminology.packageLabel, DEFAULT_DECORATION.terminology.packageLabel)
-  assert.strictEqual(normalized.home.sections[0].type, 'hero')
+  assert.strictEqual(normalized.schemaVersion, 3)
+  assert.strictEqual(normalized.home.sections[0].type, 'portfolio')
+  assert.strictEqual(normalized.pages.home.modules[0].type, 'portfolio')
   const hiddenPortfolio = normalized.home.sections.find(item => item.type === 'portfolio')
   assert.ok(hiddenPortfolio)
   assert.strictEqual(hiddenPortfolio.enabled, false)
@@ -176,6 +178,7 @@ function checkConfig(relativePath, { requireLatest = false } = {}) {
     assert.ok(config.theme.quickJumpStyle, `${relativePath} theme.quickJumpStyle is required`)
   }
   assert.ok(config.decoration, `${relativePath} must include decoration`)
+  assert.strictEqual(config.decoration.schemaVersion, 3, `${relativePath} must use decoration schema v3`)
   Object.keys(DEFAULT_DECORATION.terminology).forEach(key => {
     assert.ok(String(decoration.terminology[key] || '').trim(), `${relativePath} terminology.${key} is required`)
   })
@@ -200,12 +203,12 @@ function checkConfig(relativePath, { requireLatest = false } = {}) {
   assert.ok(['full', 'compact', 'image-only'].includes(decoration.home.cardContent))
   assert.ok(['tight', 'standard', 'airy'].includes(decoration.home.galleryGap))
 
-  for (const pageKey of ['home', 'about', 'booking', 'packages', 'packageDetail', 'series', 'success']) {
-    const sections = decoration[pageKey].sections
-    const expected = DEFAULT_DECORATION[pageKey].sections.map(item => item.type).sort()
-    const actual = sections.map(item => item.type).sort()
-    assert.deepStrictEqual(actual, expected, `${relativePath} ${pageKey} sections must be complete`)
-    assert.strictEqual(new Set(actual).size, actual.length, `${relativePath} ${pageKey} sections must be unique`)
+  for (const pageKey of ['home', 'gallery', 'about', 'booking', 'packages', 'packageDetail', 'series', 'stores', 'success']) {
+    const page = decoration.pages[pageKey]
+    assert.ok(page && String(page.skeleton).trim(), `${relativePath} ${pageKey} must declare a skeleton`)
+    assert.ok(Array.isArray(page.modules) && page.modules.length, `${relativePath} ${pageKey} must keep at least one module`)
+    assert.ok(page.modules.some(item => item.enabled), `${relativePath} ${pageKey} must keep one visible module`)
+    assert.strictEqual(new Set(page.modules.map(item => item.id)).size, page.modules.length, `${relativePath} ${pageKey} module ids must be unique`)
   }
 
   const fieldIds = decoration.booking.fields.map(item => item.id)

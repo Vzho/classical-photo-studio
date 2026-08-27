@@ -343,3 +343,39 @@
   padding: 26rpx 0;
   border-bottom: 1rpx solid var(--divider);
 }
+
+/* V3 page skeletons */
+.skeleton-package-guided .booking-hero {
+  height: 620rpx;
+}
+
+.skeleton-package-guided .booking-hero-content {
+  bottom: 64rpx;
+}
+
+.skeleton-package-guided .booking-section {
+  margin-right: var(--page-padding);
+  margin-left: var(--page-padding);
+  padding: 34rpx;
+  border: 1rpx solid var(--divider);
+  background: var(--surface);
+}
+
+.skeleton-minimal-contact .booking-hero {
+  height: 270rpx;
+}
+
+.skeleton-minimal-contact .booking-description,
+.skeleton-minimal-contact .notice-section,
+.skeleton-minimal-contact .schedule-section {
+  display: none;
+}
+
+.skeleton-minimal-contact .form-section {
+  margin-top: 0;
+  border-top: 0;
+}
+
+.skeleton-minimal-contact .form-fields {
+  gap: 8rpx;
+}

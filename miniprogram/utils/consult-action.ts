@@ -18,8 +18,8 @@ export function shouldShowConsultButton(
 ): boolean {
   if (consultButton?.enabled === false) return false
 
-  const showOnPages = Array.isArray(consultButton?.showOnPages)
-    ? consultButton?.showOnPages
+  const showOnPages: string[] = Array.isArray(consultButton?.showOnPages)
+    ? (consultButton?.showOnPages || [])
     : []
 
   return !showOnPages.length || showOnPages.includes(pageKey)

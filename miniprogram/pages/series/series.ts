@@ -14,9 +14,10 @@ import {
   TestimonialItem
 } from '../../utils/cos'
 import { handleConsultButtonAction, shouldShowConsultButton } from '../../utils/consult-action'
-import { DEFAULT_DECORATION, SeriesDecoration, ShowcaseDecoration, TerminologyDecoration } from '../../utils/decoration'
+import { DEFAULT_DECORATION, NavigationItemKey, SeriesDecoration, ShowcaseDecoration, TerminologyDecoration } from '../../utils/decoration'
 import { setPageNavigationTitle } from '../../utils/navigation'
 import { createShareMessage } from '../../utils/share'
+import { navigateToSitePage } from '../../utils/site-navigation'
 
 Page({
   data: {
@@ -49,7 +50,10 @@ Page({
     currentIndex: 0,
     share: { ...DEFAULT_SHARE_CONTENT } as ShareContent,
     terminology: { ...DEFAULT_DECORATION.terminology } as TerminologyDecoration,
-    decoration: { ...DEFAULT_DECORATION.series } as SeriesDecoration
+    decoration: { ...DEFAULT_DECORATION.series } as SeriesDecoration,
+    hasHeroModule: true,
+    hasActionModule: true,
+    hideFirstGalleryPhoto: true
   },
 
   onLoad(options: { seriesId?: string; title?: string; category?: string }) {
@@ -68,6 +72,12 @@ Page({
     const { images, seriesInfo, theme, consultButton, packages, testimonials, photographers, quickJump, share, terminology, decoration, siteTemplate, showcase, runtime } = await getSeriesPageData(seriesId)
     const seriesTitle = seriesInfo?.title || this.data.seriesTitle
     const seriesCategory = seriesInfo?.category || this.data.seriesCategory
+    const heroModule = decoration.sections.find(section => section.enabled && section.type === 'hero') as any
+    const galleryModule = decoration.sections.find(section => section.enabled && section.type === 'gallery') as any
+    const hideFirstGalleryPhoto = heroModule?.source?.mode === 'auto'
+      && galleryModule?.source?.mode === 'auto'
+      && heroModule?.resolvedItems?.[0]?.id
+      && heroModule.resolvedItems[0].id === galleryModule?.resolvedItems?.[0]?.id
 
     this.setData({
       themeStyle: buildThemeStyle(theme),
@@ -104,7 +114,10 @@ Page({
       quickJumpVisible: shouldShowQuickJump(quickJump, 'seriesDetail'),
       share,
       terminology,
-      decoration
+      decoration,
+      hasHeroModule: decoration.sections.some(section => section.enabled && section.type === 'hero'),
+      hasActionModule: decoration.sections.some(section => section.enabled && section.type === 'action'),
+      hideFirstGalleryPhoto: Boolean(hideFirstGalleryPhoto)
     })
 
     if (siteTemplate === 'dark-gallery') {
@@ -122,6 +135,24 @@ Page({
       current: urls[index],
       urls
     })
+  },
+
+  onDecorationImageTap(e: WechatMiniprogram.TouchEvent) {
+    const moduleId = String(e.currentTarget.dataset.moduleId || '')
+    const current = String(e.currentTarget.dataset.url || '')
+    const moduleItem = this.data.decoration.sections.find(section => section.id === moduleId) as any
+    const urls = (moduleItem?.resolvedItems || [])
+      .map((item: PortfolioItem) => item.originalUrl || item.imageUrl)
+      .filter(Boolean)
+    if (!current || !urls.length) return
+    wx.previewImage({ current, urls })
+  },
+
+  onDecorationAction(e: WechatMiniprogram.TouchEvent) {
+    const target = String(e.currentTarget.dataset.target || 'booking')
+    const pageKey = target === 'home' ? 'portfolio' : target
+    if (!['portfolio', 'gallery', 'about', 'packages', 'booking', 'stores'].includes(pageKey)) return
+    navigateToSitePage(pageKey as NavigationItemKey)
   },
 
   onSeriesImageError(e: WechatMiniprogram.CustomEvent) {

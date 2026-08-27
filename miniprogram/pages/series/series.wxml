@@ -1,29 +1,53 @@
-<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-series-page {{decorationClass}}" style="{{themeStyle}} {{decorationStyle}}">
+<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-series-page {{decorationClass}} skeleton-{{decoration.skeleton}}" style="{{themeStyle}} {{decorationStyle}}">
   <dark-site-header title="{{seriesTitle}}" show-back="{{true}}" />
-  <view wx:if="{{images.length}}" class="dark-series-cover-wrap">
-    <image class="dark-series-cover" src="{{images[0].imageUrl}}" mode="aspectFill" bindtap="onImageTap" data-index="0" />
-    <button class="dark-series-share" open-type="share">分享</button>
-  </view>
-  <view class="dark-series-intro">
-    <view class="dark-series-heading">
-      <view class="dark-series-title">{{seriesTitle}}</view>
-      <view class="dark-series-layout-icons">
-        <app-icon name="images" size="34" tone="muted" />
-        <app-icon name="grid-2x2" size="34" tone="muted" />
+  <block wx:for="{{decoration.sections}}" wx:key="id" wx:for-item="section">
+    <view wx:if="{{section.enabled && section.type === 'hero' && section.resolvedItems.length}}" class="dark-series-cover-wrap">
+      <image class="dark-series-cover" src="{{section.resolvedItems[0].imageUrl}}" style="{{section.mediaStyle}}" mode="aspectFill" bindtap="onDecorationImageTap" data-module-id="{{section.id}}" data-url="{{section.resolvedItems[0].originalUrl || section.resolvedItems[0].imageUrl}}" />
+      <button class="dark-series-share" open-type="share">分享</button>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'profile'}}" class="dark-series-intro">
+      <view class="dark-series-heading">
+        <view class="dark-series-title">{{section.content.title || seriesTitle}}</view>
+        <view class="dark-series-layout-icons">
+          <app-icon name="images" size="34" tone="muted" />
+          <app-icon name="grid-2x2" size="34" tone="muted" />
+        </view>
       </view>
+      <view class="dark-series-tags">
+        <text wx:if="{{seriesCategory}}">{{seriesCategory}}</text>
+        <block wx:if="{{seriesInfo && seriesInfo.tags}}"><text wx:for="{{seriesInfo.tags}}" wx:key="*this">{{item}}</text></block>
+      </view>
+      <view wx:if="{{section.content.subtitle || (seriesInfo && seriesInfo.description)}}" class="dark-series-description">{{section.content.subtitle || seriesInfo.description}}</view>
     </view>
-    <view class="dark-series-tags">
-      <text wx:if="{{seriesCategory}}">{{seriesCategory}}</text>
-      <block wx:if="{{seriesInfo && seriesInfo.tags}}">
-        <text wx:for="{{seriesInfo.tags}}" wx:key="*this">{{item}}</text>
-      </block>
+
+    <scroll-view wx:elif="{{section.enabled && section.type === 'gallery'}}" class="dark-series-gallery-scroll" scroll-x="{{section.layout.mode === 'horizontal'}}" enhanced show-scrollbar="{{false}}">
+      <view class="dark-series-images {{section.layoutClass}}">
+        <image wx:for="{{section.resolvedItems}}" wx:for-item="galleryItem" wx:key="id" wx:if="{{!hideFirstGalleryPhoto || index > 0}}" src="{{galleryItem.imageUrl}}" style="{{section.mediaStyle}}" mode="{{section.layout.ratio === 'natural' ? 'widthFix' : 'aspectFill'}}" lazy-load bindtap="onDecorationImageTap" data-module-id="{{section.id}}" data-url="{{galleryItem.originalUrl || galleryItem.imageUrl}}" binderror="onSeriesImageError" data-id="{{galleryItem.id}}" />
+      </view>
+    </scroll-view>
+
+    <view wx:elif="{{section.enabled && section.type === 'packages' && packages.length}}" class="dark-series-support">
+      <view class="dark-series-support-title">{{section.content.title || '相关套餐'}}</view>
+      <view class="dark-series-support-row" wx:for="{{packages}}" wx:for-item="packageItem" wx:key="id"><text>{{packageItem.name}}</text><text>{{packageItem.priceText}}</text></view>
     </view>
-    <view wx:if="{{seriesInfo && seriesInfo.description}}" class="dark-series-description">{{seriesInfo.description}}</view>
-  </view>
-  <view class="dark-series-images">
-    <image wx:for="{{images}}" wx:key="id" wx:if="{{index > 0}}" src="{{item.imageUrl}}" mode="widthFix" lazy-load bindtap="onImageTap" data-index="{{index}}" binderror="onSeriesImageError" data-id="{{item.id}}" />
-  </view>
-  <view class="dark-series-dock">
+
+    <view wx:elif="{{section.enabled && section.type === 'team' && photographers.length}}" class="dark-series-support">
+      <view class="dark-series-support-title">{{section.content.title || '服务团队'}}</view>
+      <view class="dark-series-team"><view wx:for="{{photographers}}" wx:for-item="member" wx:key="id"><image wx:if="{{member.avatar}}" src="{{member.avatar}}" mode="aspectFill" /><text>{{member.name}}</text></view></view>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'testimonials' && testimonials.length}}" class="dark-series-support">
+      <view class="dark-series-support-title">{{section.content.title || '客户评价'}}</view>
+      <view class="dark-series-quote">“{{testimonials[0].content}}”</view>
+    </view>
+
+    <view wx:elif="{{section.enabled && section.type === 'action'}}" class="dark-series-inline-action" bindtap="onDecorationAction" data-target="{{section.content.actionTarget}}">{{section.content.actionText || consultButton.text || '咨询同款'}}</view>
+
+    <decoration-block wx:elif="{{section.enabled && (section.type === 'richText' || section.type === 'image' || section.type === 'divider' || section.type === 'spacer')}}" module="{{section}}" />
+  </block>
+
+  <view wx:if="{{hasActionModule}}" class="dark-series-dock">
     <view class="dark-series-brand">
       <app-icon name="sparkles" size="34" tone="primary" />
       <view><text class="dark-series-brand-name">{{brandName}}</text><text>记录值得珍藏的瞬间</text></view>
@@ -33,7 +57,7 @@
   </view>
 </view>
 
-<view wx:else class="series-page theme-{{themePreset}} {{decorationClass}} gallery-{{decoration.galleryVariant}}" style="{{themeStyle}} {{decorationStyle}}">
+<view wx:else class="series-page theme-{{themePreset}} {{decorationClass}} skeleton-{{decoration.skeleton}} gallery-{{decoration.galleryVariant}}" style="{{themeStyle}} {{decorationStyle}}">
   <block wx:for="{{decoration.sections}}" wx:key="id" wx:for-item="section">
     <block wx:if="{{section.enabled}}">
       <view class="series-header" wx:if="{{section.type === 'hero'}}">
@@ -63,14 +87,7 @@
         </view>
       </view>
 
-      <view class="images-list" wx:if="{{section.type === 'gallery'}}">
-        <view class="section-title-row" wx:if="{{section.title}}"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>
-        <view class="section-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</view>
-        <view wx:for="{{images}}" wx:key="id" wx:for-item="imageItem" class="image-item" bindtap="onImageTap" data-index="{{index}}">
-          <image class="image" src="{{imageItem.imageUrl}}" mode="widthFix" lazy-load binderror="onSeriesImageError" data-id="{{imageItem.id}}" />
-          <view class="image-number">{{index + 1}} / {{images.length}}</view>
-        </view>
-      </view>
+      <decoration-block wx:if="{{section.type === 'gallery' || section.type === 'richText' || section.type === 'image' || section.type === 'divider' || section.type === 'spacer'}}" module="{{section}}" />
 
       <view class="detail-module" wx:if="{{section.type === 'packages' && packages.length}}">
         <view class="section-title-row"><app-icon wx:if="{{section.icon}}" name="{{section.icon}}" size="30" tone="primary" /><view class="section-title">{{section.title}}</view></view>

@@ -54,7 +54,7 @@ function checkFrameworkRegistry() {
     assert.ok(html.includes(`id="${id}"`), `admin is missing #${id}`)
   })
 
-  assert.ok(admin.includes('schemaVersion = 2'), 'admin must persist schema version 2')
+  assert.ok(admin.includes('schemaVersion = 3'), 'admin must persist schema version 3')
   assert.ok(admin.includes("source.siteTemplate === 'dark-gallery'"), 'admin must migrate the legacy dark template')
   assert.ok(
     admin.includes("document.querySelectorAll('.framework-card[data-framework]')"),
@@ -89,7 +89,8 @@ function checkConfigMigrationContract() {
   ].forEach(relativePath => {
     const config = readJson(relativePath)
     const decoration = config.decoration
-    assert.strictEqual(decoration.schemaVersion, 2, `${relativePath} must use decoration schema v2`)
+    assert.strictEqual(decoration.schemaVersion, 3, `${relativePath} must use decoration schema v3`)
+    assert.ok(decoration.pages && decoration.pages.home && decoration.pages.gallery, `${relativePath} must include V3 pages`)
     assert.ok(
       ['legacy-classic', ...FRAMEWORK_IDS].includes(decoration.framework.id),
       `${relativePath} has an unsupported framework`
@@ -106,7 +107,7 @@ function checkConfigMigrationContract() {
     normalizeDecoration
   } = require(path.join(ROOT, 'miniprogram/utils/decoration.js'))
   const migratedDark = normalizeDecoration({ siteTemplate: 'dark-gallery' })
-  assert.strictEqual(migratedDark.schemaVersion, 2)
+  assert.strictEqual(migratedDark.schemaVersion, 3)
   assert.strictEqual(migratedDark.framework.id, 'cinematic-gallery')
   assert.strictEqual(migratedDark.siteTemplate, 'dark-gallery')
 
@@ -124,4 +125,4 @@ checkFrameworkRegistry()
 checkRuntimeWiring()
 checkConfigMigrationContract()
 
-console.log('Decoration V2 contract checks passed.')
+console.log('Decoration V2 compatibility checks passed on V3 runtime.')

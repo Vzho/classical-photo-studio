@@ -1,4 +1,4 @@
-<view class="success-page theme-{{themePreset}} {{decorationClass}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}} {{decorationStyle}}">
+<view class="success-page theme-{{themePreset}} {{decorationClass}} skeleton-{{decoration.skeleton}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}} {{decorationStyle}}">
   <block wx:for="{{decoration.sections}}" wx:key="id" wx:for-item="section">
     <block wx:if="{{section.enabled}}">
       <view class="success-header" wx:if="{{section.type === 'hero'}}">
@@ -58,6 +58,8 @@
           <view bindtap="goHome">返回{{quickJump.portfolioText}}</view>
         </view>
       </view>
+
+      <decoration-block wx:if="{{section.type === 'richText' || section.type === 'image' || section.type === 'gallery' || section.type === 'action' || section.type === 'divider' || section.type === 'spacer'}}" module="{{section}}" />
     </block>
   </block>
 

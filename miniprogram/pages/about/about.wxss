@@ -703,6 +703,112 @@
   height: 210rpx;
 }
 
+.dark-about-wall.columns-1 { grid-template-columns: minmax(0, 1fr); }
+.dark-about-wall.columns-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dark-about-wall.columns-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dark-about-wall.columns-1 image { height: 760rpx; }
+.dark-about-wall.columns-2 image { height: 430rpx; }
+.dark-about-wall.columns-4 image { height: 160rpx; }
+
+.dark-about-section {
+  padding: 56rpx 42rpx;
+  border-top: 1rpx solid #343434;
+  background: #202020;
+}
+
+.dark-about-section.dark-about-quote {
+  box-sizing: border-box;
+  min-height: 260rpx;
+  margin: 0;
+  padding: 82rpx 72rpx;
+}
+
+.dark-about-section-title {
+  margin-bottom: 32rpx;
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.dark-about-skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+
+.dark-about-skill-list text {
+  padding: 12rpx 20rpx;
+  color: #d4d4d4;
+  font-size: 23rpx;
+  border: 1rpx solid #494949;
+}
+
+.dark-about-team {
+  display: flex;
+  width: max-content;
+  gap: 24rpx;
+}
+
+.dark-about-team > view {
+  width: 178rpx;
+  flex: 0 0 178rpx;
+}
+
+.dark-about-team image {
+  display: block;
+  width: 178rpx;
+  height: 220rpx;
+  margin-bottom: 18rpx;
+}
+
+.dark-about-team view view {
+  color: #ffffff;
+  font-size: 25rpx;
+  font-weight: 600;
+}
+
+.dark-about-team text,
+.dark-about-list-row text,
+.dark-about-faq text,
+.dark-about-review text {
+  display: block;
+  margin-top: 8rpx;
+  color: #9f9f9f;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.dark-about-list-row {
+  display: flex;
+  min-height: 92rpx;
+  padding: 20rpx 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28rpx;
+  color: #eeeeee;
+  border-top: 1rpx solid #373737;
+  font-size: 25rpx;
+  box-sizing: border-box;
+}
+
+.dark-about-list-row > view {
+  min-width: 0;
+  flex: 1;
+}
+
+.dark-about-faq {
+  padding: 24rpx 0;
+  color: #eeeeee;
+  border-top: 1rpx solid #373737;
+  font-size: 25rpx;
+}
+
+.dark-about-review > view:not(.dark-about-section-title) {
+  color: #dedede;
+  font-size: 28rpx;
+  line-height: 1.8;
+}
+
 .dark-about-location-section {
   padding: 0 36rpx 100rpx;
 }
@@ -773,7 +879,7 @@
 .dark-about-footer-copy {
   position: relative;
   z-index: 1;
-  padding: 96rpx 0 0;
+  padding: 82rpx 42rpx 0;
   color: #ffffff;
   font-size: 25rpx;
   line-height: 2;
@@ -789,7 +895,7 @@
   position: relative;
   z-index: 1;
   display: flex;
-  margin-top: 50rpx;
+  margin: 44rpx 42rpx 0;
   gap: 28rpx;
 }
 
@@ -800,4 +906,73 @@
   align-items: center;
   justify-content: center;
   border: 1rpx solid rgba(255, 255, 255, 0.44);
+}
+
+.dark-about-footer .dark-about-action {
+  position: relative;
+  z-index: 1;
+  margin: 36rpx 42rpx 64rpx;
+}
+
+.dark-about-page.skeleton-brand-studio .dark-about-landing {
+  min-height: 680rpx;
+}
+
+.dark-about-page.skeleton-store-service .dark-about-landing {
+  min-height: 560rpx;
+}
+
+/* V3 page skeletons */
+.skeleton-brand-studio .profile-media {
+  height: 620rpx;
+}
+
+.skeleton-brand-studio .profile-card {
+  margin-top: -132rpx;
+  padding: 34rpx;
+  border: 1rpx solid var(--divider);
+  background: var(--surface);
+}
+
+.skeleton-brand-studio .avatar-wrap {
+  width: 184rpx;
+  height: 220rpx;
+}
+
+.skeleton-brand-studio .avatar,
+.skeleton-brand-studio .verified-badge {
+  border-radius: 2rpx;
+}
+
+.skeleton-brand-studio .about-section {
+  padding-top: 58rpx;
+  padding-bottom: 58rpx;
+}
+
+.skeleton-store-service .profile-media {
+  height: 300rpx;
+}
+
+.skeleton-store-service .profile-card {
+  display: grid;
+  margin-top: -48rpx;
+  grid-template-columns: 132rpx minmax(0, 1fr);
+  column-gap: 24rpx;
+}
+
+.skeleton-store-service .avatar-wrap {
+  width: 132rpx;
+  height: 132rpx;
+}
+
+.skeleton-store-service .profile-copy {
+  margin-top: 54rpx;
+}
+
+.skeleton-store-service .stats-row {
+  grid-column: 1 / -1;
+}
+
+.skeleton-store-service .about-section {
+  border-bottom: 1rpx solid var(--divider);
 }

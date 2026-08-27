@@ -10,7 +10,7 @@ import {
   shouldShowQuickJump,
   StoreItem
 } from '../../utils/cos'
-import { DEFAULT_DECORATION, DecorationSection } from '../../utils/decoration'
+import { DEFAULT_DECORATION, DecorationModuleInstance, DecorationPageDefinition } from '../../utils/decoration'
 import { setPageNavigationTitle } from '../../utils/navigation'
 import { createShareMessage } from '../../utils/share'
 
@@ -37,7 +37,8 @@ Page({
     decorationStyle: '',
     bannerUrl: '',
     stores: [] as StoreItem[],
-    section: DEFAULT_DECORATION.about.sections.find(item => item.type === 'stores') as DecorationSection,
+    decoration: DEFAULT_DECORATION.pages.stores as DecorationPageDefinition,
+    section: DEFAULT_DECORATION.pages.stores.modules.find(item => item.type === 'stores') as DecorationModuleInstance,
     icons: DEFAULT_DECORATION.icons,
     quickJump: {
       enabled: true,
@@ -49,7 +50,7 @@ Page({
   },
 
   async onShow() {
-    const { photographer, theme, stores, quickJump, share, icons, decoration, runtime } = await getAboutPageData()
+    const { photographer, theme, stores, quickJump, share, icons, storesDecoration, runtime } = await getAboutPageData()
     const profile = {
       ...PHOTOGRAPHER,
       ...(photographer || {}),
@@ -67,14 +68,15 @@ Page({
           enabled: true
         }
       : null
-    const section = decoration.sections.find(item => item.type === 'stores')
-      || DEFAULT_DECORATION.about.sections.find(item => item.type === 'stores')!
+    const section = storesDecoration.modules.find(item => item.type === 'stores')
+      || DEFAULT_DECORATION.pages.stores.modules.find(item => item.type === 'stores')!
 
     this.setData({
       themeStyle: buildThemeStyle(theme),
       themePreset: getThemePreset(theme),
       decorationClass: runtime.className,
       decorationStyle: runtime.style,
+      decoration: storesDecoration,
       bannerUrl: getCosUrl('banner/about-banner.jpg'),
       stores: stores.length ? stores : (fallbackStore ? [fallbackStore] : []),
       section,
@@ -89,7 +91,7 @@ Page({
       share
     })
 
-    setPageNavigationTitle(section.title || '门店信息', '门店信息')
+    setPageNavigationTitle(section.content.title || '门店信息', '门店信息')
   },
 
   onBannerError() {

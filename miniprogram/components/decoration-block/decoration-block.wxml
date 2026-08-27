@@ -1,0 +1,48 @@
+<view wx:if="{{module && module.enabled !== false}}" class="decoration-block decoration-block-{{module.type}} {{module.layoutClass}}">
+  <view wx:if="{{module.type === 'richText'}}" class="decoration-rich-text">
+    <view class="decoration-block-heading" wx:if="{{module.content.title || module.content.subtitle}}">
+      <view class="decoration-block-title" wx:if="{{module.content.title}}">
+        <app-icon wx:if="{{module.content.icon}}" name="{{module.content.icon}}" size="18" />
+        <text>{{module.content.title}}</text>
+      </view>
+      <text class="decoration-block-subtitle" wx:if="{{module.content.subtitle}}">{{module.content.subtitle}}</text>
+    </view>
+    <text class="decoration-block-body">{{module.content.body || module.content.subtitle}}</text>
+  </view>
+
+  <view wx:elif="{{module.type === 'image'}}" class="decoration-single-image ratio-{{module.mediaRatioClass}}">
+    <image wx:if="{{module.resolvedItems.length}}" src="{{module.resolvedItems[0].imageUrl}}" mode="{{module.media.ratio === 'natural' ? 'widthFix' : 'aspectFill'}}" style="{{module.mediaStyle}}" bindtap="handleImageTap" data-url="{{module.resolvedItems[0].originalUrl || module.resolvedItems[0].imageUrl}}" />
+    <view wx:else class="decoration-image-empty">请在后台为此模块选择照片</view>
+    <view wx:if="{{module.content.title || module.content.subtitle}}" class="decoration-image-caption">
+      <text wx:if="{{module.content.title}}">{{module.content.title}}</text>
+      <text wx:if="{{module.content.subtitle}}">{{module.content.subtitle}}</text>
+    </view>
+  </view>
+
+  <view wx:elif="{{module.type === 'gallery'}}" class="decoration-gallery mode-{{module.layout.mode}} columns-{{module.layout.columns}} {{module.layoutClass}}">
+    <view class="decoration-block-heading" wx:if="{{module.content.title || module.content.subtitle}}">
+      <view class="decoration-block-title" wx:if="{{module.content.title}}"><text>{{module.content.title}}</text></view>
+      <text class="decoration-block-subtitle" wx:if="{{module.content.subtitle}}">{{module.content.subtitle}}</text>
+    </view>
+    <scroll-view scroll-x="{{module.layout.mode === 'horizontal'}}" enhanced="true" show-scrollbar="false" class="decoration-gallery-scroll">
+      <view class="decoration-gallery-grid">
+        <view wx:for="{{module.resolvedItems}}" wx:key="id" class="decoration-gallery-item" bindtap="handleImageTap" data-url="{{item.originalUrl || item.imageUrl}}">
+          <image src="{{item.imageUrl}}" mode="{{module.layout.ratio === 'natural' ? 'widthFix' : 'aspectFill'}}" style="{{module.mediaStyle}}" />
+          <view wx:if="{{module.layout.showText && module.content.showTitle}}" class="decoration-gallery-caption">
+            <text>{{item.title}}</text>
+            <text wx:if="{{module.content.showCategory}}">{{item.category}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    <view wx:if="{{!module.resolvedItems.length}}" class="decoration-image-empty">请在后台选择照片来源</view>
+  </view>
+
+  <button wx:elif="{{module.type === 'action'}}" class="decoration-action" bindtap="handleAction">
+    <app-icon wx:if="{{module.content.icon}}" name="{{module.content.icon}}" size="18" />
+    <text>{{module.content.actionText || module.content.title || '了解更多'}}</text>
+  </button>
+
+  <view wx:elif="{{module.type === 'divider'}}" class="decoration-divider"></view>
+  <view wx:elif="{{module.type === 'spacer'}}" class="decoration-spacer gap-{{module.layout.gap}}"></view>
+</view>

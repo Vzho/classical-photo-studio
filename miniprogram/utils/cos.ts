@@ -35,6 +35,7 @@ export interface PortfolioItem {
   relatedPhotographerIds?: string[]
   candidatePhotoNames?: string[]
   candidateIndex?: number
+  photoName?: string
 }
 
 export interface HomeBannerContent {
@@ -811,6 +812,77 @@ export async function getPortfolioImages(): Promise<PortfolioItem[]> {
   }
 }
 
+function resolveDecorationSourceItems(
+  source: any,
+  allImages: PortfolioItem[],
+  fallbackItems: PortfolioItem[]
+): PortfolioItem[] {
+  const mode = source?.mode || 'auto'
+  let items = fallbackItems
+  if (mode === 'series') {
+    const seriesIds = new Set(Array.isArray(source?.seriesIds) ? source.seriesIds : [])
+    items = allImages.filter(item => item.seriesId && seriesIds.has(item.seriesId))
+  } else if (mode === 'photos') {
+    const byReference = new Map(allImages.map(item => [
+      `${item.seriesId || ''}\u0000${item.photoName || ''}`,
+      item
+    ]))
+    items = (Array.isArray(source?.photos) ? source.photos : [])
+      .map((photo: any) => byReference.get(`${String(photo?.seriesId || '')}\u0000${String(photo?.photoName || '')}`))
+      .filter((item: PortfolioItem | undefined): item is PortfolioItem => Boolean(item))
+  }
+  if (mode !== 'auto' && !items.length) items = fallbackItems
+  const limit = Math.max(1, Math.min(100, Number(source?.limit) || 12))
+  return items.slice(0, limit)
+}
+
+function resolveDecorationSections<T extends { sections: any[] }>(
+  page: T,
+  allImages: PortfolioItem[],
+  fallbackItems: PortfolioItem[]
+): T {
+  return {
+    ...page,
+    sections: page.sections.map(section => resolveDecorationModuleRuntime(section, allImages, fallbackItems))
+  }
+}
+
+function resolveDecorationModuleRuntime(
+  module: any,
+  allImages: PortfolioItem[],
+  fallbackItems: PortfolioItem[]
+): any {
+  const media = module?.media || {}
+  const layout = module?.layout || {}
+  const ratio = String(layout.ratio || media.ratio || '3:4').replace(':', '-')
+  const focusX = Math.max(0, Math.min(100, Number(media.focusX) || 50))
+  const focusY = Math.max(0, Math.min(100, Number(media.focusY) || 50))
+  const brightness = Math.max(-50, Math.min(50, Number(media.brightness) || 0))
+  const overlay = Math.max(0, Math.min(90, Number(media.overlay) || 0))
+  const columns = Math.max(1, Math.min(4, Number(layout.columns) || 2))
+  const showText = columns === 4 ? false : layout.showText !== false
+
+  return {
+    ...module,
+    mediaStyle: `object-position: ${focusX}% ${focusY}%; filter: brightness(${100 + brightness}%);`,
+    mediaRatioClass: String(media.ratio || layout.ratio || '3:4').replace(':', '-'),
+    overlayStyle: `opacity: ${overlay / 100};`,
+    layoutClass: `mode-${layout.mode || 'grid'} columns-${columns} ratio-${ratio} gap-${layout.gap || 'standard'} ${showText ? 'show-text' : 'image-only'}`,
+    resolvedItems: resolveDecorationSourceItems(module.source, allImages, fallbackItems)
+  }
+}
+
+function resolveDecorationPageDefinition<T extends { modules: any[] }>(
+  page: T,
+  allImages: PortfolioItem[],
+  fallbackItems: PortfolioItem[]
+): T {
+  return {
+    ...page,
+    modules: page.modules.map(module => resolveDecorationModuleRuntime(module, allImages, fallbackItems))
+  }
+}
+
 export async function getPortfolioPageData(): Promise<{
   portfolioItems: PortfolioItem[]
   homeFeaturedItems: PortfolioItem[]
@@ -825,6 +897,7 @@ export async function getPortfolioPageData(): Promise<{
   quickJump: Partial<QuickJumpContent> | null
   share: ShareContent
   decoration: DecorationContent['home']
+  galleryDecoration: DecorationContent['pages']['gallery']
   terminology: DecorationContent['terminology']
   siteTemplate: DecorationContent['siteTemplate']
   showcase: DecorationContent['showcase']
@@ -837,10 +910,13 @@ export async function getPortfolioPageData(): Promise<{
     const allImages = generateImagesFromConfig(config)
 
     const decoration = normalizeDecoration(config?.decoration)
+    const portfolioItems = allImages.filter(item => item.isSeriesCover)
+    const homeFeaturedItems = allImages.filter(item => item.featuredOnHome).sort(compareHomeFeaturedItems)
+    const homeFallbackItems = homeFeaturedItems.length ? homeFeaturedItems : portfolioItems
 
     return {
-      portfolioItems: allImages.filter(item => item.isSeriesCover),
-      homeFeaturedItems: allImages.filter(item => item.featuredOnHome).sort(compareHomeFeaturedItems),
+      portfolioItems,
+      homeFeaturedItems,
       homeBanner: config?.homeBanner || null,
       theme: isModuleEnabled(config, 'theme') ? config?.theme || null : null,
       homePortfolioCard: getHomePortfolioCardConfig(config),
@@ -851,7 +927,8 @@ export async function getPortfolioPageData(): Promise<{
       consultButton: isModuleEnabled(config, 'consultButton') ? config?.consultButton || null : { enabled: false },
       quickJump: getQuickJumpConfig(config),
       share: getShareContent(config, allImages),
-      decoration: decoration.home,
+      decoration: resolveDecorationSections(decoration.home, allImages, homeFallbackItems),
+      galleryDecoration: resolveDecorationPageDefinition(decoration.pages.gallery, allImages, portfolioItems),
       terminology: decoration.terminology,
       siteTemplate: decoration.siteTemplate,
       showcase: decoration.showcase,
@@ -875,6 +952,7 @@ export async function getPortfolioPageData(): Promise<{
       quickJump: DEFAULT_QUICK_JUMP,
       share: { ...DEFAULT_SHARE_CONTENT },
       decoration: normalizeDecoration().home,
+      galleryDecoration: normalizeDecoration().pages.gallery,
       terminology: normalizeDecoration().terminology,
       siteTemplate: normalizeDecoration().siteTemplate,
       showcase: normalizeDecoration().showcase,
@@ -897,7 +975,7 @@ export async function getThemePageData(): Promise<{
 }> {
   try {
     const config = await loadConfig()
-
+    const allImages = generateImagesFromConfig(config)
     const decoration = normalizeDecoration(config?.decoration)
 
     return {
@@ -906,7 +984,7 @@ export async function getThemePageData(): Promise<{
       navigation: decoration.navigation,
       icons: decoration.icons,
       terminology: decoration.terminology,
-      decoration: decoration.success,
+      decoration: resolveDecorationSections(decoration.success, allImages, allImages.filter(item => item.isSeriesCover)),
       siteTemplate: decoration.siteTemplate,
       runtime: getDecorationRuntime(decoration)
     }
@@ -1015,7 +1093,7 @@ export async function getSeriesPageData(seriesId: string): Promise<{
       }),
       share: getShareContent(config, allImages),
       terminology: decoration.terminology,
-      decoration: decoration.series,
+      decoration: resolveDecorationSections(decoration.series, allImages, images),
       siteTemplate: decoration.siteTemplate,
       showcase: decoration.showcase,
       runtime: getDecorationRuntime(decoration)
@@ -1078,7 +1156,7 @@ export async function getBookingPageData(): Promise<{
 }> {
   try {
     const config = await loadConfig()
-
+    const allImages = generateImagesFromConfig(config)
     const decoration = normalizeDecoration(config?.decoration)
 
     return {
@@ -1095,7 +1173,7 @@ export async function getBookingPageData(): Promise<{
       photographers: getConfiguredPhotographers(config),
       quickJump: getQuickJumpConfig(config),
       share: getShareContent(config),
-      decoration: decoration.booking,
+      decoration: resolveDecorationSections(decoration.booking, allImages, allImages.filter(item => item.isSeriesCover)),
       terminology: decoration.terminology,
       runtime: getDecorationRuntime(decoration)
     }
@@ -1136,6 +1214,7 @@ export async function getPackagesPageData(): Promise<{
 }> {
   try {
     const config = await loadConfig()
+    const allImages = generateImagesFromConfig(config)
     const decoration = normalizeDecoration(config?.decoration)
 
     return {
@@ -1147,7 +1226,7 @@ export async function getPackagesPageData(): Promise<{
       quickJump: getQuickJumpConfig(config),
       share: getShareContent(config),
       terminology: decoration.terminology,
-      decoration: decoration.packages,
+      decoration: resolveDecorationSections(decoration.packages, allImages, allImages.filter(item => item.isSeriesCover)),
       runtime: getDecorationRuntime(decoration)
     }
   } catch (error) {
@@ -1206,7 +1285,7 @@ export async function getPackageDetailPageData(packageId: string): Promise<{
       quickJump: getQuickJumpConfig(config),
       share: getShareContent(config, allImages),
       terminology: decoration.terminology,
-      decoration: decoration.packageDetail,
+      decoration: resolveDecorationSections(decoration.packageDetail, allImages, relatedSeries),
       runtime: getDecorationRuntime(decoration)
     }
   } catch (error) {
@@ -1243,6 +1322,7 @@ export async function getAboutPageData(): Promise<{
   share: ShareContent
   icons: DecorationContent['icons']
   decoration: DecorationContent['about']
+  storesDecoration: DecorationContent['pages']['stores']
   terminology: DecorationContent['terminology']
   siteTemplate: DecorationContent['siteTemplate']
   showcase: DecorationContent['showcase']
@@ -1271,7 +1351,8 @@ export async function getAboutPageData(): Promise<{
       quickJump: getQuickJumpConfig(config),
       share: getShareContent(config),
       icons: decoration.icons,
-      decoration: decoration.about,
+      decoration: resolveDecorationSections(decoration.about, allImages, galleryItems),
+      storesDecoration: resolveDecorationPageDefinition(decoration.pages.stores, allImages, galleryItems),
       terminology: decoration.terminology,
       siteTemplate: decoration.siteTemplate,
       showcase: decoration.showcase,
@@ -1294,6 +1375,7 @@ export async function getAboutPageData(): Promise<{
       share: { ...DEFAULT_SHARE_CONTENT },
       icons: normalizeDecoration().icons,
       decoration: normalizeDecoration().about,
+      storesDecoration: normalizeDecoration().pages.stores,
       terminology: normalizeDecoration().terminology,
       siteTemplate: normalizeDecoration().siteTemplate,
       showcase: normalizeDecoration().showcase,
@@ -1466,6 +1548,7 @@ function generateImagesFromConfig(config: any): PortfolioItem[] {
         
         items.push({
           id: photoId,
+          photoName: photoFileName,
           title: series.title,
           category: theme.name,
           // 列表页使用 WebP 格式 + 400宽缩略图

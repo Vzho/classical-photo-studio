@@ -198,3 +198,25 @@
 .layout-compact .result-section {
   padding: 26rpx 0;
 }
+
+/* V3 page skeletons */
+.skeleton-centered-result .success-header {
+  padding-top: 64rpx;
+}
+
+.skeleton-centered-result .result-section,
+.skeleton-centered-result .contact-row {
+  max-width: 640rpx;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.skeleton-compact-contact {
+  padding-top: 28rpx;
+}
+
+.skeleton-compact-contact .result-section,
+.skeleton-compact-contact .contact-row {
+  padding-top: 24rpx;
+  padding-bottom: 24rpx;
+}

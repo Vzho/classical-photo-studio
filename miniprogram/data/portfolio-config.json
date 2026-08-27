@@ -139,7 +139,7 @@
     }
   },
   "decoration": {
-    "schemaVersion": 2,
+    "schemaVersion": 3,
     "framework": {
       "id": "editorial-journal",
       "motion": "subtle",
@@ -181,12 +181,30 @@
       "storesText": "门店",
       "style": "line",
       "items": [
-        { "key": "portfolio", "enabled": true },
-        { "key": "about", "enabled": true },
-        { "key": "booking", "enabled": true },
-        { "key": "gallery", "enabled": false },
-        { "key": "packages", "enabled": false },
-        { "key": "stores", "enabled": false }
+        {
+          "key": "portfolio",
+          "enabled": true
+        },
+        {
+          "key": "about",
+          "enabled": true
+        },
+        {
+          "key": "booking",
+          "enabled": true
+        },
+        {
+          "key": "gallery",
+          "enabled": false
+        },
+        {
+          "key": "packages",
+          "enabled": false
+        },
+        {
+          "key": "stores",
+          "enabled": false
+        }
       ]
     },
     "icons": {
@@ -218,26 +236,2113 @@
         "phone": "phone"
       }
     },
+    "pages": {
+      "home": {
+        "skeleton": "full-image",
+        "modules": [
+          {
+            "id": "legacy-home-hero-1",
+            "type": "hero",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-home-shortcuts-2",
+            "type": "shortcuts",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "快捷入口",
+              "subtitle": "快速查看档期和客户评价",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-home-categories-3",
+            "type": "categories",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-home-portfolio-4",
+            "type": "portfolio",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "作品精选",
+              "subtitle": "点击作品，查看完整系列",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "3:4",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "3:4",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-home-packages-5",
+            "type": "packages",
+            "enabled": true,
+            "variant": "strip",
+            "content": {
+              "title": "拍摄方案",
+              "subtitle": "先了解服务内容，再选择适合你的方案",
+              "body": "",
+              "actionText": "查看全部",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-home-schedule-6",
+            "type": "schedule",
+            "enabled": true,
+            "variant": "notice",
+            "content": {
+              "title": "近期档期",
+              "subtitle": "",
+              "body": "",
+              "actionText": "咨询档期",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-home-testimonials-7",
+            "type": "testimonials",
+            "enabled": true,
+            "variant": "quotes",
+            "content": {
+              "title": "客户反馈",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-home-serviceFlow-8",
+            "type": "serviceFlow",
+            "enabled": true,
+            "variant": "steps",
+            "content": {
+              "title": "服务流程",
+              "subtitle": "从沟通到交付，每一步都清晰",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          }
+        ]
+      },
+      "gallery": {
+        "skeleton": "sidebar",
+        "modules": [
+          {
+            "id": "legacy-gallery-header-1",
+            "type": "header",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "作品欣赏",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-gallery-categories-2",
+            "type": "categories",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-gallery-portfolio-3",
+            "type": "portfolio",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          }
+        ]
+      },
+      "series": {
+        "skeleton": "cinematic-story",
+        "modules": [
+          {
+            "id": "legacy-series-hero-1",
+            "type": "hero",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-series-profile-2",
+            "type": "profile",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-series-gallery-3",
+            "type": "gallery",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-series-packages-4",
+            "type": "packages",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "相关套餐",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-series-team-5",
+            "type": "team",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "服务团队",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-series-testimonials-6",
+            "type": "testimonials",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "客户评价",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-series-action-7",
+            "type": "action",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "咨询同款风格",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          }
+        ]
+      },
+      "about": {
+        "skeleton": "brand-studio",
+        "modules": [
+          {
+            "id": "legacy-about-profile-1",
+            "type": "profile",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-about-bio-2",
+            "type": "bio",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "关于我们",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-about-skills-3",
+            "type": "skills",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "擅长风格",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-about-contact-4",
+            "type": "contact",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "联系门店",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-about-stores-5",
+            "type": "stores",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "门店信息",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-about-team-6",
+            "type": "team",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "服务团队",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-about-packages-7",
+            "type": "packages",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "服务价格",
+              "subtitle": "",
+              "body": "",
+              "actionText": "咨询",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-about-serviceFlow-8",
+            "type": "serviceFlow",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "服务流程",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-about-faq-9",
+            "type": "faq",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "常见问题",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-about-testimonials-10",
+            "type": "testimonials",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "客户评价",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          }
+        ]
+      },
+      "packages": {
+        "skeleton": "price-catalog",
+        "modules": [
+          {
+            "id": "legacy-packages-header-1",
+            "type": "header",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "服务套餐",
+              "subtitle": "了解价格范围和服务内容，再联系客服确认适合你的方案。",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packages-schedule-2",
+            "type": "schedule",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "近期档期",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packages-list-3",
+            "type": "list",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packages-testimonials-4",
+            "type": "testimonials",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "客户评价",
+              "subtitle": "来自真实服务体验的反馈",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          }
+        ]
+      },
+      "packageDetail": {
+        "skeleton": "compact-conversion",
+        "modules": [
+          {
+            "id": "legacy-packageDetail-hero-1",
+            "type": "hero",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "服务方案",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packageDetail-info-2",
+            "type": "info",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "套餐信息",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packageDetail-suitable-3",
+            "type": "suitable",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "适合",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packageDetail-includes-4",
+            "type": "includes",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "包含服务",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packageDetail-relatedSeries-5",
+            "type": "relatedSeries",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "相关作品",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packageDetail-team-6",
+            "type": "team",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "服务团队",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packageDetail-testimonials-7",
+            "type": "testimonials",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "客户评价",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packageDetail-serviceFlow-8",
+            "type": "serviceFlow",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "服务流程",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-packageDetail-faq-9",
+            "type": "faq",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "常见问题",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          }
+        ]
+      },
+      "booking": {
+        "skeleton": "form-first",
+        "modules": [
+          {
+            "id": "legacy-booking-hero-1",
+            "type": "hero",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-booking-notice-2",
+            "type": "notice",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "预约说明",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-booking-schedule-3",
+            "type": "schedule",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "近期档期",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-booking-form-4",
+            "type": "form",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "告诉我们你的拍摄需求",
+              "subtitle": "填写后会生成一段咨询内容，不会自动提交个人信息",
+              "body": "",
+              "actionText": "生成咨询内容",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-booking-serviceFlow-5",
+            "type": "serviceFlow",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "服务流程",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-booking-faq-6",
+            "type": "faq",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "常见问题",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          }
+        ]
+      },
+      "stores": {
+        "skeleton": "location-list",
+        "modules": [
+          {
+            "id": "legacy-stores-header-1",
+            "type": "header",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "门店信息",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-stores-stores-2",
+            "type": "stores",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "门店地址",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-stores-contact-3",
+            "type": "contact",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "联系门店",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          }
+        ]
+      },
+      "success": {
+        "skeleton": "compact-contact",
+        "modules": [
+          {
+            "id": "legacy-success-hero-1",
+            "type": "hero",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "咨询内容已生成",
+              "subtitle": "请复制并发送给客服。最终日期和服务方案以双方沟通确认为准。",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-success-summary-2",
+            "type": "summary",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "咨询摘要",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-success-content-3",
+            "type": "content",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "完整咨询内容",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-success-contact-4",
+            "type": "contact",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "客服微信",
+              "subtitle": "",
+              "body": "",
+              "actionText": "",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          },
+          {
+            "id": "legacy-success-actions-5",
+            "type": "actions",
+            "enabled": true,
+            "variant": "default",
+            "content": {
+              "title": "",
+              "subtitle": "",
+              "body": "",
+              "actionText": "复制咨询内容",
+              "actionTarget": "",
+              "icon": "",
+              "showTitle": true,
+              "showCategory": true,
+              "showDescription": false
+            },
+            "layout": {
+              "mode": "grid",
+              "columns": 2,
+              "ratio": "natural",
+              "gap": "standard",
+              "showText": true
+            },
+            "source": {
+              "mode": "auto",
+              "seriesIds": [],
+              "photos": [],
+              "limit": 12
+            },
+            "media": {
+              "ratio": "natural",
+              "overlay": 42,
+              "brightness": 0,
+              "focusX": 50,
+              "focusY": 50
+            }
+          }
+        ]
+      }
+    },
     "home": {
+      "skeleton": "full-image",
       "template": "editorial-cover",
-      "heroVariant": "editorial",
+      "heroVariant": "immersive",
       "galleryVariant": "editorial",
       "galleryColumns": 2,
-      "imageRatio": "natural",
-      "cardContent": "full",
+      "imageRatio": "portrait",
+      "cardContent": "custom",
+      "showTitle": true,
+      "showCategory": true,
+      "showDescription": false,
       "galleryGap": "standard",
       "sections": [
         {
-          "id": "hero",
+          "id": "legacy-home-hero-1",
           "type": "hero",
           "enabled": true,
+          "icon": "",
           "title": "",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "shortcuts",
+          "id": "legacy-home-shortcuts-2",
           "type": "shortcuts",
           "enabled": true,
           "icon": "",
@@ -247,54 +2352,60 @@
           "variant": "default"
         },
         {
-          "id": "categories",
+          "id": "legacy-home-categories-3",
           "type": "categories",
           "enabled": true,
+          "icon": "",
           "title": "",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "portfolio",
+          "id": "legacy-home-portfolio-4",
           "type": "portfolio",
           "enabled": true,
+          "icon": "",
           "title": "作品精选",
           "subtitle": "点击作品，查看完整系列",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "packages",
+          "id": "legacy-home-packages-5",
           "type": "packages",
           "enabled": true,
+          "icon": "",
           "title": "拍摄方案",
           "subtitle": "先了解服务内容，再选择适合你的方案",
           "actionText": "查看全部",
           "variant": "strip"
         },
         {
-          "id": "schedule",
+          "id": "legacy-home-schedule-6",
           "type": "schedule",
           "enabled": true,
+          "icon": "",
           "title": "近期档期",
           "subtitle": "",
           "actionText": "咨询档期",
           "variant": "notice"
         },
         {
-          "id": "testimonials",
+          "id": "legacy-home-testimonials-7",
           "type": "testimonials",
           "enabled": true,
+          "icon": "",
           "title": "客户反馈",
           "subtitle": "",
           "actionText": "",
           "variant": "quotes"
         },
         {
-          "id": "serviceFlow",
+          "id": "legacy-home-serviceFlow-8",
           "type": "serviceFlow",
           "enabled": true,
+          "icon": "",
           "title": "服务流程",
           "subtitle": "从沟通到交付，每一步都清晰",
           "actionText": "",
@@ -303,93 +2414,104 @@
       ]
     },
     "about": {
+      "skeleton": "brand-studio",
       "headerVariant": "editorial",
       "sections": [
         {
-          "id": "profile",
+          "id": "legacy-about-profile-1",
           "type": "profile",
           "enabled": true,
+          "icon": "",
           "title": "",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "bio",
+          "id": "legacy-about-bio-2",
           "type": "bio",
           "enabled": true,
+          "icon": "",
           "title": "关于我们",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "skills",
+          "id": "legacy-about-skills-3",
           "type": "skills",
           "enabled": true,
+          "icon": "",
           "title": "擅长风格",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "contact",
+          "id": "legacy-about-contact-4",
           "type": "contact",
           "enabled": true,
+          "icon": "",
           "title": "联系门店",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "stores",
+          "id": "legacy-about-stores-5",
           "type": "stores",
           "enabled": true,
+          "icon": "",
           "title": "门店信息",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "team",
+          "id": "legacy-about-team-6",
           "type": "team",
           "enabled": true,
+          "icon": "",
           "title": "服务团队",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "packages",
+          "id": "legacy-about-packages-7",
           "type": "packages",
           "enabled": true,
+          "icon": "",
           "title": "服务价格",
           "subtitle": "",
           "actionText": "咨询",
           "variant": "default"
         },
         {
-          "id": "serviceFlow",
+          "id": "legacy-about-serviceFlow-8",
           "type": "serviceFlow",
           "enabled": true,
+          "icon": "",
           "title": "服务流程",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "faq",
+          "id": "legacy-about-faq-9",
           "type": "faq",
           "enabled": true,
+          "icon": "",
           "title": "常见问题",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "testimonials",
+          "id": "legacy-about-testimonials-10",
           "type": "testimonials",
           "enabled": true,
+          "icon": "",
           "title": "客户评价",
           "subtitle": "",
           "actionText": "",
@@ -398,58 +2520,65 @@
       ]
     },
     "booking": {
-      "headerVariant": "compact",
+      "skeleton": "form-first",
+      "headerVariant": "editorial",
       "formVariant": "lines",
       "sections": [
         {
-          "id": "hero",
+          "id": "legacy-booking-hero-1",
           "type": "hero",
           "enabled": true,
+          "icon": "",
           "title": "",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "notice",
+          "id": "legacy-booking-notice-2",
           "type": "notice",
           "enabled": true,
+          "icon": "",
           "title": "预约说明",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "schedule",
+          "id": "legacy-booking-schedule-3",
           "type": "schedule",
           "enabled": true,
+          "icon": "",
           "title": "近期档期",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "form",
+          "id": "legacy-booking-form-4",
           "type": "form",
           "enabled": true,
+          "icon": "",
           "title": "告诉我们你的拍摄需求",
           "subtitle": "填写后会生成一段咨询内容，不会自动提交个人信息",
           "actionText": "生成咨询内容",
           "variant": "default"
         },
         {
-          "id": "serviceFlow",
+          "id": "legacy-booking-serviceFlow-5",
           "type": "serviceFlow",
           "enabled": true,
+          "icon": "",
           "title": "服务流程",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "faq",
+          "id": "legacy-booking-faq-6",
           "type": "faq",
           "enabled": true,
+          "icon": "",
           "title": "常见问题",
           "subtitle": "",
           "actionText": "",
@@ -524,39 +2653,44 @@
       ]
     },
     "packages": {
+      "skeleton": "price-catalog",
       "layoutVariant": "list",
       "sections": [
         {
-          "id": "header",
+          "id": "legacy-packages-header-1",
           "type": "header",
           "enabled": true,
+          "icon": "",
           "title": "服务套餐",
           "subtitle": "了解价格范围和服务内容，再联系客服确认适合你的方案。",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "schedule",
+          "id": "legacy-packages-schedule-2",
           "type": "schedule",
           "enabled": true,
+          "icon": "",
           "title": "近期档期",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "list",
+          "id": "legacy-packages-list-3",
           "type": "list",
           "enabled": true,
+          "icon": "",
           "title": "",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "testimonials",
+          "id": "legacy-packages-testimonials-4",
           "type": "testimonials",
           "enabled": true,
+          "icon": "",
           "title": "客户评价",
           "subtitle": "来自真实服务体验的反馈",
           "actionText": "",
@@ -565,84 +2699,94 @@
       ]
     },
     "packageDetail": {
+      "skeleton": "compact-conversion",
       "layoutVariant": "compact",
       "sections": [
         {
-          "id": "hero",
+          "id": "legacy-packageDetail-hero-1",
           "type": "hero",
           "enabled": true,
+          "icon": "",
           "title": "服务方案",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "info",
+          "id": "legacy-packageDetail-info-2",
           "type": "info",
           "enabled": true,
+          "icon": "",
           "title": "套餐信息",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "suitable",
+          "id": "legacy-packageDetail-suitable-3",
           "type": "suitable",
           "enabled": true,
+          "icon": "",
           "title": "适合",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "includes",
+          "id": "legacy-packageDetail-includes-4",
           "type": "includes",
           "enabled": true,
+          "icon": "",
           "title": "包含服务",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "relatedSeries",
+          "id": "legacy-packageDetail-relatedSeries-5",
           "type": "relatedSeries",
           "enabled": true,
+          "icon": "",
           "title": "相关作品",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "team",
+          "id": "legacy-packageDetail-team-6",
           "type": "team",
           "enabled": true,
+          "icon": "",
           "title": "服务团队",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "testimonials",
+          "id": "legacy-packageDetail-testimonials-7",
           "type": "testimonials",
           "enabled": true,
+          "icon": "",
           "title": "客户评价",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "serviceFlow",
+          "id": "legacy-packageDetail-serviceFlow-8",
           "type": "serviceFlow",
           "enabled": true,
+          "icon": "",
           "title": "服务流程",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "faq",
+          "id": "legacy-packageDetail-faq-9",
           "type": "faq",
           "enabled": true,
+          "icon": "",
           "title": "常见问题",
           "subtitle": "",
           "actionText": "",
@@ -651,66 +2795,74 @@
       ]
     },
     "series": {
+      "skeleton": "cinematic-story",
       "galleryVariant": "immersive",
       "sections": [
         {
-          "id": "hero",
+          "id": "legacy-series-hero-1",
           "type": "hero",
           "enabled": true,
+          "icon": "",
           "title": "",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "profile",
+          "id": "legacy-series-profile-2",
           "type": "profile",
           "enabled": true,
+          "icon": "",
           "title": "",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "gallery",
+          "id": "legacy-series-gallery-3",
           "type": "gallery",
           "enabled": true,
+          "icon": "",
           "title": "",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "packages",
+          "id": "legacy-series-packages-4",
           "type": "packages",
           "enabled": true,
+          "icon": "",
           "title": "相关套餐",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "team",
+          "id": "legacy-series-team-5",
           "type": "team",
           "enabled": true,
+          "icon": "",
           "title": "服务团队",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "testimonials",
+          "id": "legacy-series-testimonials-6",
           "type": "testimonials",
           "enabled": true,
+          "icon": "",
           "title": "客户评价",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "action",
+          "id": "legacy-series-action-7",
           "type": "action",
           "enabled": true,
+          "icon": "",
           "title": "",
           "subtitle": "",
           "actionText": "咨询同款风格",
@@ -719,48 +2871,54 @@
       ]
     },
     "success": {
+      "skeleton": "compact-contact",
       "layoutVariant": "compact",
       "sections": [
         {
-          "id": "hero",
+          "id": "legacy-success-hero-1",
           "type": "hero",
           "enabled": true,
+          "icon": "",
           "title": "咨询内容已生成",
           "subtitle": "请复制并发送给客服。最终日期和服务方案以双方沟通确认为准。",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "summary",
+          "id": "legacy-success-summary-2",
           "type": "summary",
           "enabled": true,
+          "icon": "",
           "title": "咨询摘要",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "content",
+          "id": "legacy-success-content-3",
           "type": "content",
           "enabled": true,
+          "icon": "",
           "title": "完整咨询内容",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "contact",
+          "id": "legacy-success-contact-4",
           "type": "contact",
           "enabled": true,
+          "icon": "",
           "title": "客服微信",
           "subtitle": "",
           "actionText": "",
           "variant": "default"
         },
         {
-          "id": "actions",
+          "id": "legacy-success-actions-5",
           "type": "actions",
           "enabled": true,
+          "icon": "",
           "title": "",
           "subtitle": "",
           "actionText": "复制咨询内容",

@@ -1,63 +1,64 @@
-<view class="stores-page theme-{{themePreset}} {{decorationClass}}" style="{{themeStyle}} {{decorationStyle}}">
-  <view class="stores-hero">
-    <image wx:if="{{bannerUrl}}" class="stores-hero-image" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
-    <view class="stores-hero-shade"></view>
-    <view class="stores-hero-copy">
-      <view class="stores-kicker">到店服务</view>
-      <view class="stores-title">{{section.title || '门店信息'}}</view>
-      <view class="stores-subtitle">{{section.subtitle || '查看地址、营业时间和到店方式'}}</view>
-    </view>
-  </view>
-
-  <view wx:if="{{stores.length}}" class="stores-list">
-    <view class="store-card" wx:for="{{stores}}" wx:for-item="storeItem" wx:key="id">
-      <view class="store-card-head">
-        <text class="store-index">0{{index + 1}}</text>
-        <view class="store-heading">
-          <view class="store-name">{{storeItem.name}}</view>
-          <view wx:if="{{storeItem.businessHours}}" class="store-hours">{{storeItem.businessHours}}</view>
-        </view>
-      </view>
-
-      <view wx:if="{{storeItem.address}}" class="store-row" bindtap="copyStoreAddress" data-index="{{index}}">
-        <app-icon name="{{icons.contact.location}}" size="30" tone="primary" />
-        <view class="store-row-copy">
-          <text>门店地址</text>
-          <view>{{storeItem.address}}</view>
-        </view>
-        <app-icon name="copy" size="24" tone="muted" />
-      </view>
-
-      <view wx:if="{{storeItem.transportTips}}" class="store-row store-transport">
-        <app-icon name="navigation" size="30" tone="primary" />
-        <view class="store-row-copy">
-          <text>到店提示</text>
-          <view>{{storeItem.transportTips}}</view>
-        </view>
-      </view>
-
-      <view class="store-actions">
-        <button class="store-action secondary" bindtap="openStoreLocation" data-index="{{index}}">
-          <app-icon name="navigation" size="26" tone="default" />
-          <text>地图导航</text>
-        </button>
-        <button wx:if="{{storeItem.phone}}" class="store-action secondary" bindtap="callStorePhone" data-index="{{index}}">
-          <app-icon name="{{icons.contact.phone}}" size="26" tone="default" />
-          <text>拨打电话</text>
-        </button>
-        <button class="store-action primary" bindtap="goBooking">
-          <app-icon name="calendar-days" size="26" tone="inverse" />
-          <text>预约咨询</text>
-        </button>
+<view class="stores-page theme-{{themePreset}} {{decorationClass}} skeleton-{{decoration.skeleton}}" style="{{themeStyle}} {{decorationStyle}}">
+  <block wx:for="{{decoration.modules}}" wx:key="id" wx:for-item="moduleItem">
+    <view wx:if="{{moduleItem.enabled && (moduleItem.type === 'header' || moduleItem.type === 'hero')}}" class="stores-hero">
+      <image wx:if="{{moduleItem.source.mode !== 'auto' && moduleItem.resolvedItems.length}}" class="stores-hero-image" style="{{moduleItem.mediaStyle}}" src="{{moduleItem.resolvedItems[0].imageUrl}}" mode="aspectFill" />
+      <image wx:elif="{{bannerUrl}}" class="stores-hero-image" style="{{moduleItem.mediaStyle}}" src="{{bannerUrl}}" mode="aspectFill" binderror="onBannerError" />
+      <view class="stores-hero-shade" style="{{moduleItem.overlayStyle}}"></view>
+      <view class="stores-hero-copy">
+        <view class="stores-kicker">{{moduleItem.content.subtitle || '到店服务'}}</view>
+        <view class="stores-title">{{moduleItem.content.title || '门店信息'}}</view>
+        <view class="stores-subtitle">查看地址、营业时间和到店方式</view>
       </view>
     </view>
-  </view>
 
-  <view wx:else class="stores-empty">
-    <app-icon name="map-pin" size="48" tone="muted" />
-    <view>门店信息暂未完善</view>
-    <text>请稍后再来查看</text>
-  </view>
+    <view wx:elif="{{moduleItem.enabled && moduleItem.type === 'stores'}}" class="stores-module">
+      <view wx:if="{{moduleItem.content.title}}" class="stores-section-heading">
+        <view class="stores-section-title">{{moduleItem.content.title}}</view>
+        <view wx:if="{{moduleItem.content.subtitle}}" class="stores-section-subtitle">{{moduleItem.content.subtitle}}</view>
+      </view>
+      <view wx:if="{{stores.length}}" class="stores-list">
+        <view class="store-card" wx:for="{{stores}}" wx:for-item="storeItem" wx:key="id">
+          <view class="store-card-head">
+            <text class="store-index">0{{index + 1}}</text>
+            <view class="store-heading">
+              <view class="store-name">{{storeItem.name}}</view>
+              <view wx:if="{{storeItem.businessHours}}" class="store-hours">{{storeItem.businessHours}}</view>
+            </view>
+          </view>
+
+          <view wx:if="{{storeItem.address}}" class="store-row" bindtap="copyStoreAddress" data-index="{{index}}">
+            <app-icon name="{{icons.contact.location}}" size="30" tone="primary" />
+            <view class="store-row-copy"><text>门店地址</text><view>{{storeItem.address}}</view></view>
+            <app-icon name="copy" size="24" tone="muted" />
+          </view>
+
+          <view wx:if="{{storeItem.transportTips}}" class="store-row store-transport">
+            <app-icon name="navigation" size="30" tone="primary" />
+            <view class="store-row-copy"><text>到店提示</text><view>{{storeItem.transportTips}}</view></view>
+          </view>
+
+          <view class="store-actions">
+            <button class="store-action secondary" bindtap="openStoreLocation" data-index="{{index}}"><app-icon name="navigation" size="26" tone="default" /><text>地图导航</text></button>
+            <button wx:if="{{storeItem.phone}}" class="store-action secondary" bindtap="callStorePhone" data-index="{{index}}"><app-icon name="{{icons.contact.phone}}" size="26" tone="default" /><text>拨打电话</text></button>
+            <button class="store-action primary" bindtap="goBooking"><app-icon name="calendar-days" size="26" tone="inverse" /><text>预约咨询</text></button>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="stores-empty">
+        <app-icon name="map-pin" size="48" tone="muted" />
+        <view>门店信息暂未完善</view>
+        <text>请稍后再来查看</text>
+      </view>
+    </view>
+
+    <view wx:elif="{{moduleItem.enabled && moduleItem.type === 'contact'}}" class="stores-contact">
+      <view><view class="stores-contact-title">{{moduleItem.content.title || '联系门店'}}</view><text>{{moduleItem.content.subtitle || '咨询档期、路线或服务细节'}}</text></view>
+      <button class="stores-contact-action" bindtap="goBooking">{{moduleItem.content.actionText || '立即咨询'}}</button>
+    </view>
+
+    <decoration-block wx:elif="{{moduleItem.enabled && (moduleItem.type === 'richText' || moduleItem.type === 'image' || moduleItem.type === 'gallery' || moduleItem.type === 'action' || moduleItem.type === 'divider' || moduleItem.type === 'spacer')}}" module="{{moduleItem}}" />
+  </block>
 
   <quick-jump
     wx:if="{{quickJumpVisible}}"
