@@ -95,7 +95,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
+import Sortable from 'sortablejs'
 
 interface Block {
   id: string
@@ -135,6 +136,7 @@ const blockRegistry: Record<string, { label: string; variants: string[] }> = {
 const activePage = ref('portfolio')
 const pageConfigs = ref<Record<string, PageConfig>>({})
 const selectedBlock = ref<Block | null>(null)
+let sortableInstance: Sortable | null = null
 
 const currentPageLabel = computed(() => pages.find(p => p.key === activePage.value)?.label || '')
 const currentBlocks = computed(() => pageConfigs.value[activePage.value]?.blocks || [])
@@ -194,8 +196,36 @@ async function saveDraft() {
   }
 }
 
-onMounted(() => {
-  loadDraft()
+function initSortable() {
+  const el = document.querySelector('.blocks-list')
+  if (!el) return
+
+  if (sortableInstance) {
+    sortableInstance.destroy()
+  }
+
+  sortableInstance = Sortable.create(el as HTMLElement, {
+    animation: 150,
+    handle: '.block-handle',
+    ghostClass: 'block-ghost',
+    onEnd: (evt) => {
+      const oldIndex = evt.oldIndex
+      const newIndex = evt.newIndex
+      if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) return
+
+      const blocks = currentBlocks.value
+      const [movedBlock] = blocks.splice(oldIndex, 1)
+      blocks.splice(newIndex, 0, movedBlock)
+
+      saveDraft()
+    }
+  })
+}
+
+onMounted(async () => {
+  await loadDraft()
+  await nextTick()
+  initSortable()
 })
 </script>
 
@@ -288,6 +318,16 @@ onMounted(() => {
 .block-handle {
   color: var(--color-text-muted);
   cursor: grab;
+  user-select: none;
+}
+
+.block-handle:active {
+  cursor: grabbing;
+}
+
+.block-ghost {
+  opacity: 0.5;
+  background: var(--color-surface-secondary);
 }
 
 .block-content {
