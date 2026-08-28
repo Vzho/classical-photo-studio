@@ -1,0 +1,16 @@
+<view class="v3-catnav v3-catnav--{{block.variant || 'text-tabs'}} {{block.settings.sticky !== false ? 'v3-catnav--sticky' : ''}}">
+  <scroll-view class="v3-catnav-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="v3-catnav-list">
+      <view
+        wx:for="{{content}}"
+        wx:key="name"
+        class="v3-catnav-item {{activeCategory === item.name ? 'is-active' : ''}}"
+        bindtap="onCategoryTap"
+        data-name="{{item.name}}"
+      >
+        <text class="v3-catnav-name">{{item.name}}</text>
+        <text wx:if="{{block.settings.showCount && item.count}}" class="v3-catnav-count">{{item.count}}</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,12 @@
+<view class="v3-gallery v3-gallery--{{block.variant || 'natural-flow'}} {{block.settings.gap === 'tight' ? 'v3-gallery--gap-tight' : block.settings.gap === 'normal' ? 'v3-gallery--gap-normal' : 'v3-gallery--gap-none'}}">
+  <view
+    wx:for="{{photos}}"
+    wx:key="url"
+    class="v3-gallery-item"
+    bindtap="onPhotoTap"
+    data-index="{{index}}"
+  >
+    <image class="v3-gallery-photo" src="{{item.thumbnail || item.url}}" mode="widthFix" lazy-load="{{block.settings.lazyLoad !== false}}" />
+    <text wx:if="{{block.settings.showCaption && item.caption}}" class="v3-gallery-caption">{{item.caption}}</text>
+  </view>
+</view>

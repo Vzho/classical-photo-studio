@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "blocks/team.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "mediaRatio": { "type": "string", "enum": ["square", "portrait"], "default": "portrait", "label": "头像比例" },
+    "showRole": { "type": "boolean", "default": true, "label": "显示职位" },
+    "showBio": { "type": "boolean", "default": false, "label": "显示简介" }
+  }
+}

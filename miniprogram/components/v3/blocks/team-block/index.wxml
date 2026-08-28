@@ -1,0 +1,11 @@
+<view class="v3-team v3-team--{{block.variant || 'horizontal-cards'}} {{block.settings.mediaRatio === 'square' ? 'v3-team--square' : 'v3-team--portrait'}}">
+  <view wx:for="{{members}}" wx:key="id" class="v3-team-card">
+    <view class="v3-team-media-wrap">
+      <image wx:if="{{item.avatarUrl}}" class="v3-team-media" src="{{item.avatarUrl}}" mode="aspectFill" lazy-load />
+      <view wx:else class="v3-team-media-empty">{{item.name}}</view>
+    </view>
+    <text class="v3-team-name">{{item.name}}</text>
+    <text wx:if="{{block.settings.showRole !== false && item.role}}" class="v3-team-role">{{item.role}}</text>
+    <text wx:if="{{block.settings.showBio && item.bio}}" class="v3-team-bio">{{item.bio}}</text>
+  </view>
+</view>

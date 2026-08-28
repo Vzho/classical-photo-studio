@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "design-v3.schema.json",
+  "title": "DesignConfigV3",
+  "description": "装修配置草稿/发布稿的顶层结构（方案 §5.1）。服务端校验器以此为合约，手写校验逻辑需与此文件保持一致。",
+  "type": "object",
+  "required": ["schemaVersion", "engine", "templateId", "pages", "updatedAt"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "3.1.0" },
+    "engine": { "const": "blocks-v3" },
+    "templateId": { "type": "string", "minLength": 1 },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "colorScheme": { "type": "string", "label": "推荐配色方案" },
+        "accentColor": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "label": "品牌强调色" },
+        "fontPair": { "type": "string", "enum": ["modern-sans", "editorial-serif", "soft-lifestyle"], "label": "字体组合" },
+        "density": { "type": "string", "enum": ["compact", "standard", "relaxed"], "label": "页面密度" },
+        "radiusMood": { "type": "string", "enum": ["sharp", "light", "soft"], "label": "圆角气质" },
+        "buttonStyle": { "type": "string", "enum": ["solid", "outline", "text"], "label": "按钮样式" },
+        "overlayMask": { "type": "string", "enum": ["none", "light", "medium", "dark"], "label": "图片遮罩" }
+      }
+    },
+    "brand": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "maxLength": 20 },
+        "englishName": { "type": "string", "maxLength": 40 },
+        "slogan": { "type": "string", "maxLength": 60 },
+        "logoPath": { "type": "string" }
+      }
+    },
+    "navigation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entries": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "required": ["pageKey", "label", "visible"],
+            "additionalProperties": false,
+            "properties": {
+              "pageKey": { "type": "string", "enum": ["portfolio", "about", "booking", "packages"] },
+              "label": { "type": "string", "maxLength": 8 },
+              "visible": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "pages": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "portfolio": { "$ref": "#/definitions/pageDesign" },
+        "series": { "$ref": "#/definitions/pageDesign" },
+        "about": { "$ref": "#/definitions/pageDesign" },
+        "packages": { "$ref": "#/definitions/pageDesign" }
+      }
+    },
+    "mediaMeta": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/mediaMeta" }
+    },
+    "updatedAt": { "type": "string" }
+  },
+  "definitions": {
+    "pageDesign": {
+      "type": "object",
+      "required": ["blocks"],
+      "additionalProperties": false,
+      "properties": {
+        "blocks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/blockConfig" }
+        }
+      }
+    },
+    "blockConfig": {
+      "type": "object",
+      "required": ["id", "type", "variant", "enabled"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": { "type": "string" },
+        "variant": { "type": "string" },
+        "enabled": { "type": "boolean" },
+        "dataSource": {
+          "type": "object",
+          "required": ["type"],
+          "additionalProperties": false,
+          "properties": {
+            "type": { "type": "string" },
+            "ref": { "type": "string" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 24 }
+          }
+        },
+        "settings": { "type": "object" }
+      }
+    },
+    "mediaMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "focalPoint": {
+          "type": "object",
+          "required": ["x", "y"],
+          "additionalProperties": false,
+          "properties": {
+            "x": { "type": "number", "minimum": 0, "maximum": 1 },
+            "y": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "alt": { "type": "string" },
+        "crops": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "hero": { "$ref": "#/definitions/cropConfig" },
+            "card": { "$ref": "#/definitions/cropConfig" },
+            "packageBanner": { "$ref": "#/definitions/cropConfig" }
+          }
+        }
+      }
+    },
+    "cropConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "focalPoint": {
+          "type": "object",
+          "required": ["x", "y"],
+          "properties": {
+            "x": { "type": "number", "minimum": 0, "maximum": 1 },
+            "y": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "zoom": { "type": "number", "minimum": 1, "maximum": 3 }
+      }
+    }
+  }
+}

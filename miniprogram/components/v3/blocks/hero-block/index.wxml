@@ -1,0 +1,27 @@
+<view class="v3-hero v3-hero--{{block.variant || 'full-bleed-carousel'}}" style="{{shellStyle}}">
+  <!-- full-bleed-carousel：全幅轮播 -->
+  <swiper wx:if="{{(block.variant || 'full-bleed-carousel') === 'full-bleed-carousel'}}" class="v3-hero-swiper" autoplay="{{autoplay}}" interval="4200" circular="{{slides.length > 1}}" indicator-dots="{{slides.length > 1}}" indicator-color="rgba(255,255,255,0.4)" indicator-active-color="#ffffff">
+    <swiper-item wx:for="{{slides}}" wx:key="seriesId">
+      <view class="v3-hero-slide" bindtap="onSlideTap" data-index="{{index}}">
+        <image class="v3-hero-media" src="{{item.imageUrl}}" mode="aspectFill" style="{{item.positionStyle}}" lazy-load="{{index > 0}}" />
+        <view class="v3-hero-mask"></view>
+        <view class="v3-hero-copy">
+          <text wx:if="{{block.settings.showSubtitle !== false && item.category}}" class="v3-hero-category">{{item.category}}</text>
+          <text class="v3-hero-title">{{item.title}}</text>
+        </view>
+      </view>
+    </swiper-item>
+  </swiper>
+
+  <!-- editorial-split / minimal-cover：单图封面 -->
+  <block wx:elif="{{slides.length}}">
+    <view class="v3-hero-cover" bindtap="onSlideTap" data-index="0">
+      <image class="v3-hero-media" src="{{slides[0].imageUrl}}" mode="aspectFill" style="{{slides[0].positionStyle}}" />
+      <view class="v3-hero-mask"></view>
+      <view class="v3-hero-copy">
+        <text wx:if="{{block.settings.showSubtitle !== false && slides[0].category}}" class="v3-hero-category">{{slides[0].category}}</text>
+        <text class="v3-hero-title">{{slides[0].title}}</text>
+      </view>
+    </view>
+  </block>
+</view>

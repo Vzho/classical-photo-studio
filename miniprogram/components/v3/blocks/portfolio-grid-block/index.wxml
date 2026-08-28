@@ -1,0 +1,23 @@
+<view class="v3-grid v3-grid--{{block.variant || 'two-column'}} {{layoutClass}} {{block.settings.textPosition === 'overlay' ? 'v3-grid--overlay' : ''}}">
+  <view
+    wx:for="{{items}}"
+    wx:key="id"
+    class="v3-grid-card"
+    bindtap="onItemTap"
+    data-index="{{index}}"
+  >
+    <view class="v3-grid-media-wrap {{item.mediaClass}}">
+      <image wx:if="{{item.imageUrl}}" class="v3-grid-media" src="{{item.imageUrl}}" mode="aspectFill" lazy-load binderror="onImageError" data-index="{{index}}" />
+      <view wx:else class="v3-grid-media-empty"></view>
+      <view wx:if="{{block.settings.textPosition === 'overlay'}}" class="v3-grid-overlay-copy">
+        <text wx:if="{{block.settings.showCategory !== false && item.category}}" class="v3-grid-category">{{item.category}}</text>
+        <text class="v3-grid-title">{{item.title}}</text>
+      </view>
+    </view>
+    <view wx:if="{{block.settings.textPosition !== 'overlay'}}" class="v3-grid-caption">
+      <text wx:if="{{block.settings.showCategory !== false && item.category}}" class="v3-grid-category">{{item.category}}</text>
+      <text class="v3-grid-title">{{item.title}}</text>
+      <text wx:if="{{block.settings.showPhotoCount && item.photoCount}}" class="v3-grid-count">{{item.photoCount}} 张</text>
+    </view>
+  </view>
+</view>

@@ -4,6 +4,7 @@ import { buildThemeStyle, ConsultButtonContent, DEFAULT_SHARE_CONTENT, getAboutP
 import { AboutDecoration, DEFAULT_DECORATION, ShowcaseDecoration, TerminologyDecoration } from '../../utils/decoration'
 import { setPageNavigationTitle } from '../../utils/navigation'
 import { createShareMessage } from '../../utils/share'
+import { handleV3BlockAction, refreshV3ForPage, V3_INITIAL_STATE } from '../../utils/v3-page'
 
 Page({
   data: {
@@ -45,7 +46,8 @@ Page({
       portfolioText: '作品集'
     } as Partial<QuickJumpContent>,
     quickJumpVisible: true,
-    share: { ...DEFAULT_SHARE_CONTENT } as ShareContent
+    share: { ...DEFAULT_SHARE_CONTENT } as ShareContent,
+    ...V3_INITIAL_STATE
   },
 
   async loadData() {
@@ -142,6 +144,13 @@ Page({
     })
 
     setPageNavigationTitle(profile.name, '店铺简介')
+
+    // 双引擎：尝试 blocks-v3 渲染（§10.2），失败静默回退旧路径。
+    await refreshV3ForPage(this as any, 'about')
+  },
+
+  onV3BlockAction(e: WechatMiniprogram.CustomEvent) {
+    handleV3BlockAction(this as any, e.detail)
   },
 
   onBannerError() {

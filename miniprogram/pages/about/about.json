@@ -4,6 +4,8 @@
   "usingComponents": {
     "decoration-block": "/components/decoration-block/decoration-block",
     "dark-site-header": "/components/dark-site-header/dark-site-header",
-    "dark-floating-actions": "/components/dark-floating-actions/dark-floating-actions"
+    "dark-floating-actions": "/components/dark-floating-actions/dark-floating-actions",
+    "v3-page-shell": "/components/v3/page-shell/index",
+    "v3-section-renderer": "/components/v3/section-renderer/index"
   }
 }

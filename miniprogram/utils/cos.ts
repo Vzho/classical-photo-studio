@@ -1578,3 +1578,21 @@ function generateImagesFromConfig(config: any): PortfolioItem[] {
   
   return items
 }
+
+// blocks-v3 迁移期间的只读 facade（方案 §7.1）：
+// 新服务通过这里读取原始配置，逐步把职责移出本文件；不改变现有加载与缓存策略。
+export async function loadPortfolioRawConfig(): Promise<any> {
+  return loadConfig()
+}
+
+export function buildPortfolioImagesFromConfig(config: any): PortfolioItem[] {
+  return generateImagesFromConfig(config)
+}
+
+export function buildConfiguredPackages(config: any): PackageItem[] {
+  return getConfiguredPackages(config)
+}
+
+export function buildConfiguredTestimonials(config: any): TestimonialItem[] {
+  return getConfiguredTestimonials(config)
+}

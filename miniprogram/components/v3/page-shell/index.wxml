@@ -1,0 +1,7 @@
+<view class="v3-shell {{buttonStyle === 'outline' ? 'v3-shell--outline' : buttonStyle === 'text' ? 'v3-shell--textbtn' : ''}}" style="{{themeStyle}}">
+  <view wx:if="{{loading}}" class="v3-shell-loading">
+    <view class="v3-shell-loading-dot"></view>
+    <text class="v3-shell-loading-text">正在加载</text>
+  </view>
+  <slot wx:else></slot>
+</view>

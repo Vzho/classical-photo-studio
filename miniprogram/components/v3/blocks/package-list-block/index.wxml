@@ -1,0 +1,21 @@
+<view class="v3-pkg v3-pkg--{{block.variant || 'cards'}}">
+  <view
+    wx:for="{{content}}"
+    wx:key="id"
+    class="v3-pkg-card {{item.isRecommended ? 'is-recommended' : ''}}"
+    bindtap="onPackageTap"
+    data-index="{{index}}"
+  >
+    <view class="v3-pkg-head">
+      <text class="v3-pkg-name">{{item.name}}</text>
+      <text wx:if="{{item.isRecommended}}" class="v3-pkg-badge">推荐</text>
+    </view>
+    <text wx:if="{{block.settings.showPrice !== false && item.priceText}}" class="v3-pkg-price">{{item.priceText}}</text>
+    <text wx:if="{{block.settings.showDescription !== false && item.subtitle}}" class="v3-pkg-desc">{{item.subtitle}}</text>
+    <view wx:if="{{item.duration || item.retouchCount}}" class="v3-pkg-meta">
+      <text wx:if="{{item.duration}}">{{item.duration}}</text>
+      <text wx:if="{{item.retouchCount}}">{{item.retouchCount}}</text>
+    </view>
+    <view wx:if="{{block.settings.showActionButton !== false}}" class="v3-btn v3-pkg-action">预约拍摄</view>
+  </view>
+</view>

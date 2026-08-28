@@ -14,6 +14,14 @@ const {
   removeThemeFromConfig,
   reconcileMissingPhotoReferences
 } = require('./portfolio-delete')
+const fsSync = require('fs')
+const { createDesignWorkspace } = require('./server/services/design-workspace')
+const { createDesignValidator } = require('./server/validation/design-validator')
+const { createRuntimeCompiler } = require('./server/services/runtime-compiler')
+const { createCosPublisher } = require('./server/services/cos-publisher')
+const { createReleaseService } = require('./server/services/release-service')
+const { createDesignRouter } = require('./server/routes/design')
+const { createReleasesRouter } = require('./server/routes/releases')
 
 const app = express()
 const PORT = process.env.PORT || 8080
@@ -62,9 +70,46 @@ let cos = new COS({
 const uploadTasks = new Map()
 let configMutationQueue = Promise.resolve()
 
+// ==================== 装修 v3（blocks-v3）服务装配（方案 §9.1） ====================
+const SHARED_DECORATION_DIR = path.join(__dirname, '../shared/decoration')
+const decorationRegistry = JSON.parse(
+  fsSync.readFileSync(path.join(SHARED_DECORATION_DIR, 'registry.json'), 'utf-8')
+)
+const designBlockSchemas = Object.fromEntries(
+  Object.entries(decorationRegistry.blocks).map(([blockType, meta]) => [
+    blockType,
+    JSON.parse(fsSync.readFileSync(path.join(SHARED_DECORATION_DIR, meta.settingsSchema), 'utf-8'))
+  ])
+)
+const designWorkspace = createDesignWorkspace({
+  workspaceDir: path.join(__dirname, 'workspace'),
+  templatesDir: path.join(SHARED_DECORATION_DIR, 'templates'),
+  backupsDir: path.join(__dirname, 'workspace', 'backups')
+})
+const designValidator = createDesignValidator({ registry: decorationRegistry, blockSchemas: designBlockSchemas })
+const designCompiler = createRuntimeCompiler({ registry: decorationRegistry, blockSchemas: designBlockSchemas })
+// 惰性读取 cos 实例，后台更新密钥重建实例后发布仍生效。
+const designPublisher = createCosPublisher({
+  provider: () => ({ cos, bucket: CONFIG.cos.Bucket, region: CONFIG.cos.Region })
+})
+const designReleaseService = createReleaseService({
+  releasesDir: path.join(__dirname, 'releases'),
+  publisher: designPublisher,
+  workspace: designWorkspace,
+  validator: designValidator,
+  compiler: designCompiler
+})
+
 // 管理后台仅供本机使用，不向局域网开放高权限 COS 接口。
 app.disable('x-powered-by')
 app.use(express.json({ limit: '2mb' }))
+app.use('/api/design', createDesignRouter({
+  workspace: designWorkspace,
+  validator: designValidator,
+  releaseService: designReleaseService,
+  getContentConfig: () => readLatestConfigForMutation()
+}))
+app.use('/api/releases', createReleasesRouter({ releaseService: designReleaseService }))
 app.use('/mini-icons', express.static(path.join(__dirname, '../miniprogram/assets/icons')))
 app.get(['/', '/index.html'], (req, res) => res.sendFile(path.join(__dirname, 'index.html')))
 app.get('/app.js', (req, res) => res.sendFile(path.join(__dirname, 'app.js')))
@@ -767,14 +812,32 @@ async function uploadFileWithRetry(bucket, region, key, filePath, options = {}) 
   })
 }
 
-// 保存配置
+// 保存配置。已发布装修存在时，上传前用最新内容重新编译运行时配置（方案 §9.5），
+// 装修草稿不会因客户修改作品或套餐而被提前发布。
 app.post('/api/config', async (req, res) => {
   try {
     await withConfigLock(async () => {
       const normalizedConfig = await writeConfig(req.body)
       console.log(`✅ 配置已准备完成 (${hasCosConfig() ? '云端模式' : '本地模式'})`)
 
-      const syncSuccess = await uploadConfigToCos(normalizedConfig)
+      let uploadConfig = normalizedConfig
+      const publishedDesign = await designWorkspace.readPublished()
+      if (publishedDesign) {
+        const validation = designValidator.validateDesign(publishedDesign)
+        if (validation.valid) {
+          const template = await designWorkspace.readTemplate(publishedDesign.templateId)
+          const { runtime } = designCompiler.compileRuntime({
+            contentConfig: normalizedConfig,
+            publishedDesign,
+            templateManifest: template
+          })
+          uploadConfig = runtime
+        } else {
+          console.warn('⚠️ 已发布装修校验失败，本次保存按未编译配置上传:', validation.errors.join('; '))
+        }
+      }
+
+      const syncSuccess = await uploadConfigToCos(uploadConfig)
       if (!syncSuccess) {
         throw new Error('配置同步到 COS 失败')
       }

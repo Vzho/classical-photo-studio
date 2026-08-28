@@ -1,0 +1,219 @@
+{
+  "id": "editorial-gray",
+  "name": "Editorial Gray",
+  "displayName": "灰白编辑部",
+  "version": "1.0.0",
+  "description": "灰白背景、衬线标题、艺术机构感",
+  "minEngineVersion": "3.1.0",
+  "internal": false,
+  "industryTags": ["wedding", "portrait"],
+  "preview": {
+    "cover": "/editor/templates/editorial-gray/preview-cover.jpg",
+    "pages": {
+      "portfolio": "/editor/templates/editorial-gray/preview-portfolio.jpg",
+      "series": "/editor/templates/editorial-gray/preview-series.jpg",
+      "about": "/editor/templates/editorial-gray/preview-about.jpg",
+      "packages": "/editor/templates/editorial-gray/preview-packages.jpg"
+    }
+  },
+  "tokens": {
+    "colorScheme": "cool-minimal",
+    "preset": "editorial-gray",
+    "primaryColor": "#94a3b8",
+    "accentColor": "#1e293b",
+    "backgroundColor": "#f8fafc",
+    "surfaceColor": "#ffffff",
+    "textColor": "#0f172a",
+    "mutedTextColor": "#64748b",
+    "borderColor": "#cbd5e1",
+    "fontFamily": {
+      "body": "system-ui, -apple-system, sans-serif",
+      "display": "Georgia, 'Times New Roman', serif"
+    },
+    "fontStyle": "editorial-serif",
+    "layoutDensity": "normal",
+    "cardStyle": "outlined",
+    "buttonStyle": "outlined",
+    "imageRadius": "none",
+    "imageMask": "light",
+    "spacing": {
+      "page": 20,
+      "section": 80,
+      "card": 20,
+      "element": 16
+    },
+    "borderRadius": {
+      "image": 0,
+      "card": 0,
+      "button": 4
+    }
+  },
+  "brand": {
+    "name": "",
+    "nameEn": "",
+    "slogan": ""
+  },
+  "navigation": {
+    "entries": [
+      { "pageKey": "portfolio", "label": "Portfolio", "visible": true },
+      { "pageKey": "about", "label": "About", "visible": true },
+      { "pageKey": "packages", "label": "Services", "visible": true },
+      { "pageKey": "booking", "label": "Contact", "visible": true }
+    ]
+  },
+  "pages": {
+    "portfolio": {
+      "blocks": [
+        {
+          "id": "portfolio-hero",
+          "type": "hero",
+          "variant": "editorial-split",
+          "enabled": true,
+          "dataSource": { "type": "featured-series", "limit": 1 },
+          "settings": {
+            "showTitle": true,
+            "showDescription": true,
+            "textPosition": "left",
+            "imagePosition": "right",
+            "splitRatio": "50:50"
+          }
+        },
+        {
+          "id": "portfolio-brand",
+          "type": "brand-intro",
+          "variant": "editorial-left",
+          "enabled": true,
+          "dataSource": { "type": "brand" },
+          "settings": {
+            "showDescription": true,
+            "showSlogan": false,
+            "textWidth": "narrow"
+          }
+        },
+        {
+          "id": "portfolio-grid",
+          "type": "portfolio-grid",
+          "variant": "editorial-mixed",
+          "enabled": true,
+          "dataSource": { "type": "featured-series" },
+          "settings": {
+            "mediaRatio": "portrait",
+            "gap": "tight",
+            "textPosition": "overlay",
+            "showCategory": true,
+            "showPhotoCount": false
+          }
+        },
+        {
+          "id": "portfolio-packages",
+          "type": "package-list",
+          "variant": "minimal-list",
+          "enabled": true,
+          "dataSource": { "type": "packages" },
+          "settings": {
+            "showPrice": true,
+            "showDescription": true,
+            "layout": "list",
+            "dividerStyle": "line"
+          }
+        }
+      ]
+    },
+    "series": {
+      "blocks": [
+        {
+          "id": "series-hero",
+          "type": "hero",
+          "variant": "editorial-split",
+          "enabled": true,
+          "dataSource": { "type": "current-series" },
+          "settings": {
+            "showTitle": true,
+            "showDescription": true,
+            "showTags": false,
+            "textPosition": "left"
+          }
+        },
+        {
+          "id": "series-gallery",
+          "type": "series-gallery",
+          "variant": "framed-grid",
+          "enabled": true,
+          "dataSource": { "type": "current-series" },
+          "settings": {
+            "columns": 2,
+            "gap": "normal",
+            "enableLightbox": true,
+            "frameStyle": "border"
+          }
+        }
+      ]
+    },
+    "about": {
+      "blocks": [
+        {
+          "id": "about-brand",
+          "type": "brand-intro",
+          "variant": "editorial-left",
+          "enabled": true,
+          "dataSource": { "type": "brand" },
+          "settings": {
+            "showLogo": false,
+            "showDescription": true,
+            "textWidth": "narrow",
+            "alignment": "left"
+          }
+        },
+        {
+          "id": "about-team",
+          "type": "team",
+          "variant": "portrait-grid",
+          "enabled": true,
+          "dataSource": { "type": "team" },
+          "settings": {
+            "showBio": true,
+            "showRole": true,
+            "columns": 3,
+            "imageRatio": "portrait"
+          }
+        },
+        {
+          "id": "about-service-flow",
+          "type": "service-flow",
+          "variant": "timeline",
+          "enabled": true,
+          "dataSource": { "type": "service-flow" },
+          "settings": {
+            "layout": "horizontal",
+            "lineStyle": "dotted",
+            "showDescription": true
+          }
+        }
+      ]
+    },
+    "packages": {
+      "blocks": [
+        {
+          "id": "packages-list",
+          "type": "package-list",
+          "variant": "minimal-list",
+          "enabled": true,
+          "dataSource": { "type": "packages" },
+          "settings": {
+            "showPrice": true,
+            "showDescription": true,
+            "showIncludes": true,
+            "layout": "list",
+            "dividerStyle": "line"
+          }
+        }
+      ]
+    }
+  },
+  "requirements": {
+    "minFeaturedSeries": 4,
+    "minCategories": 3,
+    "needsPackages": true,
+    "needsTeam": false
+  }
+}

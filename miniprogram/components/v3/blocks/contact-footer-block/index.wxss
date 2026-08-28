@@ -1,0 +1,56 @@
+.v3-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40rpx;
+  padding: var(--v3-space-section, 88rpx) var(--v3-space-page, 40rpx) calc(var(--v3-space-section, 88rpx) + 60rpx);
+}
+
+.v3-footer--dark-media {
+  background: #111111;
+  color: #f5f5f4;
+}
+
+.v3-footer-stores {
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+  width: 100%;
+}
+
+.v3-footer-store {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 2rpx solid var(--v3-color-divider, #e7e5e4);
+}
+
+.v3-footer--dark-media .v3-footer-store {
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+
+.v3-footer-store-name {
+  font-family: var(--v3-font-display, serif);
+  font-weight: var(--v3-heading-weight, 600);
+  font-size: 30rpx;
+  letter-spacing: var(--v3-letter-spacing, 0.04em);
+}
+
+.v3-footer-store-line {
+  font-size: 24rpx;
+  color: var(--v3-color-muted, #78716c);
+  line-height: 1.7;
+}
+
+.v3-footer--dark-media .v3-footer-store-line {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.v3-footer-phone {
+  text-decoration: underline;
+}
+
+.v3-footer-consult {
+  min-width: 320rpx;
+}

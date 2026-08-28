@@ -1,0 +1,268 @@
+{
+  "id": "modern-gallery",
+  "name": "Modern Gallery",
+  "displayName": "现代生活方式画廊",
+  "version": "1.0.0",
+  "description": "白底、大留白、杂志网格，跨人像、亲子、婚礼适用",
+  "minEngineVersion": "3.1.0",
+  "internal": false,
+  "industryTags": ["wedding", "portrait", "kids"],
+  "preview": {
+    "cover": "/editor/templates/modern-gallery/preview-cover.jpg",
+    "pages": {
+      "portfolio": "/editor/templates/modern-gallery/preview-portfolio.jpg",
+      "series": "/editor/templates/modern-gallery/preview-series.jpg",
+      "about": "/editor/templates/modern-gallery/preview-about.jpg",
+      "packages": "/editor/templates/modern-gallery/preview-packages.jpg"
+    }
+  },
+  "tokens": {
+    "colorScheme": "warm-natural",
+    "preset": "modern-gallery",
+    "primaryColor": "#f5f5f4",
+    "accentColor": "#7c6a5d",
+    "backgroundColor": "#ffffff",
+    "surfaceColor": "#f5f5f4",
+    "textColor": "#292524",
+    "mutedTextColor": "#78716c",
+    "borderColor": "#e7e5e4",
+    "fontFamily": {
+      "body": "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif",
+      "display": "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+    },
+    "fontStyle": "modern-sans",
+    "layoutDensity": "spacious",
+    "cardStyle": "elevated",
+    "buttonStyle": "filled",
+    "imageRadius": "rounded",
+    "imageMask": "none",
+    "spacing": {
+      "page": 24,
+      "section": 64,
+      "card": 16,
+      "element": 12
+    },
+    "borderRadius": {
+      "image": 8,
+      "card": 12,
+      "button": 8
+    }
+  },
+  "brand": {
+    "name": "",
+    "nameEn": "",
+    "slogan": ""
+  },
+  "navigation": {
+    "entries": [
+      { "pageKey": "portfolio", "label": "作品集", "visible": true },
+      { "pageKey": "about", "label": "简介", "visible": true },
+      { "pageKey": "packages", "label": "套餐", "visible": true },
+      { "pageKey": "booking", "label": "咨询", "visible": true }
+    ]
+  },
+  "pages": {
+    "portfolio": {
+      "blocks": [
+        {
+          "id": "portfolio-hero",
+          "type": "hero",
+          "variant": "minimal-cover",
+          "enabled": true,
+          "dataSource": { "type": "featured-series", "limit": 5 },
+          "settings": {
+            "showTitle": true,
+            "showDescription": false,
+            "autoplay": true,
+            "interval": 4000,
+            "textPosition": "center",
+            "overlay": "light"
+          }
+        },
+        {
+          "id": "portfolio-categories",
+          "type": "category-nav",
+          "variant": "text-tabs",
+          "enabled": true,
+          "dataSource": { "type": "categories" },
+          "settings": {
+            "layout": "horizontal",
+            "showCount": false,
+            "sticky": true
+          }
+        },
+        {
+          "id": "portfolio-grid",
+          "type": "portfolio-grid",
+          "variant": "three-column",
+          "enabled": true,
+          "dataSource": { "type": "featured-series" },
+          "settings": {
+            "mediaRatio": "natural",
+            "gap": "normal",
+            "textPosition": "below",
+            "showCategory": true,
+            "showPhotoCount": true
+          }
+        },
+        {
+          "id": "portfolio-packages",
+          "type": "package-list",
+          "variant": "cards",
+          "enabled": true,
+          "dataSource": { "type": "packages" },
+          "settings": {
+            "columns": 2,
+            "showPrice": true,
+            "showDescription": true,
+            "cardStyle": "elevated"
+          }
+        },
+        {
+          "id": "portfolio-contact",
+          "type": "contact-footer",
+          "variant": "minimal",
+          "enabled": true,
+          "dataSource": { "type": "contact" },
+          "settings": {
+            "showMap": false,
+            "showSocial": true,
+            "backgroundColor": "surface"
+          }
+        }
+      ]
+    },
+    "series": {
+      "blocks": [
+        {
+          "id": "series-hero",
+          "type": "hero",
+          "variant": "minimal-cover",
+          "enabled": true,
+          "dataSource": { "type": "current-series" },
+          "settings": {
+            "showTitle": true,
+            "showDescription": true,
+            "showTags": true,
+            "textPosition": "bottom-left"
+          }
+        },
+        {
+          "id": "series-gallery",
+          "type": "series-gallery",
+          "variant": "natural-flow",
+          "enabled": true,
+          "dataSource": { "type": "current-series" },
+          "settings": {
+            "columns": 2,
+            "gap": "normal",
+            "enableLightbox": true,
+            "showCaption": false
+          }
+        }
+      ]
+    },
+    "about": {
+      "blocks": [
+        {
+          "id": "about-brand",
+          "type": "brand-intro",
+          "variant": "centered",
+          "enabled": true,
+          "dataSource": { "type": "brand" },
+          "settings": {
+            "showLogo": true,
+            "showDescription": true,
+            "showSlogan": true,
+            "alignment": "center"
+          }
+        },
+        {
+          "id": "about-team",
+          "type": "team",
+          "variant": "horizontal-cards",
+          "enabled": true,
+          "dataSource": { "type": "team" },
+          "settings": {
+            "showBio": true,
+            "showRole": true,
+            "cardStyle": "elevated"
+          }
+        },
+        {
+          "id": "about-service-flow",
+          "type": "service-flow",
+          "variant": "numbered",
+          "enabled": true,
+          "dataSource": { "type": "service-flow" },
+          "settings": {
+            "layout": "vertical",
+            "showIcons": true,
+            "showDescription": true
+          }
+        },
+        {
+          "id": "about-testimonials",
+          "type": "testimonials",
+          "variant": "cards",
+          "enabled": true,
+          "dataSource": { "type": "testimonials", "limit": 6 },
+          "settings": {
+            "columns": 3,
+            "showRating": true,
+            "showDate": false
+          }
+        },
+        {
+          "id": "about-contact",
+          "type": "contact-footer",
+          "variant": "minimal",
+          "enabled": true,
+          "dataSource": { "type": "contact" },
+          "settings": {
+            "showMap": true,
+            "showSocial": true,
+            "showWorkingHours": true
+          }
+        }
+      ]
+    },
+    "packages": {
+      "blocks": [
+        {
+          "id": "packages-list",
+          "type": "package-list",
+          "variant": "cards",
+          "enabled": true,
+          "dataSource": { "type": "packages" },
+          "settings": {
+            "columns": 2,
+            "showPrice": true,
+            "showDescription": true,
+            "showIncludes": true,
+            "cardStyle": "elevated",
+            "highlightRecommended": true
+          }
+        },
+        {
+          "id": "packages-testimonials",
+          "type": "testimonials",
+          "variant": "quotes",
+          "enabled": true,
+          "dataSource": { "type": "testimonials", "limit": 3 },
+          "settings": {
+            "layout": "slider",
+            "showRating": true,
+            "showAvatar": true
+          }
+        }
+      ]
+    }
+  },
+  "requirements": {
+    "minFeaturedSeries": 3,
+    "minCategories": 2,
+    "needsPackages": true,
+    "needsTeam": false
+  }
+}

@@ -1,0 +1,13 @@
+<view class="v3-footer v3-footer--{{block.variant || 'minimal'}}">
+  <view wx:if="{{stores.length}}" class="v3-footer-stores">
+    <view wx:for="{{stores}}" wx:key="id" class="v3-footer-store">
+      <text class="v3-footer-store-name">{{item.name}}</text>
+      <text wx:if="{{block.settings.showAddress !== false && item.address}}" class="v3-footer-store-line">{{item.address}}</text>
+      <text wx:if="{{block.settings.showPhone !== false && item.phone}}" class="v3-footer-store-line v3-footer-phone" bindtap="onCallTap" data-phone="{{item.phone}}">{{item.phone}}</text>
+      <text wx:if="{{item.businessHours}}" class="v3-footer-store-line">{{item.businessHours}}</text>
+    </view>
+  </view>
+  <view wx:if="{{block.settings.showConsultButton !== false}}" class="v3-btn v3-footer-consult" bindtap="onConsultTap">
+    {{content.consultButton.text || content.consultation.title || '预约咨询'}}
+  </view>
+</view>

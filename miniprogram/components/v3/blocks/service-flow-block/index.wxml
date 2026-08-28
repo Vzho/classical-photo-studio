@@ -1,0 +1,12 @@
+<view class="v3-flow v3-flow--{{block.variant || 'numbered'}} {{block.settings.compact ? 'v3-flow--compact' : ''}}">
+  <view wx:for="{{steps}}" wx:key="index" class="v3-flow-step">
+    <view class="v3-flow-index-wrap">
+      <text class="v3-flow-index">{{item.indexText}}</text>
+      <view wx:if="{{(block.variant || 'numbered') === 'timeline' && index < steps.length - 1}}" class="v3-flow-line"></view>
+    </view>
+    <view class="v3-flow-body">
+      <text class="v3-flow-title">{{item.title}}</text>
+      <text wx:if="{{block.settings.showDescription !== false && item.description}}" class="v3-flow-desc">{{item.description}}</text>
+    </view>
+  </view>
+</view>

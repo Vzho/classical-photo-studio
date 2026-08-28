@@ -1,0 +1,9 @@
+<view class="v3-brand v3-brand--{{block.variant || 'centered'}}">
+  <view class="v3-brand-inner" style="{{widthStyle}}">
+    <text wx:if="{{block.settings.showBrandEnglish !== false && content.englishName}}" class="v3-brand-english">{{content.englishName}}</text>
+    <text class="v3-brand-name">{{content.brandName}}</text>
+    <view class="v3-brand-divider"></view>
+    <text wx:if="{{block.settings.showSlogan !== false && content.slogan}}" class="v3-brand-slogan">{{content.slogan}}</text>
+    <text wx:if="{{content.description}}" class="v3-brand-description">{{content.description}}</text>
+  </view>
+</view>

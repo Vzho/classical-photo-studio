@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "blocks/series-gallery.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "gap": { "type": "string", "enum": ["none", "tight", "normal"], "default": "none", "label": "间距" },
+    "showCaption": { "type": "boolean", "default": false, "label": "显示图注" },
+    "fullscreenPreview": { "type": "boolean", "default": true, "label": "全屏预览" },
+    "lazyLoad": { "type": "boolean", "default": true, "label": "懒加载" }
+  }
+}

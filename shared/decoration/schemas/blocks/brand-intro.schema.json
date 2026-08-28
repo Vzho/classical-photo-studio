@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "blocks/brand-intro.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "showSlogan": { "type": "boolean", "default": true, "label": "显示标语" },
+    "showBrandEnglish": { "type": "boolean", "default": true, "label": "显示英文品牌名" },
+    "textWidthTier": { "type": "string", "enum": ["narrow", "normal", "wide"], "default": "normal", "label": "文本宽度" }
+  }
+}

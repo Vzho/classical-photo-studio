@@ -1,0 +1,116 @@
+{
+  "$comment": "Block 元数据单一来源（方案 §5.3）。后台字段面板、服务端校验、合约检查均以此为准。新增区块必须同步小程序 section-renderer 与 Admin 预览。",
+  "engine": "blocks-v3",
+  "schemaVersion": "3.1.0",
+  "pages": {
+    "portfolio": { "label": "作品首页" },
+    "series": { "label": "作品详情" },
+    "about": { "label": "关于我们" },
+    "packages": { "label": "套餐列表" }
+  },
+  "themeFollowingPages": ["booking", "packageDetail", "success"],
+  "dataSourceTypes": [
+    "brand",
+    "featured-series",
+    "categories",
+    "current-series",
+    "packages",
+    "team",
+    "testimonials",
+    "service-flow",
+    "contact",
+    "none"
+  ],
+  "blocks": {
+    "hero": {
+      "label": "首屏主视觉",
+      "allowedPages": ["portfolio", "series", "about"],
+      "allowMultiple": false,
+      "variants": ["full-bleed-carousel", "editorial-split", "minimal-cover"],
+      "requiredData": ["featured-series", "current-series", "brand"],
+      "settingsSchema": "schemas/blocks/hero.schema.json",
+      "rendererKey": "hero-block"
+    },
+    "brand-intro": {
+      "label": "品牌介绍",
+      "allowedPages": ["portfolio", "about"],
+      "allowMultiple": false,
+      "variants": ["centered", "editorial-left"],
+      "requiredData": ["brand"],
+      "settingsSchema": "schemas/blocks/brand-intro.schema.json",
+      "rendererKey": "brand-intro-block"
+    },
+    "category-nav": {
+      "label": "分类导航",
+      "allowedPages": ["portfolio"],
+      "allowMultiple": false,
+      "variants": ["text-tabs", "circle-thumbnails"],
+      "requiredData": ["categories"],
+      "settingsSchema": "schemas/blocks/category-nav.schema.json",
+      "rendererKey": "category-nav-block"
+    },
+    "portfolio-grid": {
+      "label": "作品画廊",
+      "allowedPages": ["portfolio"],
+      "allowMultiple": true,
+      "variants": ["two-column", "three-column", "editorial-mixed"],
+      "requiredData": ["featured-series", "categories"],
+      "settingsSchema": "schemas/blocks/portfolio-grid.schema.json",
+      "rendererKey": "portfolio-grid-block"
+    },
+    "series-gallery": {
+      "label": "作品详情画廊",
+      "allowedPages": ["series"],
+      "allowMultiple": false,
+      "variants": ["natural-flow", "framed-grid", "immersive-full"],
+      "requiredData": ["current-series"],
+      "settingsSchema": "schemas/blocks/series-gallery.schema.json",
+      "rendererKey": "series-gallery-block"
+    },
+    "package-list": {
+      "label": "套系列表",
+      "allowedPages": ["portfolio", "about", "packages"],
+      "allowMultiple": false,
+      "variants": ["banner", "cards", "minimal-list"],
+      "requiredData": ["packages"],
+      "settingsSchema": "schemas/blocks/package-list.schema.json",
+      "rendererKey": "package-list-block"
+    },
+    "team": {
+      "label": "团队展示",
+      "allowedPages": ["about", "series"],
+      "allowMultiple": false,
+      "variants": ["horizontal-cards", "portrait-grid"],
+      "requiredData": ["team"],
+      "settingsSchema": "schemas/blocks/team.schema.json",
+      "rendererKey": "team-block"
+    },
+    "testimonials": {
+      "label": "客户评价",
+      "allowedPages": ["portfolio", "about", "packages"],
+      "allowMultiple": false,
+      "variants": ["quotes", "cards"],
+      "requiredData": ["testimonials"],
+      "settingsSchema": "schemas/blocks/testimonials.schema.json",
+      "rendererKey": "testimonials-block"
+    },
+    "service-flow": {
+      "label": "服务流程",
+      "allowedPages": ["portfolio", "about"],
+      "allowMultiple": false,
+      "variants": ["numbered", "timeline"],
+      "requiredData": ["service-flow"],
+      "settingsSchema": "schemas/blocks/service-flow.schema.json",
+      "rendererKey": "service-flow-block"
+    },
+    "contact-footer": {
+      "label": "联系页脚",
+      "allowedPages": ["portfolio", "about"],
+      "allowMultiple": false,
+      "variants": ["dark-media", "minimal"],
+      "requiredData": ["contact"],
+      "settingsSchema": "schemas/blocks/contact-footer.schema.json",
+      "rendererKey": "contact-footer-block"
+    }
+  }
+}

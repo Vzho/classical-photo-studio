@@ -1,0 +1,75 @@
+.v3-pkg {
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+  padding: var(--v3-space-section, 88rpx) var(--v3-space-page, 40rpx);
+}
+
+.v3-pkg--banner { gap: 48rpx; }
+
+.v3-pkg-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  padding: var(--v3-space-card, 24rpx);
+  background: var(--v3-color-surface, #f7f5f2);
+  border-radius: var(--v3-radius-card, 16rpx);
+  border: 2rpx solid var(--v3-color-divider, #e7e5e4);
+}
+
+.v3-pkg-card.is-recommended {
+  border-color: var(--v3-color-accent, #111111);
+}
+
+.v3-pkg--minimal-list .v3-pkg-card {
+  background: transparent;
+  border: none;
+  border-bottom: 2rpx solid var(--v3-color-divider, #e7e5e4);
+  border-radius: 0;
+  padding: 24rpx 0;
+}
+
+.v3-pkg-head {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.v3-pkg-name {
+  font-family: var(--v3-font-display, serif);
+  font-weight: var(--v3-heading-weight, 600);
+  font-size: 32rpx;
+  letter-spacing: var(--v3-letter-spacing, 0.04em);
+}
+
+.v3-pkg-badge {
+  font-size: 20rpx;
+  padding: 4rpx 16rpx;
+  border-radius: var(--v3-radius-button, 4rpx);
+  background: var(--v3-color-accent, #111111);
+  color: var(--v3-color-on-media, #ffffff);
+}
+
+.v3-pkg-price {
+  font-size: 40rpx;
+  font-weight: var(--v3-heading-weight, 600);
+  color: var(--v3-color-accent, #111111);
+}
+
+.v3-pkg-desc {
+  font-size: 26rpx;
+  color: var(--v3-color-muted, #78716c);
+  line-height: 1.7;
+}
+
+.v3-pkg-meta {
+  display: flex;
+  gap: 24rpx;
+  font-size: 22rpx;
+  color: var(--v3-color-muted, #78716c);
+}
+
+.v3-pkg-action {
+  align-self: flex-start;
+  margin-top: 8rpx;
+}

@@ -1,0 +1,237 @@
+{
+  "id": "immersive-dark",
+  "name": "Immersive Dark",
+  "displayName": "黑色沉浸影像",
+  "version": "1.0.0",
+  "description": "深色全出血、电影感、适合婚礼与情绪写真",
+  "minEngineVersion": "3.1.0",
+  "internal": false,
+  "industryTags": ["wedding", "video"],
+  "preview": {
+    "cover": "/editor/templates/immersive-dark/preview-cover.jpg",
+    "pages": {
+      "portfolio": "/editor/templates/immersive-dark/preview-portfolio.jpg",
+      "series": "/editor/templates/immersive-dark/preview-series.jpg",
+      "about": "/editor/templates/immersive-dark/preview-about.jpg",
+      "packages": "/editor/templates/immersive-dark/preview-packages.jpg"
+    }
+  },
+  "tokens": {
+    "colorScheme": "dark-luxury",
+    "preset": "immersive-dark",
+    "primaryColor": "#8b5cf6",
+    "accentColor": "#a78bfa",
+    "backgroundColor": "#0f172a",
+    "surfaceColor": "#1e293b",
+    "textColor": "#e2e8f0",
+    "mutedTextColor": "#94a3b8",
+    "borderColor": "#334155",
+    "fontFamily": {
+      "body": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "display": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    },
+    "fontStyle": "modern-sans",
+    "layoutDensity": "compact",
+    "cardStyle": "flat",
+    "buttonStyle": "filled",
+    "imageRadius": "soft",
+    "imageMask": "dark",
+    "spacing": {
+      "page": 0,
+      "section": 48,
+      "card": 16,
+      "element": 12
+    },
+    "borderRadius": {
+      "image": 12,
+      "card": 16,
+      "button": 24
+    }
+  },
+  "brand": {
+    "name": "",
+    "nameEn": "",
+    "slogan": ""
+  },
+  "navigation": {
+    "entries": [
+      { "pageKey": "portfolio", "label": "作品集", "visible": true },
+      { "pageKey": "about", "label": "关于", "visible": true },
+      { "pageKey": "packages", "label": "套系", "visible": true },
+      { "pageKey": "booking", "label": "预约", "visible": true }
+    ]
+  },
+  "pages": {
+    "portfolio": {
+      "blocks": [
+        {
+          "id": "portfolio-hero",
+          "type": "hero",
+          "variant": "full-bleed-carousel",
+          "enabled": true,
+          "dataSource": { "type": "featured-series", "limit": 5 },
+          "settings": {
+            "showTitle": true,
+            "showDescription": false,
+            "autoplay": true,
+            "interval": 5000,
+            "textPosition": "center-bottom",
+            "overlay": "dark",
+            "transition": "fade"
+          }
+        },
+        {
+          "id": "portfolio-categories",
+          "type": "category-nav",
+          "variant": "circle-thumbnails",
+          "enabled": true,
+          "dataSource": { "type": "categories" },
+          "settings": {
+            "layout": "horizontal",
+            "showCount": false,
+            "thumbnailSize": "large"
+          }
+        },
+        {
+          "id": "portfolio-grid",
+          "type": "portfolio-grid",
+          "variant": "two-column",
+          "enabled": true,
+          "dataSource": { "type": "featured-series" },
+          "settings": {
+            "mediaRatio": "landscape",
+            "gap": "none",
+            "textPosition": "overlay",
+            "showCategory": false,
+            "showPhotoCount": true,
+            "hoverEffect": "zoom"
+          }
+        },
+        {
+          "id": "portfolio-packages",
+          "type": "package-list",
+          "variant": "banner",
+          "enabled": true,
+          "dataSource": { "type": "packages" },
+          "settings": {
+            "showPrice": true,
+            "showDescription": false,
+            "layout": "carousel",
+            "bannerHeight": "tall"
+          }
+        },
+        {
+          "id": "portfolio-contact",
+          "type": "contact-footer",
+          "variant": "dark-media",
+          "enabled": true,
+          "dataSource": { "type": "contact" },
+          "settings": {
+            "showMap": false,
+            "showSocial": true,
+            "backgroundColor": "dark"
+          }
+        }
+      ]
+    },
+    "series": {
+      "blocks": [
+        {
+          "id": "series-hero",
+          "type": "hero",
+          "variant": "full-bleed-carousel",
+          "enabled": true,
+          "dataSource": { "type": "current-series", "limit": 1 },
+          "settings": {
+            "showTitle": true,
+            "showDescription": true,
+            "showTags": true,
+            "textPosition": "center-bottom",
+            "overlay": "gradient"
+          }
+        },
+        {
+          "id": "series-gallery",
+          "type": "series-gallery",
+          "variant": "immersive-full",
+          "enabled": true,
+          "dataSource": { "type": "current-series" },
+          "settings": {
+            "gap": "none",
+            "enableLightbox": true,
+            "fullBleed": true,
+            "showCaption": false
+          }
+        }
+      ]
+    },
+    "about": {
+      "blocks": [
+        {
+          "id": "about-brand",
+          "type": "brand-intro",
+          "variant": "centered",
+          "enabled": true,
+          "dataSource": { "type": "brand" },
+          "settings": {
+            "showLogo": true,
+            "showDescription": true,
+            "showSlogan": true,
+            "alignment": "center",
+            "textColor": "light"
+          }
+        },
+        {
+          "id": "about-team",
+          "type": "team",
+          "variant": "horizontal-cards",
+          "enabled": true,
+          "dataSource": { "type": "team" },
+          "settings": {
+            "showBio": true,
+            "showRole": true,
+            "cardStyle": "dark"
+          }
+        },
+        {
+          "id": "about-testimonials",
+          "type": "testimonials",
+          "variant": "quotes",
+          "enabled": true,
+          "dataSource": { "type": "testimonials", "limit": 3 },
+          "settings": {
+            "layout": "slider",
+            "showRating": false,
+            "showAvatar": false,
+            "quoteStyle": "minimal"
+          }
+        }
+      ]
+    },
+    "packages": {
+      "blocks": [
+        {
+          "id": "packages-list",
+          "type": "package-list",
+          "variant": "banner",
+          "enabled": true,
+          "dataSource": { "type": "packages" },
+          "settings": {
+            "showPrice": true,
+            "showDescription": true,
+            "showIncludes": true,
+            "layout": "stack",
+            "bannerHeight": "tall",
+            "highlightRecommended": true
+          }
+        }
+      ]
+    }
+  },
+  "requirements": {
+    "minFeaturedSeries": 5,
+    "minCategories": 3,
+    "needsPackages": true,
+    "needsTeam": false
+  }
+}

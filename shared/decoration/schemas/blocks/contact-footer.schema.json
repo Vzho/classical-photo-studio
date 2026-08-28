@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "blocks/contact-footer.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "showAddress": { "type": "boolean", "default": true, "label": "显示地址" },
+    "showPhone": { "type": "boolean", "default": true, "label": "显示电话" },
+    "showConsultButton": { "type": "boolean", "default": true, "label": "显示咨询按钮" }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "blocks/service-flow.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "showDescription": { "type": "boolean", "default": true, "label": "显示说明" },
+    "compact": { "type": "boolean", "default": false, "label": "紧凑模式" }
+  }
+}

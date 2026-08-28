@@ -1,6 +1,8 @@
 {
   "navigationBarTitleText": "服务套餐",
   "usingComponents": {
-    "decoration-block": "/components/decoration-block/decoration-block"
+    "decoration-block": "/components/decoration-block/decoration-block",
+    "v3-page-shell": "/components/v3/page-shell/index",
+    "v3-section-renderer": "/components/v3/section-renderer/index"
   }
 }

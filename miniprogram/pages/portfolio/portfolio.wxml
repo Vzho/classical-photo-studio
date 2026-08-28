@@ -1,4 +1,16 @@
-<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-showcase-home {{decorationClass}} skeleton-{{homeDecoration.skeleton}}" style="{{themeStyle}} {{decorationStyle}}">
+<!-- blocks-v3 渲染路径（方案 §10.2 双引擎）：命中 v3 页面时优先渲染区块流 -->
+<v3-page-shell wx:if="{{v3Active}}" theme-style="{{v3ThemeStyle}}" button-style="{{v3ButtonStyle}}" loading="{{v3Loading}}">
+  <v3-section-renderer
+    wx:for="{{v3Blocks}}"
+    wx:key="block.id"
+    wx:for-item="preparedBlock"
+    prepared="{{preparedBlock}}"
+    active-category="{{v3Category}}"
+    bind:action="onV3BlockAction"
+  />
+</v3-page-shell>
+
+<view wx:elif="{{siteTemplate === 'dark-gallery'}}" class="dark-showcase-home {{decorationClass}} skeleton-{{homeDecoration.skeleton}}" style="{{themeStyle}} {{decorationStyle}}">
   <dark-site-header title="{{homeBanner.logoText}}" />
   <view class="dark-home-modules">
     <block wx:for="{{homeSections}}" wx:key="id" wx:for-item="section">

@@ -1,0 +1,64 @@
+.v3-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 40rpx;
+  padding: var(--v3-space-section, 88rpx) var(--v3-space-page, 40rpx);
+}
+
+.v3-flow--compact {
+  gap: 20rpx;
+  padding-top: calc(var(--v3-space-section, 88rpx) / 2);
+  padding-bottom: calc(var(--v3-space-section, 88rpx) / 2);
+}
+
+.v3-flow-step {
+  display: flex;
+  gap: 24rpx;
+}
+
+.v3-flow-index-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.v3-flow-index {
+  font-family: var(--v3-font-display, serif);
+  font-size: 36rpx;
+  font-weight: var(--v3-heading-weight, 600);
+  color: var(--v3-color-accent, #111111);
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid var(--v3-color-divider, #e7e5e4);
+  border-radius: 50%;
+}
+
+.v3-flow-line {
+  flex: 1;
+  width: 2rpx;
+  margin-top: 12rpx;
+  background: var(--v3-color-divider, #e7e5e4);
+}
+
+.v3-flow-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding-top: 12rpx;
+}
+
+.v3-flow-title {
+  font-size: 30rpx;
+  font-weight: var(--v3-heading-weight, 600);
+  letter-spacing: var(--v3-letter-spacing, 0.04em);
+}
+
+.v3-flow-desc {
+  font-size: 24rpx;
+  color: var(--v3-color-muted, #78716c);
+  line-height: 1.7;
+}

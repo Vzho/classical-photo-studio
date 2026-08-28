@@ -19,6 +19,8 @@ import {
   TestimonialItem
 } from '../../utils/cos'
 import { DEFAULT_DECORATION, HomeDecoration, ShowcaseDecoration, TerminologyDecoration } from '../../utils/decoration'
+import { loadRuntimeConfig } from '../../services/config-service'
+import { preparePageRender, PreparedBlock, PreparedPage } from '../../services/render-service'
 import { setPageNavigationTitle } from '../../utils/navigation'
 import { createShareMessage } from '../../utils/share'
 
@@ -126,8 +128,18 @@ Page({
     } as Partial<QuickJumpContent>,
     quickJumpVisible: true,
     bannerUrl: '',
-    share: { ...DEFAULT_SHARE_CONTENT } as ShareContent
+    share: { ...DEFAULT_SHARE_CONTENT } as ShareContent,
+    // blocks-v3 双引擎状态（方案 §10.2）：v3Active 为 false 时维持旧渲染路径。
+    v3Active: false,
+    v3Loading: true,
+    v3ThemeStyle: '',
+    v3ButtonStyle: 'solid',
+    v3Blocks: [] as PreparedBlock[],
+    v3Category: ''
   },
+
+  // v3 渲染模型缓存（不进 setData，避免重复序列化）。
+  v3Prepared: null as PreparedPage | null,
 
   async onShow() {
     await this.loadData()
@@ -297,6 +309,79 @@ Page({
     })
 
     setPageNavigationTitle(theme?.brandName || resolvedHomeBanner.logoText, '作品集')
+
+    // 旧数据就绪后尝试切换 v3 渲染；任何失败都静默回退旧路径（§16）。
+    await this.refreshV3View()
+  },
+
+  async refreshV3View() {
+    try {
+      const { config, runtime } = await loadRuntimeConfig()
+      this.v3Prepared = preparePageRender(runtime, config, 'portfolio')
+      if (!this.v3Prepared) {
+        this.setData({ v3Active: false, v3Loading: false })
+        return
+      }
+      this.applyV3Blocks(this.data.v3Category)
+    } catch (error) {
+      this.setData({ v3Active: false, v3Loading: false })
+    }
+  },
+
+  applyV3Blocks(category: string) {
+    const prepared = this.v3Prepared
+    if (!prepared) return
+
+    const blocks = prepared.blocks.map((item: PreparedBlock) => {
+      // 分类过滤：画廊/首屏内容随选中分类收敛，空结果保留全量避免空白。
+      if (category && category !== '全部' && Array.isArray(item.content)
+        && (item.block.type === 'portfolio-grid' || item.block.type === 'hero')) {
+        const filtered = item.content.filter((entry: any) => entry.category === category)
+        return filtered.length ? { ...item, content: filtered } : item
+      }
+      // 分类导航补充“全部”入口，计数取各分类之和。
+      if (item.block.type === 'category-nav' && Array.isArray(item.content)) {
+        const total = item.content.reduce((sum: number, entry: any) => sum + (Number(entry.count) || 0), 0)
+        return { ...item, content: [{ name: '全部', count: total }, ...item.content] }
+      }
+      return item
+    })
+
+    this.setData({
+      v3Active: true,
+      v3Loading: false,
+      v3ThemeStyle: prepared.theme.style,
+      v3ButtonStyle: prepared.theme.tokens.buttonStyle,
+      v3Blocks: blocks
+    })
+  },
+
+  // 区块交互统一入口：导航类副作用集中在页面处理（方案 §8.2）。
+  onV3BlockAction(e: WechatMiniprogram.CustomEvent) {
+    const detail = (e.detail || {}) as { type?: string; seriesId?: string; packageId?: string; category?: string }
+    switch (detail.type) {
+      case 'open-series':
+        if (detail.seriesId) {
+          wx.navigateTo({ url: `/pages/series/series?seriesId=${detail.seriesId}` })
+        }
+        break
+      case 'filter-category': {
+        const category = detail.category || ''
+        this.setData({ v3Category: category })
+        this.applyV3Blocks(category)
+        break
+      }
+      case 'open-package':
+        if (detail.packageId) {
+          wx.navigateTo({ url: `/pages/package-detail/package-detail?id=${detail.packageId}` })
+        }
+        break
+      case 'consult':
+        handleConsultButtonAction(this.data.consultButton)
+        break
+      default:
+        break
+    }
   },
 
   goGallery() {

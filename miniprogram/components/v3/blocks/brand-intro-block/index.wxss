@@ -1,0 +1,56 @@
+.v3-brand {
+  display: flex;
+  justify-content: center;
+  padding: var(--v3-space-section, 88rpx) var(--v3-space-page, 40rpx);
+}
+
+.v3-brand--editorial-left {
+  justify-content: flex-start;
+}
+
+.v3-brand-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.v3-brand--centered .v3-brand-inner {
+  align-items: center;
+  text-align: center;
+}
+
+.v3-brand--editorial-left .v3-brand-inner {
+  align-items: flex-start;
+}
+
+.v3-brand-english {
+  font-size: 22rpx;
+  letter-spacing: 0.3em;
+  color: var(--v3-color-muted, #78716c);
+  text-transform: uppercase;
+}
+
+.v3-brand-name {
+  font-family: var(--v3-font-display, serif);
+  font-weight: var(--v3-heading-weight, 600);
+  font-size: 48rpx;
+  letter-spacing: var(--v3-letter-spacing, 0.08em);
+}
+
+.v3-brand-divider {
+  width: 64rpx;
+  height: 2rpx;
+  background: var(--v3-color-accent, #111111);
+}
+
+.v3-brand-slogan {
+  font-size: 28rpx;
+  color: var(--v3-color-text, #1c1917);
+  letter-spacing: var(--v3-letter-spacing, 0.04em);
+}
+
+.v3-brand-description {
+  font-size: 26rpx;
+  color: var(--v3-color-muted, #78716c);
+  line-height: 1.8;
+}

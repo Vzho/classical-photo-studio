@@ -38,6 +38,11 @@ admin/uploads/
 admin/backups/
 admin/bookings.json
 
+# 装修 v3 客户本地工作区与发布快照（方案 §4）
+admin/workspace/
+admin/releases/
+admin/editor-dist/
+
 # WeChat DevTools local config
 miniprogram/project.private.config.json
 /project.config.json

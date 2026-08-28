@@ -1,0 +1,92 @@
+.v3-grid {
+  display: grid;
+  padding: var(--v3-space-section, 88rpx) var(--v3-space-page, 40rpx);
+}
+
+.v3-grid--two-column { grid-template-columns: repeat(2, 1fr); }
+.v3-grid--three-column { grid-template-columns: repeat(3, 1fr); }
+
+/* editorial-mixed：首项跨双列，其余双列排布 */
+.v3-grid--editorial-mixed { grid-template-columns: repeat(2, 1fr); }
+.v3-grid--editorial-mixed .v3-grid-card:first-child {
+  grid-column: span 2;
+}
+
+.v3-grid--gap-none { gap: 0; }
+.v3-grid--gap-tight { gap: 12rpx; }
+.v3-grid--gap-normal { gap: 32rpx; }
+
+.v3-grid-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v3-space-text, 12rpx);
+  overflow: hidden;
+}
+
+.v3-grid-media-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--v3-radius-image, 12rpx);
+  background: var(--v3-color-surface-muted, #efece7);
+}
+
+.v3-grid-media--square .v3-grid-media-wrap,
+.v3-grid-media-wrap.v3-grid-media--square { padding-top: 100%; }
+.v3-grid-media--portrait .v3-grid-media-wrap,
+.v3-grid-media-wrap.v3-grid-media--portrait { padding-top: 133%; }
+.v3-grid-media--landscape .v3-grid-media-wrap,
+.v3-grid-media-wrap.v3-grid-media--landscape { padding-top: 75%; }
+.v3-grid-media--natural .v3-grid-media-wrap,
+.v3-grid-media-wrap.v3-grid-media--natural { padding-top: 110%; }
+
+.v3-grid-media,
+.v3-grid-media-empty {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.v3-grid-overlay-copy {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  padding: 20rpx;
+  color: var(--v3-color-on-media, #ffffff);
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.55));
+}
+
+.v3-grid-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.v3-grid-category {
+  font-size: 20rpx;
+  letter-spacing: var(--v3-letter-spacing, 0.04em);
+  color: var(--v3-color-muted, #78716c);
+}
+
+.v3-grid-overlay-copy .v3-grid-category {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.v3-grid-title {
+  font-size: 26rpx;
+  font-weight: var(--v3-heading-weight, 600);
+  letter-spacing: var(--v3-letter-spacing, 0.04em);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.v3-grid-count {
+  font-size: 20rpx;
+  color: var(--v3-color-muted, #78716c);
+}

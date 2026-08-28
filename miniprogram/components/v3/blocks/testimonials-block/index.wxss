@@ -1,0 +1,49 @@
+.v3-quotes {
+  padding: var(--v3-space-section, 88rpx) var(--v3-space-page, 40rpx);
+}
+
+.v3-quotes-swiper {
+  height: 320rpx;
+}
+
+.v3-quotes-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  padding: 24rpx var(--v3-space-page, 40rpx);
+  text-align: center;
+}
+
+.v3-quotes-mark {
+  font-family: var(--v3-font-display, serif);
+  font-size: 72rpx;
+  line-height: 1;
+  color: var(--v3-color-accent, #111111);
+}
+
+.v3-quotes-text {
+  font-size: 28rpx;
+  line-height: 1.8;
+  color: var(--v3-color-text, #1c1917);
+}
+
+.v3-quotes-author {
+  font-size: 24rpx;
+  color: var(--v3-color-muted, #78716c);
+}
+
+.v3-quotes--cards {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.v3-quotes-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  padding: var(--v3-space-card, 24rpx);
+  background: var(--v3-color-surface, #f7f5f2);
+  border-radius: var(--v3-radius-card, 16rpx);
+}

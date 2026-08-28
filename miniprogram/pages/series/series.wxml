@@ -1,4 +1,15 @@
-<view wx:if="{{siteTemplate === 'dark-gallery'}}" class="dark-series-page {{decorationClass}} skeleton-{{decoration.skeleton}}" style="{{themeStyle}} {{decorationStyle}}">
+<!-- blocks-v3 渲染路径（方案 §10.2 双引擎） -->
+<v3-page-shell wx:if="{{v3Active}}" theme-style="{{v3ThemeStyle}}" button-style="{{v3ButtonStyle}}" loading="{{v3Loading}}">
+  <v3-section-renderer
+    wx:for="{{v3Blocks}}"
+    wx:key="block.id"
+    wx:for-item="preparedBlock"
+    prepared="{{preparedBlock}}"
+    bind:action="onV3BlockAction"
+  />
+</v3-page-shell>
+
+<view wx:elif="{{siteTemplate === 'dark-gallery'}}" class="dark-series-page {{decorationClass}} skeleton-{{decoration.skeleton}}" style="{{themeStyle}} {{decorationStyle}}">
   <dark-site-header title="{{seriesTitle}}" show-back="{{true}}" />
   <block wx:for="{{decoration.sections}}" wx:key="id" wx:for-item="section">
     <view wx:if="{{section.enabled && section.type === 'hero' && section.resolvedItems.length}}" class="dark-series-cover-wrap">

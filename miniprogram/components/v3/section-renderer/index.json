@@ -1,0 +1,15 @@
+{
+  "component": true,
+  "usingComponents": {
+    "hero-block": "../blocks/hero-block/index",
+    "brand-intro-block": "../blocks/brand-intro-block/index",
+    "category-nav-block": "../blocks/category-nav-block/index",
+    "portfolio-grid-block": "../blocks/portfolio-grid-block/index",
+    "series-gallery-block": "../blocks/series-gallery-block/index",
+    "package-list-block": "../blocks/package-list-block/index",
+    "team-block": "../blocks/team-block/index",
+    "testimonials-block": "../blocks/testimonials-block/index",
+    "service-flow-block": "../blocks/service-flow-block/index",
+    "contact-footer-block": "../blocks/contact-footer-block/index"
+  }
+}

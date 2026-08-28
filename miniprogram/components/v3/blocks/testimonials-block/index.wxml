@@ -1,0 +1,20 @@
+<view class="v3-quotes v3-quotes--{{block.variant || 'quotes'}}">
+  <!-- quotes：单条轮播 -->
+  <swiper wx:if="{{(block.variant || 'quotes') === 'quotes'}}" class="v3-quotes-swiper" autoplay="{{autoplay}}" interval="5000" circular="{{items.length > 1}}" indicator-dots="{{items.length > 1}}" indicator-color="var(--v3-color-divider, #e7e5e4)" indicator-active-color="var(--v3-color-accent, #111111)">
+    <swiper-item wx:for="{{items}}" wx:key="index">
+      <view class="v3-quotes-slide">
+        <text class="v3-quotes-mark">“</text>
+        <text class="v3-quotes-text">{{item.content || item.text}}</text>
+        <text wx:if="{{block.settings.showAuthor !== false && (item.name || item.author)}}" class="v3-quotes-author">—— {{item.name || item.author}}</text>
+      </view>
+    </swiper-item>
+  </swiper>
+
+  <!-- cards：卡片堆叠 -->
+  <block wx:else>
+    <view wx:for="{{items}}" wx:key="index" class="v3-quotes-card">
+      <text class="v3-quotes-text">{{item.content || item.text}}</text>
+      <text wx:if="{{block.settings.showAuthor !== false && (item.name || item.author)}}" class="v3-quotes-author">—— {{item.name || item.author}}</text>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "blocks/package-list.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "showPrice": { "type": "boolean", "default": true, "label": "显示价格" },
+    "showDescription": { "type": "boolean", "default": true, "label": "显示简介" },
+    "showActionButton": { "type": "boolean", "default": true, "label": "显示预约按钮" }
+  }
+}

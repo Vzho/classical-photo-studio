@@ -1,4 +1,15 @@
-<view class="packages-page theme-{{themePreset}} {{decorationClass}} skeleton-{{decoration.skeleton}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}} {{decorationStyle}}">
+<!-- blocks-v3 渲染路径（方案 §10.2 双引擎） -->
+<v3-page-shell wx:if="{{v3Active}}" theme-style="{{v3ThemeStyle}}" button-style="{{v3ButtonStyle}}" loading="{{v3Loading}}">
+  <v3-section-renderer
+    wx:for="{{v3Blocks}}"
+    wx:key="block.id"
+    wx:for-item="preparedBlock"
+    prepared="{{preparedBlock}}"
+    bind:action="onV3BlockAction"
+  />
+</v3-page-shell>
+
+<view wx:if="{{!v3Active}}" class="packages-page theme-{{themePreset}} {{decorationClass}} skeleton-{{decoration.skeleton}} layout-{{decoration.layoutVariant}}" style="{{themeStyle}} {{decorationStyle}}">
   <block wx:for="{{decoration.sections}}" wx:key="id" wx:for-item="section">
     <block wx:if="{{section.enabled}}">
       <view class="page-header" wx:if="{{section.type === 'header'}}">

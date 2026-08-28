@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "blocks/testimonials.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "autoplay": { "type": "boolean", "default": true, "label": "自动切换" },
+    "showAuthor": { "type": "boolean", "default": true, "label": "显示署名" },
+    "maxItems": { "type": "string", "enum": ["3", "6", "all"], "default": "6", "label": "展示条数" }
+  }
+}

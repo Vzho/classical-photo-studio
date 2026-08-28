@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "blocks/portfolio-grid.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "mediaRatio": { "type": "string", "enum": ["square", "portrait", "landscape", "natural"], "default": "portrait", "label": "封面比例" },
+    "gap": { "type": "string", "enum": ["none", "tight", "normal"], "default": "normal", "label": "间距" },
+    "textPosition": { "type": "string", "enum": ["overlay", "below"], "default": "below", "label": "标题位置" },
+    "showCategory": { "type": "boolean", "default": true, "label": "显示分类" },
+    "showPhotoCount": { "type": "boolean", "default": false, "label": "显示照片数" }
+  }
+}

@@ -1,0 +1,13 @@
+<!-- rendererKey 与 shared/decoration/registry.json 保持一致；新增区块必须同步注册 -->
+<block wx:if="{{prepared && prepared.available}}">
+  <hero-block wx:if="{{prepared.block.rendererKey === 'hero-block'}}" block="{{prepared.block}}" content="{{prepared.content}}" bind:action="onBlockAction" />
+  <brand-intro-block wx:elif="{{prepared.block.rendererKey === 'brand-intro-block'}}" block="{{prepared.block}}" content="{{prepared.content}}" bind:action="onBlockAction" />
+  <category-nav-block wx:elif="{{prepared.block.rendererKey === 'category-nav-block'}}" block="{{prepared.block}}" content="{{prepared.content}}" active-category="{{activeCategory}}" bind:action="onBlockAction" />
+  <portfolio-grid-block wx:elif="{{prepared.block.rendererKey === 'portfolio-grid-block'}}" block="{{prepared.block}}" content="{{prepared.content}}" bind:action="onBlockAction" />
+  <series-gallery-block wx:elif="{{prepared.block.rendererKey === 'series-gallery-block'}}" block="{{prepared.block}}" content="{{prepared.content}}" bind:action="onBlockAction" />
+  <package-list-block wx:elif="{{prepared.block.rendererKey === 'package-list-block'}}" block="{{prepared.block}}" content="{{prepared.content}}" bind:action="onBlockAction" />
+  <team-block wx:elif="{{prepared.block.rendererKey === 'team-block'}}" block="{{prepared.block}}" content="{{prepared.content}}" bind:action="onBlockAction" />
+  <testimonials-block wx:elif="{{prepared.block.rendererKey === 'testimonials-block'}}" block="{{prepared.block}}" content="{{prepared.content}}" bind:action="onBlockAction" />
+  <service-flow-block wx:elif="{{prepared.block.rendererKey === 'service-flow-block'}}" block="{{prepared.block}}" content="{{prepared.content}}" bind:action="onBlockAction" />
+  <contact-footer-block wx:elif="{{prepared.block.rendererKey === 'contact-footer-block'}}" block="{{prepared.block}}" content="{{prepared.content}}" bind:action="onBlockAction" />
+</block>

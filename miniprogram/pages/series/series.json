@@ -3,6 +3,8 @@
   "navigationStyle": "custom",
   "usingComponents": {
     "decoration-block": "/components/decoration-block/decoration-block",
-    "dark-site-header": "/components/dark-site-header/dark-site-header"
+    "dark-site-header": "/components/dark-site-header/dark-site-header",
+    "v3-page-shell": "/components/v3/page-shell/index",
+    "v3-section-renderer": "/components/v3/section-renderer/index"
   }
 }

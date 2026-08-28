@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "blocks/hero.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "heightTier": { "type": "string", "enum": ["compact", "standard", "tall"], "default": "standard", "label": "首屏高度" },
+    "overlayMask": { "type": "string", "enum": ["none", "light", "medium", "dark"], "default": "medium", "label": "图片遮罩" },
+    "autoplay": { "type": "boolean", "default": true, "label": "自动轮播" },
+    "showSubtitle": { "type": "boolean", "default": true, "label": "显示副标题" }
+  }
+}

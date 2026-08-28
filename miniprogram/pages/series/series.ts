@@ -18,6 +18,7 @@ import { DEFAULT_DECORATION, NavigationItemKey, SeriesDecoration, ShowcaseDecora
 import { setPageNavigationTitle } from '../../utils/navigation'
 import { createShareMessage } from '../../utils/share'
 import { navigateToSitePage } from '../../utils/site-navigation'
+import { handleV3BlockAction, refreshV3ForPage, V3_INITIAL_STATE } from '../../utils/v3-page'
 
 Page({
   data: {
@@ -53,7 +54,8 @@ Page({
     decoration: { ...DEFAULT_DECORATION.series } as SeriesDecoration,
     hasHeroModule: true,
     hasActionModule: true,
-    hideFirstGalleryPhoto: true
+    hideFirstGalleryPhoto: true,
+    ...V3_INITIAL_STATE
   },
 
   onLoad(options: { seriesId?: string; title?: string; category?: string }) {
@@ -125,6 +127,13 @@ Page({
     }
 
     setPageNavigationTitle(seriesTitle, `${terminology.workLabel}详情`)
+
+    // 双引擎：尝试 blocks-v3 渲染（§10.2），失败静默回退旧路径。
+    await refreshV3ForPage(this as any, 'series', { seriesId })
+  },
+
+  onV3BlockAction(e: WechatMiniprogram.CustomEvent) {
+    handleV3BlockAction(this as any, e.detail)
   },
 
   onImageTap(e: WechatMiniprogram.TouchEvent) {

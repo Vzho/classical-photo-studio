@@ -15,6 +15,7 @@ import { handleConsultButtonAction } from '../../utils/consult-action'
 import { DEFAULT_DECORATION, PackagesDecoration, TerminologyDecoration } from '../../utils/decoration'
 import { setPageNavigationTitle } from '../../utils/navigation'
 import { createShareMessage } from '../../utils/share'
+import { handleV3BlockAction, refreshV3ForPage, V3_INITIAL_STATE } from '../../utils/v3-page'
 
 Page({
   data: {
@@ -38,7 +39,8 @@ Page({
     quickJumpVisible: true,
     share: { ...DEFAULT_SHARE_CONTENT } as ShareContent,
     terminology: { ...DEFAULT_DECORATION.terminology } as TerminologyDecoration,
-    decoration: { ...DEFAULT_DECORATION.packages } as PackagesDecoration
+    decoration: { ...DEFAULT_DECORATION.packages } as PackagesDecoration,
+    ...V3_INITIAL_STATE
   },
 
   onLoad() {
@@ -83,6 +85,13 @@ Page({
     })
 
     setPageNavigationTitle(`${terminology.packageLabel}方案`, '服务套餐')
+
+    // 双引擎：尝试 blocks-v3 渲染（§10.2），失败静默回退旧路径。
+    await refreshV3ForPage(this as any, 'packages')
+  },
+
+  onV3BlockAction(e: WechatMiniprogram.CustomEvent) {
+    handleV3BlockAction(this as any, e.detail)
   },
 
   consultPackage(e: WechatMiniprogram.TouchEvent) {
