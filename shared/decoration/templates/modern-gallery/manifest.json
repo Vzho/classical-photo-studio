@@ -6,7 +6,11 @@
   "description": "白底、大留白、杂志网格，跨人像、亲子、婚礼适用",
   "minEngineVersion": "3.1.0",
   "internal": false,
-  "industryTags": ["wedding", "portrait", "kids"],
+  "industryTags": [
+    "wedding",
+    "portrait",
+    "kids"
+  ],
   "preview": {
     "cover": "/editor/templates/modern-gallery/preview-cover.jpg",
     "pages": {
@@ -33,7 +37,7 @@
     "fontStyle": "modern-sans",
     "layoutDensity": "spacious",
     "cardStyle": "elevated",
-    "buttonStyle": "filled",
+    "buttonStyle": "solid",
     "imageRadius": "rounded",
     "imageMask": "none",
     "spacing": {
@@ -55,10 +59,26 @@
   },
   "navigation": {
     "entries": [
-      { "pageKey": "portfolio", "label": "作品集", "visible": true },
-      { "pageKey": "about", "label": "简介", "visible": true },
-      { "pageKey": "packages", "label": "套餐", "visible": true },
-      { "pageKey": "booking", "label": "咨询", "visible": true }
+      {
+        "pageKey": "portfolio",
+        "label": "作品集",
+        "visible": true
+      },
+      {
+        "pageKey": "about",
+        "label": "简介",
+        "visible": true
+      },
+      {
+        "pageKey": "packages",
+        "label": "套餐",
+        "visible": true
+      },
+      {
+        "pageKey": "booking",
+        "label": "咨询",
+        "visible": true
+      }
     ]
   },
   "pages": {
@@ -69,14 +89,13 @@
           "type": "hero",
           "variant": "minimal-cover",
           "enabled": true,
-          "dataSource": { "type": "featured-series", "limit": 5 },
+          "dataSource": {
+            "type": "featured-series",
+            "limit": 5
+          },
           "settings": {
-            "showTitle": true,
-            "showDescription": false,
             "autoplay": true,
-            "interval": 4000,
-            "textPosition": "center",
-            "overlay": "light"
+            "overlayMask": "light"
           }
         },
         {
@@ -84,9 +103,10 @@
           "type": "category-nav",
           "variant": "text-tabs",
           "enabled": true,
-          "dataSource": { "type": "categories" },
+          "dataSource": {
+            "type": "categories"
+          },
           "settings": {
-            "layout": "horizontal",
             "showCount": false,
             "sticky": true
           }
@@ -96,7 +116,9 @@
           "type": "portfolio-grid",
           "variant": "three-column",
           "enabled": true,
-          "dataSource": { "type": "featured-series" },
+          "dataSource": {
+            "type": "featured-series"
+          },
           "settings": {
             "mediaRatio": "natural",
             "gap": "normal",
@@ -110,12 +132,12 @@
           "type": "package-list",
           "variant": "cards",
           "enabled": true,
-          "dataSource": { "type": "packages" },
+          "dataSource": {
+            "type": "packages"
+          },
           "settings": {
-            "columns": 2,
             "showPrice": true,
-            "showDescription": true,
-            "cardStyle": "elevated"
+            "showDescription": true
           }
         },
         {
@@ -123,12 +145,10 @@
           "type": "contact-footer",
           "variant": "minimal",
           "enabled": true,
-          "dataSource": { "type": "contact" },
-          "settings": {
-            "showMap": false,
-            "showSocial": true,
-            "backgroundColor": "surface"
-          }
+          "dataSource": {
+            "type": "contact"
+          },
+          "settings": {}
         }
       ]
     },
@@ -139,24 +159,22 @@
           "type": "hero",
           "variant": "minimal-cover",
           "enabled": true,
-          "dataSource": { "type": "current-series" },
-          "settings": {
-            "showTitle": true,
-            "showDescription": true,
-            "showTags": true,
-            "textPosition": "bottom-left"
-          }
+          "dataSource": {
+            "type": "current-series"
+          },
+          "settings": {}
         },
         {
           "id": "series-gallery",
           "type": "series-gallery",
           "variant": "natural-flow",
           "enabled": true,
-          "dataSource": { "type": "current-series" },
+          "dataSource": {
+            "type": "current-series"
+          },
           "settings": {
-            "columns": 2,
             "gap": "normal",
-            "enableLightbox": true,
+            "fullscreenPreview": true,
             "showCaption": false
           }
         }
@@ -169,12 +187,11 @@
           "type": "brand-intro",
           "variant": "centered",
           "enabled": true,
-          "dataSource": { "type": "brand" },
+          "dataSource": {
+            "type": "brand"
+          },
           "settings": {
-            "showLogo": true,
-            "showDescription": true,
-            "showSlogan": true,
-            "alignment": "center"
+            "showSlogan": true
           }
         },
         {
@@ -182,11 +199,12 @@
           "type": "team",
           "variant": "horizontal-cards",
           "enabled": true,
-          "dataSource": { "type": "team" },
+          "dataSource": {
+            "type": "team"
+          },
           "settings": {
             "showBio": true,
-            "showRole": true,
-            "cardStyle": "elevated"
+            "showRole": true
           }
         },
         {
@@ -194,10 +212,10 @@
           "type": "service-flow",
           "variant": "numbered",
           "enabled": true,
-          "dataSource": { "type": "service-flow" },
+          "dataSource": {
+            "type": "service-flow"
+          },
           "settings": {
-            "layout": "vertical",
-            "showIcons": true,
             "showDescription": true
           }
         },
@@ -206,24 +224,21 @@
           "type": "testimonials",
           "variant": "cards",
           "enabled": true,
-          "dataSource": { "type": "testimonials", "limit": 6 },
-          "settings": {
-            "columns": 3,
-            "showRating": true,
-            "showDate": false
-          }
+          "dataSource": {
+            "type": "testimonials",
+            "limit": 6
+          },
+          "settings": {}
         },
         {
           "id": "about-contact",
           "type": "contact-footer",
           "variant": "minimal",
           "enabled": true,
-          "dataSource": { "type": "contact" },
-          "settings": {
-            "showMap": true,
-            "showSocial": true,
-            "showWorkingHours": true
-          }
+          "dataSource": {
+            "type": "contact"
+          },
+          "settings": {}
         }
       ]
     },
@@ -234,14 +249,12 @@
           "type": "package-list",
           "variant": "cards",
           "enabled": true,
-          "dataSource": { "type": "packages" },
+          "dataSource": {
+            "type": "packages"
+          },
           "settings": {
-            "columns": 2,
             "showPrice": true,
-            "showDescription": true,
-            "showIncludes": true,
-            "cardStyle": "elevated",
-            "highlightRecommended": true
+            "showDescription": true
           }
         },
         {
@@ -249,12 +262,11 @@
           "type": "testimonials",
           "variant": "quotes",
           "enabled": true,
-          "dataSource": { "type": "testimonials", "limit": 3 },
-          "settings": {
-            "layout": "slider",
-            "showRating": true,
-            "showAvatar": true
-          }
+          "dataSource": {
+            "type": "testimonials",
+            "limit": 3
+          },
+          "settings": {}
         }
       ]
     }

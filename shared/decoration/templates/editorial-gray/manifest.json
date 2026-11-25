@@ -6,7 +6,10 @@
   "description": "灰白背景、衬线标题、艺术机构感",
   "minEngineVersion": "3.1.0",
   "internal": false,
-  "industryTags": ["wedding", "portrait"],
+  "industryTags": [
+    "wedding",
+    "portrait"
+  ],
   "preview": {
     "cover": "/editor/templates/editorial-gray/preview-cover.jpg",
     "pages": {
@@ -33,7 +36,7 @@
     "fontStyle": "editorial-serif",
     "layoutDensity": "normal",
     "cardStyle": "outlined",
-    "buttonStyle": "outlined",
+    "buttonStyle": "outline",
     "imageRadius": "none",
     "imageMask": "light",
     "spacing": {
@@ -55,10 +58,26 @@
   },
   "navigation": {
     "entries": [
-      { "pageKey": "portfolio", "label": "Portfolio", "visible": true },
-      { "pageKey": "about", "label": "About", "visible": true },
-      { "pageKey": "packages", "label": "Services", "visible": true },
-      { "pageKey": "booking", "label": "Contact", "visible": true }
+      {
+        "pageKey": "portfolio",
+        "label": "Selected",
+        "visible": true
+      },
+      {
+        "pageKey": "about",
+        "label": "About",
+        "visible": true
+      },
+      {
+        "pageKey": "packages",
+        "label": "Services",
+        "visible": true
+      },
+      {
+        "pageKey": "booking",
+        "label": "Contact",
+        "visible": true
+      }
     ]
   },
   "pages": {
@@ -69,25 +88,23 @@
           "type": "hero",
           "variant": "editorial-split",
           "enabled": true,
-          "dataSource": { "type": "featured-series", "limit": 1 },
-          "settings": {
-            "showTitle": true,
-            "showDescription": true,
-            "textPosition": "left",
-            "imagePosition": "right",
-            "splitRatio": "50:50"
-          }
+          "dataSource": {
+            "type": "featured-series",
+            "limit": 1
+          },
+          "settings": {}
         },
         {
           "id": "portfolio-brand",
           "type": "brand-intro",
           "variant": "editorial-left",
           "enabled": true,
-          "dataSource": { "type": "brand" },
+          "dataSource": {
+            "type": "brand"
+          },
           "settings": {
-            "showDescription": true,
             "showSlogan": false,
-            "textWidth": "narrow"
+            "textWidthTier": "narrow"
           }
         },
         {
@@ -95,7 +112,9 @@
           "type": "portfolio-grid",
           "variant": "editorial-mixed",
           "enabled": true,
-          "dataSource": { "type": "featured-series" },
+          "dataSource": {
+            "type": "featured-series"
+          },
           "settings": {
             "mediaRatio": "portrait",
             "gap": "tight",
@@ -109,12 +128,12 @@
           "type": "package-list",
           "variant": "minimal-list",
           "enabled": true,
-          "dataSource": { "type": "packages" },
+          "dataSource": {
+            "type": "packages"
+          },
           "settings": {
             "showPrice": true,
-            "showDescription": true,
-            "layout": "list",
-            "dividerStyle": "line"
+            "showDescription": true
           }
         }
       ]
@@ -126,25 +145,22 @@
           "type": "hero",
           "variant": "editorial-split",
           "enabled": true,
-          "dataSource": { "type": "current-series" },
-          "settings": {
-            "showTitle": true,
-            "showDescription": true,
-            "showTags": false,
-            "textPosition": "left"
-          }
+          "dataSource": {
+            "type": "current-series"
+          },
+          "settings": {}
         },
         {
           "id": "series-gallery",
           "type": "series-gallery",
           "variant": "framed-grid",
           "enabled": true,
-          "dataSource": { "type": "current-series" },
+          "dataSource": {
+            "type": "current-series"
+          },
           "settings": {
-            "columns": 2,
             "gap": "normal",
-            "enableLightbox": true,
-            "frameStyle": "border"
+            "fullscreenPreview": true
           }
         }
       ]
@@ -156,12 +172,11 @@
           "type": "brand-intro",
           "variant": "editorial-left",
           "enabled": true,
-          "dataSource": { "type": "brand" },
+          "dataSource": {
+            "type": "brand"
+          },
           "settings": {
-            "showLogo": false,
-            "showDescription": true,
-            "textWidth": "narrow",
-            "alignment": "left"
+            "textWidthTier": "narrow"
           }
         },
         {
@@ -169,12 +184,13 @@
           "type": "team",
           "variant": "portrait-grid",
           "enabled": true,
-          "dataSource": { "type": "team" },
+          "dataSource": {
+            "type": "team"
+          },
           "settings": {
             "showBio": true,
             "showRole": true,
-            "columns": 3,
-            "imageRatio": "portrait"
+            "mediaRatio": "portrait"
           }
         },
         {
@@ -182,10 +198,10 @@
           "type": "service-flow",
           "variant": "timeline",
           "enabled": true,
-          "dataSource": { "type": "service-flow" },
+          "dataSource": {
+            "type": "service-flow"
+          },
           "settings": {
-            "layout": "horizontal",
-            "lineStyle": "dotted",
             "showDescription": true
           }
         }
@@ -198,13 +214,12 @@
           "type": "package-list",
           "variant": "minimal-list",
           "enabled": true,
-          "dataSource": { "type": "packages" },
+          "dataSource": {
+            "type": "packages"
+          },
           "settings": {
             "showPrice": true,
-            "showDescription": true,
-            "showIncludes": true,
-            "layout": "list",
-            "dividerStyle": "line"
+            "showDescription": true
           }
         }
       ]

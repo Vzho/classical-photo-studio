@@ -55,3 +55,7 @@ miniprogram/**/*.js
 !miniprogram/config/client.config.example.js
 miniprogram/config/client.config.js
 miniprogram/client.config.js
+
+# 过程性分析报告（不入库）
+后台装修编辑器双向入口修复报告.html
+装修v3构建补全报告.html

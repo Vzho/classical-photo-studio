@@ -6,7 +6,10 @@
   "description": "深色全出血、电影感、适合婚礼与情绪写真",
   "minEngineVersion": "3.1.0",
   "internal": false,
-  "industryTags": ["wedding", "video"],
+  "industryTags": [
+    "wedding",
+    "video"
+  ],
   "preview": {
     "cover": "/editor/templates/immersive-dark/preview-cover.jpg",
     "pages": {
@@ -33,7 +36,7 @@
     "fontStyle": "modern-sans",
     "layoutDensity": "compact",
     "cardStyle": "flat",
-    "buttonStyle": "filled",
+    "buttonStyle": "solid",
     "imageRadius": "soft",
     "imageMask": "dark",
     "spacing": {
@@ -55,10 +58,26 @@
   },
   "navigation": {
     "entries": [
-      { "pageKey": "portfolio", "label": "作品集", "visible": true },
-      { "pageKey": "about", "label": "关于", "visible": true },
-      { "pageKey": "packages", "label": "套系", "visible": true },
-      { "pageKey": "booking", "label": "预约", "visible": true }
+      {
+        "pageKey": "portfolio",
+        "label": "作品集",
+        "visible": true
+      },
+      {
+        "pageKey": "about",
+        "label": "关于",
+        "visible": true
+      },
+      {
+        "pageKey": "packages",
+        "label": "套系",
+        "visible": true
+      },
+      {
+        "pageKey": "booking",
+        "label": "预约",
+        "visible": true
+      }
     ]
   },
   "pages": {
@@ -69,15 +88,13 @@
           "type": "hero",
           "variant": "full-bleed-carousel",
           "enabled": true,
-          "dataSource": { "type": "featured-series", "limit": 5 },
+          "dataSource": {
+            "type": "featured-series",
+            "limit": 5
+          },
           "settings": {
-            "showTitle": true,
-            "showDescription": false,
             "autoplay": true,
-            "interval": 5000,
-            "textPosition": "center-bottom",
-            "overlay": "dark",
-            "transition": "fade"
+            "overlayMask": "dark"
           }
         },
         {
@@ -85,11 +102,11 @@
           "type": "category-nav",
           "variant": "circle-thumbnails",
           "enabled": true,
-          "dataSource": { "type": "categories" },
+          "dataSource": {
+            "type": "categories"
+          },
           "settings": {
-            "layout": "horizontal",
-            "showCount": false,
-            "thumbnailSize": "large"
+            "showCount": false
           }
         },
         {
@@ -97,14 +114,15 @@
           "type": "portfolio-grid",
           "variant": "two-column",
           "enabled": true,
-          "dataSource": { "type": "featured-series" },
+          "dataSource": {
+            "type": "featured-series"
+          },
           "settings": {
             "mediaRatio": "landscape",
             "gap": "none",
             "textPosition": "overlay",
             "showCategory": false,
-            "showPhotoCount": true,
-            "hoverEffect": "zoom"
+            "showPhotoCount": true
           }
         },
         {
@@ -112,12 +130,12 @@
           "type": "package-list",
           "variant": "banner",
           "enabled": true,
-          "dataSource": { "type": "packages" },
+          "dataSource": {
+            "type": "packages"
+          },
           "settings": {
             "showPrice": true,
-            "showDescription": false,
-            "layout": "carousel",
-            "bannerHeight": "tall"
+            "showDescription": false
           }
         },
         {
@@ -125,12 +143,10 @@
           "type": "contact-footer",
           "variant": "dark-media",
           "enabled": true,
-          "dataSource": { "type": "contact" },
-          "settings": {
-            "showMap": false,
-            "showSocial": true,
-            "backgroundColor": "dark"
-          }
+          "dataSource": {
+            "type": "contact"
+          },
+          "settings": {}
         }
       ]
     },
@@ -141,25 +157,23 @@
           "type": "hero",
           "variant": "full-bleed-carousel",
           "enabled": true,
-          "dataSource": { "type": "current-series", "limit": 1 },
-          "settings": {
-            "showTitle": true,
-            "showDescription": true,
-            "showTags": true,
-            "textPosition": "center-bottom",
-            "overlay": "gradient"
-          }
+          "dataSource": {
+            "type": "current-series",
+            "limit": 1
+          },
+          "settings": {}
         },
         {
           "id": "series-gallery",
           "type": "series-gallery",
           "variant": "immersive-full",
           "enabled": true,
-          "dataSource": { "type": "current-series" },
+          "dataSource": {
+            "type": "current-series"
+          },
           "settings": {
             "gap": "none",
-            "enableLightbox": true,
-            "fullBleed": true,
+            "fullscreenPreview": true,
             "showCaption": false
           }
         }
@@ -172,13 +186,11 @@
           "type": "brand-intro",
           "variant": "centered",
           "enabled": true,
-          "dataSource": { "type": "brand" },
+          "dataSource": {
+            "type": "brand"
+          },
           "settings": {
-            "showLogo": true,
-            "showDescription": true,
-            "showSlogan": true,
-            "alignment": "center",
-            "textColor": "light"
+            "showSlogan": true
           }
         },
         {
@@ -186,11 +198,12 @@
           "type": "team",
           "variant": "horizontal-cards",
           "enabled": true,
-          "dataSource": { "type": "team" },
+          "dataSource": {
+            "type": "team"
+          },
           "settings": {
             "showBio": true,
-            "showRole": true,
-            "cardStyle": "dark"
+            "showRole": true
           }
         },
         {
@@ -198,13 +211,11 @@
           "type": "testimonials",
           "variant": "quotes",
           "enabled": true,
-          "dataSource": { "type": "testimonials", "limit": 3 },
-          "settings": {
-            "layout": "slider",
-            "showRating": false,
-            "showAvatar": false,
-            "quoteStyle": "minimal"
-          }
+          "dataSource": {
+            "type": "testimonials",
+            "limit": 3
+          },
+          "settings": {}
         }
       ]
     },
@@ -215,14 +226,12 @@
           "type": "package-list",
           "variant": "banner",
           "enabled": true,
-          "dataSource": { "type": "packages" },
+          "dataSource": {
+            "type": "packages"
+          },
           "settings": {
             "showPrice": true,
-            "showDescription": true,
-            "showIncludes": true,
-            "layout": "stack",
-            "bannerHeight": "tall",
-            "highlightRecommended": true
+            "showDescription": true
           }
         }
       ]
