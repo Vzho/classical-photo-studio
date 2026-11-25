@@ -6,6 +6,13 @@ import {
   getDecorationRuntime,
   normalizeDecoration
 } from './decoration'
+import {
+  fetchRemoteTenantConfig,
+  readTenantCachedConfig,
+  rememberTenantConfig,
+  enforceServiceStatus
+} from './config-loader'
+import { getCurrentAppId, getRuntimeMode } from './tenant-resolver'
 
 export interface CosConfig {
   bucket: string
@@ -1385,7 +1392,7 @@ export async function getAboutPageData(): Promise<{
   }
 }
 
-const CONFIG_CACHE_STORAGE_KEY = 'portfolio-config-cache-v1'
+// 缓存 key 已由 config-loader 按租户管理（tenant-config-cache-{appId} / legacy key）
 let activeConfigRequest: Promise<any> | null = null
 let lastSuccessfulRemoteConfig: any | null = null
 let lastSuccessfulBaseUrl = ''
@@ -1404,66 +1411,29 @@ function readCachedConfig(baseUrl: string): any | null {
     return lastSuccessfulRemoteConfig
   }
 
-  try {
-    const cached = wx.getStorageSync(CONFIG_CACHE_STORAGE_KEY)
-    if (cached?.baseUrl === baseUrl && isValidPortfolioConfig(cached.config)) {
-      lastSuccessfulBaseUrl = baseUrl
-      lastSuccessfulRemoteConfig = cached.config
-      return cached.config
-    }
-  } catch {
+  // Storage 缓存按租户隔离（config-loader 内部处理 draft 直读与 key 拼装）
+  const cached = readTenantCachedConfig(getCurrentAppId())
+  if (cached && isValidPortfolioConfig(cached)) {
+    lastSuccessfulBaseUrl = baseUrl
+    lastSuccessfulRemoteConfig = cached
+    return cached
   }
 
   return null
 }
 
 function rememberRemoteConfig(baseUrl: string, config: any) {
+  // draft 预览配置不进入任何缓存（内存/Storage），避免草稿污染正式配置。
+  if (getRuntimeMode() === 'draft') return
   lastSuccessfulBaseUrl = baseUrl
   lastSuccessfulRemoteConfig = config
-
-  try {
-    wx.setStorageSync(CONFIG_CACHE_STORAGE_KEY, { baseUrl, config })
-  } catch {
-  }
+  rememberTenantConfig(getCurrentAppId(), config)
 }
 
 function requestRemoteConfig(): Promise<any> {
-  const configUrl = getCosUrl(`config/portfolio-config.json?t=${Date.now()}`)
-  if (!configUrl) {
-    return Promise.reject(new Error('COS baseUrl is not configured'))
-  }
-
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: configUrl,
-      timeout: 5000,
-      success: (res) => {
-        if (res.statusCode !== 200) {
-          reject(new Error(`Remote config returned HTTP ${res.statusCode}`))
-          return
-        }
-
-        let config: any
-        try {
-          config = typeof res.data === 'string' ? JSON.parse(res.data) : res.data
-        } catch {
-          reject(new Error('Invalid remote config JSON'))
-          return
-        }
-
-        if (!isValidPortfolioConfig(config)) {
-          reject(new Error('Invalid remote config'))
-          return
-        }
-
-        console.info('[portfolio-config] 使用 COS 配置:', configUrl.split('?')[0])
-        resolve(config)
-      },
-      fail: (error) => {
-        reject(new Error(`Remote config request failed: ${error?.errMsg || 'unknown error'}`))
-      }
-    })
-  })
+  // 多租户路由（SaaS §3.2）：tenants/{appId}/config.json 优先，legacy key 回退；
+  // draft 模式仅拉 draft.json。缓存与重试策略沿用本文件 loadConfig 流程。
+  return fetchRemoteTenantConfig().then((result) => result.config)
 }
 
 async function loadRemoteConfigWithRetry(): Promise<any> {
@@ -1491,12 +1461,15 @@ async function loadConfig(): Promise<any> {
 
     try {
       const remoteConfig = await loadRemoteConfigWithRetry()
+      // 服务状态熔断（PRD C-05）：到期/冻结时 reLaunch 维护页，阻止业务渲染。
+      enforceServiceStatus(remoteConfig)
       rememberRemoteConfig(baseUrl, remoteConfig)
       return remoteConfig
     } catch (remoteError) {
       const cachedConfig = readCachedConfig(baseUrl)
       if (cachedConfig) {
         console.warn('[portfolio-config] COS 配置读取失败，使用当前 COS 最近一次成功配置:', remoteError)
+        enforceServiceStatus(cachedConfig)
         return cachedConfig
       }
 

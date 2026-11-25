@@ -1,0 +1,12 @@
+<!-- 服务到期/冻结温和提示页（PRD C-05）：不展示任何商业催缴信息，仅保留维护中文案 -->
+<view class="suspended-page">
+  <view class="suspended-card">
+    <view class="suspended-icon">
+      <text class="suspended-icon-glyph">休</text>
+    </view>
+    <view class="suspended-title">店铺系统维护中</view>
+    <view class="suspended-desc">摄影师正在升级拍摄服务，稍后回来见</view>
+    <view class="suspended-divider"></view>
+    <view class="suspended-footer">如有疑问，请联系您的专属摄影师</view>
+  </view>
+</view>

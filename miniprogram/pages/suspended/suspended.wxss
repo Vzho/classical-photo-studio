@@ -1,0 +1,65 @@
+/* 服务维护提示页：静默灰调，无交互按钮，避免到期客户的负面观感 */
+.suspended-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 80rpx 48rpx;
+  box-sizing: border-box;
+  background: #f7f5f2;
+}
+
+.suspended-card {
+  width: 100%;
+  max-width: 560rpx;
+  padding: 96rpx 64rpx 72rpx;
+  box-sizing: border-box;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 40rpx rgba(60, 50, 40, 0.08);
+}
+
+.suspended-icon {
+  width: 128rpx;
+  height: 128rpx;
+  margin: 0 auto 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f2ede6;
+}
+
+.suspended-icon-glyph {
+  font-size: 56rpx;
+  font-weight: 600;
+  color: #a89478;
+}
+
+.suspended-title {
+  font-size: 38rpx;
+  font-weight: 600;
+  color: #3a332c;
+  letter-spacing: 2rpx;
+}
+
+.suspended-desc {
+  margin-top: 20rpx;
+  font-size: 26rpx;
+  color: #8c8478;
+  line-height: 1.7;
+}
+
+.suspended-divider {
+  margin: 56rpx auto 0;
+  width: 64rpx;
+  height: 2rpx;
+  background: #e8e2d8;
+}
+
+.suspended-footer {
+  margin-top: 28rpx;
+  font-size: 22rpx;
+  color: #b0a898;
+}
