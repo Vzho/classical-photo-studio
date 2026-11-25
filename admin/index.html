@@ -2459,6 +2459,16 @@
       border-color: #dce1dc;
     }
 
+    /* 装修编辑器 v3 入口：<a> 元素需对齐 <button> 的盒模型与基线 */
+    .header-actions a.header-editor-entry {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
     .stats {
       gap: 14px;
       padding-left: 16px;
@@ -3065,7 +3075,8 @@
       max-width: none !important;
       max-height: none;
       padding: 0;
-      grid-template-rows: 68px minmax(0, 1fr);
+      /* 三行：头部 / v3 状态提示条（可隐藏）/ 工作区。提示条行高自适应，避免被压缩。 */
+      grid-template-rows: 68px auto minmax(0, 1fr);
       overflow: hidden;
       border: 0;
       border-radius: 0;
@@ -3133,6 +3144,41 @@
 
     #themeSettingsModal .modal-header-tools {
       gap: 14px;
+    }
+
+    /* v3 已发布时的互斥提示条 */
+    .decoration-v3-notice {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 20px;
+      background: #fff8e6;
+      border-bottom: 1px solid #f0dfae;
+      color: #6b5417;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .decoration-v3-notice[hidden] {
+      display: none;
+    }
+
+    .decoration-v3-notice-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .decoration-v3-notice-link {
+      flex-shrink: 0;
+      color: #7a5c14;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .decoration-v3-notice-link:hover {
+      text-decoration: underline;
     }
 
     .decoration-live-status {
@@ -4377,6 +4423,9 @@
         <button class="btn btn-secondary" onclick="openProfileModal()">店铺资料</button>
         <button class="btn btn-secondary" onclick="openHomeBannerModal()">首页文案与分享</button>
         <button class="btn btn-secondary" onclick="openThemeSettingsModal()">页面装修</button>
+        <a class="btn btn-secondary header-editor-entry" href="/editor/" target="_blank" rel="noopener" title="在新标签页打开装修编辑器 v3（模板 / 区块 / 发布）">
+          装修编辑器 v3 ↗
+        </a>
         <button class="btn btn-secondary" onclick="openBookingSettingsModal()">预约选项</button>
         <button class="btn btn-secondary" onclick="openContentModulesModal()">服务内容</button>
         <button class="btn btn-secondary" onclick="openSettingsModal()">云端设置</button>
@@ -4651,6 +4700,11 @@
           <button type="button" class="btn btn-secondary decoration-mobile-preview-button" id="decorationMobilePreviewButton" aria-pressed="false" onclick="toggleDecorationMobilePreview()">查看预览</button>
           <button class="btn btn-primary decoration-save-button" onclick="saveThemeSettings()"><span class="decoration-save-label-desktop">保存并更新小程序</span><span class="decoration-save-label-mobile">保存</span></button>
         </div>
+      </div>
+
+      <div class="decoration-v3-notice" id="decorationV3Notice" hidden>
+        <span class="decoration-v3-notice-text" id="decorationV3NoticeText"></span>
+        <a class="decoration-v3-notice-link" href="/editor/" target="_blank" rel="noopener">前往装修编辑器 v3 ↗</a>
       </div>
 
       <div class="decoration-workspace">

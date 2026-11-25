@@ -7,6 +7,14 @@
     "test": "node --test tests/*.test.js",
     "contract": "node scripts/decoration-contract-check.js",
     "compile:design": "node scripts/compile-design.mjs",
-    "check:legacy": "node scripts/decoration-config-check.js"
+    "check:legacy": "node scripts/decoration-config-check.js",
+    "check:previews": "node scripts/check-template-previews.js",
+    "check:contract-all": "node scripts/contract-per-template.js",
+    "check:crosscheck": "node scripts/settings-crosscheck.js",
+    "check:admin-nav": "node scripts/check-admin-editor-nav.js",
+    "check:preview-flow": "node scripts/check-preview-flow.js",
+    "previews:generate": "python scripts/generate-template-previews.py",
+    "build:editor": "npm --prefix admin/editor run build",
+    "verify": "npm run contract && npm run check:previews && npm run check:admin-nav && npm run check:preview-flow && npm run check:legacy && npm test"
   }
 }

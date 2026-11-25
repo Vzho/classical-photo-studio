@@ -6801,6 +6801,64 @@ function bindThemePreviewDraftEvents() {
   modal.dataset.previewEventsBound = 'true'
 }
 
+/**
+ * 查询装修编辑器 v3 的发布状态。
+ * v3 发布后，其接管页面的布局由 v3Pages 决定，旧版「页面装修」的修改不会生效，
+ * 因此这里需要感知 v3 状态，避免用户在旧版里白改。
+ */
+async function fetchDesignV3State() {
+  try {
+    const response = await fetch('/api/design/draft', { headers: { Accept: 'application/json' } })
+    if (!response.ok) return { hasPublished: false, publishedUpdatedAt: null }
+    const result = await response.json()
+    return {
+      hasPublished: Boolean(result?.hasPublished),
+      publishedUpdatedAt: result?.publishedUpdatedAt || null
+    }
+  } catch (error) {
+    // 状态探测失败不应阻断旧版装修的正常使用
+    return { hasPublished: false, publishedUpdatedAt: null }
+  }
+}
+
+/**
+ * 旧版装修保存前提示：v3 已发布时，受接管页面的改动不会生效。
+ */
+async function warnIfDesignV3Published() {
+  const state = await fetchDesignV3State()
+  if (!state.hasPublished) return false
+  const updatedText = state.publishedUpdatedAt
+    ? new Date(state.publishedUpdatedAt).toLocaleString('zh-CN')
+    : '未知时间'
+  showToast(
+    `装修编辑器 v3 已于 ${updatedText} 发布，接管页面的布局以 v3 为准，此处改动不会生效`,
+    'error'
+  )
+  return true
+}
+
+/**
+ * 刷新旧版装修模态框内的 v3 发布状态提示条。
+ */
+async function refreshDesignV3Notice() {
+  const notice = document.getElementById('decorationV3Notice')
+  const noticeText = document.getElementById('decorationV3NoticeText')
+  if (!notice || !noticeText) return
+
+  const state = await fetchDesignV3State()
+  if (!state.hasPublished) {
+    notice.hidden = true
+    noticeText.textContent = ''
+    return
+  }
+  const updatedText = state.publishedUpdatedAt
+    ? new Date(state.publishedUpdatedAt).toLocaleString('zh-CN')
+    : '未知时间'
+  noticeText.textContent =
+    `装修编辑器 v3 已于 ${updatedText} 发布，已接管的页面布局以 v3 为准，此处的改动不会生效。`
+  notice.hidden = false
+}
+
 async function openThemeSettingsModal() {
   if (adminInitializationPromise) {
     try {
@@ -6849,6 +6907,8 @@ async function openThemeSettingsModal() {
   updateThemePreview()
 
   openModal('themeSettingsModal')
+  // 模态框已显示，再异步探测 v3 发布状态并更新提示条
+  refreshDesignV3Notice()
 }
 
 function applySelectedThemePreset() {
@@ -6914,6 +6974,17 @@ async function saveThemeSettings() {
   if (validationErrors.length) {
     showToast(validationErrors[0], 'error')
     return
+  }
+
+  // v3 已发布时，已接管页面的布局以 v3 为准，此处保存不会生效，需要二次确认避免白改。
+  const v3State = await fetchDesignV3State()
+  if (v3State.hasPublished) {
+    const confirmed = confirm(
+      '装修编辑器 v3 已经发布过装修稿，已接管页面的布局以 v3 为准。\n\n' +
+      '在此处修改的旧版装修对这些页面不会生效（内容类修改仍会生效）。\n\n' +
+      '确定继续保存吗？如需调整页面布局，请前往「装修编辑器 v3」。'
+    )
+    if (!confirmed) return
   }
 
   portfolioData.theme = {

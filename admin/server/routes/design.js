@@ -2,7 +2,7 @@
 // 草稿保存只写本地文件，绝不触达 COS。
 const express = require('express')
 
-function createDesignRouter({ workspace, validator, releaseService, getContentConfig }) {
+function createDesignRouter({ workspace, validator, releaseService, getContentConfig, compiler, contentResolver, getCosBaseUrl }) {
   const router = express.Router()
 
   router.get('/templates', async (req, res, next) => {
@@ -54,6 +54,62 @@ function createDesignRouter({ workspace, validator, releaseService, getContentCo
       }
       const saved = await workspace.writeDraft(design)
       res.json({ success: true, draft: saved, issues: validation })
+    } catch (error) {
+      next(error)
+    }
+  })
+
+  // 草稿预览：编译「草稿」而非发布稿，附真实内容，供编辑器实时预览。
+  // 只读：不写任何文件、不上传 COS、不影响 published。
+  // 与线上渲染共用同一个 compiler，保证「预览所见 = 发布所得」。
+  router.get('/preview', async (req, res, next) => {
+    try {
+      const draft = await workspace.readDraft()
+      if (!draft) {
+        res.status(404).json({ success: false, error: '没有可预览的草稿，请先应用模板' })
+        return
+      }
+
+      const validation = validator.validateDesign(draft)
+      const template = await workspace.readTemplate(draft.templateId)
+      if (!template) {
+        res.status(422).json({ success: false, error: `草稿引用的模板不存在: ${draft.templateId}` })
+        return
+      }
+
+      const contentConfig = await getContentConfig()
+      const { runtime, warnings, compiledPages } = compiler.compileRuntime({
+        contentConfig,
+        publishedDesign: draft,
+        templateManifest: template
+      })
+
+      // 填充真实内容，让预览与用户线上看到的数据一致。
+      const cosBaseUrl = typeof getCosBaseUrl === 'function' ? getCosBaseUrl() : ''
+      contentResolver.attachBlockContent(runtime, contentConfig, { cosBaseUrl })
+
+      const published = await workspace.readPublished()
+      res.json({
+        success: true,
+        preview: {
+          templateId: draft.templateId,
+          templateName: template.name || template.displayName || draft.templateId,
+          tokens: draft.tokens || {},
+          brand: draft.brand || {},
+          navigation: draft.navigation || {},
+          pages: runtime.v3Pages || {},
+          compiledPages,
+          warnings
+        },
+        validation,
+        // 草稿与线上发布稿的关系：用于前端提示「当前线上跑的是哪一版」。
+        published: published
+          ? { templateId: published.templateId, updatedAt: published.updatedAt }
+          : null,
+        hasUnpublishedChanges: published
+          ? JSON.stringify({ ...published, updatedAt: null }) !== JSON.stringify({ ...draft, updatedAt: null })
+          : true
+      })
     } catch (error) {
       next(error)
     }

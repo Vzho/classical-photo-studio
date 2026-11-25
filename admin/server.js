@@ -18,6 +18,7 @@ const fsSync = require('fs')
 const { createDesignWorkspace } = require('./server/services/design-workspace')
 const { createDesignValidator } = require('./server/validation/design-validator')
 const { createRuntimeCompiler } = require('./server/services/runtime-compiler')
+const { createContentResolver } = require('./server/services/content-resolver')
 const { createCosPublisher } = require('./server/services/cos-publisher')
 const { createReleaseService } = require('./server/services/release-service')
 const { createDesignRouter } = require('./server/routes/design')
@@ -88,6 +89,7 @@ const designWorkspace = createDesignWorkspace({
 })
 const designValidator = createDesignValidator({ registry: decorationRegistry, blockSchemas: designBlockSchemas })
 const designCompiler = createRuntimeCompiler({ registry: decorationRegistry, blockSchemas: designBlockSchemas })
+const designContentResolver = createContentResolver()
 // 惰性读取 cos 实例，后台更新密钥重建实例后发布仍生效。
 const designPublisher = createCosPublisher({
   provider: () => ({ cos, bucket: CONFIG.cos.Bucket, region: CONFIG.cos.Region })
@@ -107,10 +109,31 @@ app.use('/api/design', createDesignRouter({
   workspace: designWorkspace,
   validator: designValidator,
   releaseService: designReleaseService,
+  compiler: designCompiler,
+  contentResolver: designContentResolver,
+  getCosBaseUrl: () => getCosBaseUrl(),
   getContentConfig: () => readLatestConfigForMutation()
 }))
 app.use('/api/releases', createReleasesRouter({ releaseService: designReleaseService }))
 app.use('/mini-icons', express.static(path.join(__dirname, '../miniprogram/assets/icons')))
+
+// 装修编辑器（Vue3 + Vite 构建产物）。
+// 注意挂载顺序：/editor/templates 指向 shared/decoration/templates，
+// 必须先于 /editor 挂载，否则会被 editor-dist 的目录匹配抢先。
+app.use('/editor/templates', express.static(path.join(SHARED_DECORATION_DIR, 'templates')))
+app.use('/editor', express.static(path.join(__dirname, 'editor-dist')))
+// editor-dist 未构建时给出可执行的提示，而不是冷冰冰的 404。
+app.get('/editor', (req, res) => {
+  res.status(503).type('html').send(
+    '<!doctype html><meta charset="utf-8"><title>装修编辑器未构建</title>' +
+    '<div style="font:16px/1.7 system-ui;max-width:640px;margin:80px auto;padding:0 24px">' +
+    '<h1 style="font-size:20px;margin:0 0 12px">装修编辑器尚未构建</h1>' +
+    '<p>请在项目根目录执行以下命令，然后重新打开本页面：</p>' +
+    '<pre style="background:#f5f5f5;padding:14px 16px;border-radius:8px;overflow:auto">cd admin/editor\nnpm install\nnpm run build</pre>' +
+    '<p>开发调试请用 <code>npm run dev</code>（<a href="http://127.0.0.1:5173/">http://127.0.0.1:5173/</a>，含热更新）。</p>' +
+    '</div>'
+  )
+})
 app.get(['/', '/index.html'], (req, res) => res.sendFile(path.join(__dirname, 'index.html')))
 app.get('/app.js', (req, res) => res.sendFile(path.join(__dirname, 'app.js')))
 app.get('/preview.css', (req, res) => res.sendFile(path.join(__dirname, 'preview.css')))
@@ -218,6 +241,15 @@ async function readConfig() {
 async function readLatestConfigForMutation() {
   const remoteConfig = await readConfigFromCos({ strict: true })
   return remoteConfig ? normalizePortfolioConfig(remoteConfig) : readConfig()
+}
+
+// COS 资源公开访问前缀，供草稿预览拼接图片地址。
+// 与小程序 getCosUrl 同口径，Bucket/Region 来自 .env。
+function getCosBaseUrl() {
+  const bucket = String(CONFIG.cos?.Bucket || '').trim()
+  const region = String(CONFIG.cos?.Region || '').trim()
+  if (!bucket || !region) return ''
+  return `https://${bucket}.cos.${region}.myqcloud.com`
 }
 
 function normalizePortfolioConfig(config) {
