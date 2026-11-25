@@ -95,25 +95,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import Sortable from 'sortablejs'
+import { useDesignApi } from '../composables/useDesignApi'
+import { useToast } from '../composables/useToast'
+import type { Block, PageConfig } from '../types/api'
 
-interface Block {
-  id: string
-  type: string
-  variant: string
-  enabled: boolean
-  dataSource: {
-    type: string
-  }
-  settings: Record<string, unknown>
+const api = useDesignApi()
+const toast = useToast()
+
+interface PageInfo {
+  key: string
+  label: string
 }
 
-interface PageConfig {
-  blocks: Block[]
-}
-
-const pages = [
+const pages: PageInfo[] = [
   { key: 'portfolio', label: '作品首页' },
   { key: 'series', label: '作品详情' },
   { key: 'about', label: '关于我们' },
@@ -136,6 +132,9 @@ const blockRegistry: Record<string, { label: string; variants: string[] }> = {
 const activePage = ref('portfolio')
 const pageConfigs = ref<Record<string, PageConfig>>({})
 const selectedBlock = ref<Block | null>(null)
+const loading = ref(false)
+const saving = ref(false)
+
 let sortableInstance: Sortable | null = null
 
 const currentPageLabel = computed(() => pages.find(p => p.key === activePage.value)?.label || '')
@@ -153,9 +152,9 @@ function selectBlock(block: Block) {
   selectedBlock.value = { ...block }
 }
 
-function toggleBlock(block: Block) {
+async function toggleBlock(block: Block) {
   block.enabled = !block.enabled
-  saveDraft()
+  await saveDraft()
 }
 
 async function saveBlockSettings() {
@@ -167,32 +166,41 @@ async function saveBlockSettings() {
     blocks[index] = { ...selectedBlock.value }
   }
 
-  await saveDraft()
-  selectedBlock.value = null
+  const success = await saveDraft()
+  if (success) {
+    selectedBlock.value = null
+  }
 }
 
 async function loadDraft() {
+  if (loading.value) return
+
+  loading.value = true
   try {
-    const response = await fetch('/api/design/draft')
-    const data = await response.json()
+    const data = await api.getDraft()
     if (data.draft?.pages) {
       pageConfigs.value = data.draft.pages
     }
   } catch (error) {
     console.error('加载草稿失败:', error)
+    pageConfigs.value = {}
+  } finally {
+    loading.value = false
   }
 }
 
-async function saveDraft() {
+async function saveDraft(): Promise<boolean> {
+  if (saving.value) return false
+
+  saving.value = true
   try {
-    await fetch('/api/design/draft', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pages: pageConfigs.value })
-    })
+    const success = await api.updateDraft({ pages: pageConfigs.value })
+    return success
   } catch (error) {
     console.error('保存草稿失败:', error)
-    alert('保存失败，请重试')
+    return false
+  } finally {
+    saving.value = false
   }
 }
 
@@ -208,7 +216,7 @@ function initSortable() {
     animation: 150,
     handle: '.block-handle',
     ghostClass: 'block-ghost',
-    onEnd: (evt) => {
+    onEnd: async (evt) => {
       const oldIndex = evt.oldIndex
       const newIndex = evt.newIndex
       if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) return
@@ -217,10 +225,16 @@ function initSortable() {
       const [movedBlock] = blocks.splice(oldIndex, 1)
       blocks.splice(newIndex, 0, movedBlock)
 
-      saveDraft()
+      await saveDraft()
     }
   })
 }
+
+// 监听页面切换，重新初始化拖拽
+watch(activePage, async () => {
+  await nextTick()
+  initSortable()
+})
 
 onMounted(async () => {
   await loadDraft()

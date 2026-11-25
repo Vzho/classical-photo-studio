@@ -10,7 +10,15 @@
           <h3>系列封面</h3>
           <p class="text-muted">选择每个作品系列的首屏封面图</p>
 
-          <div class="series-list">
+          <div v-if="loading" class="loading-state">
+            <p>加载中...</p>
+          </div>
+
+          <div v-else-if="seriesList.length === 0" class="empty-state">
+            <p>暂无系列数据</p>
+          </div>
+
+          <div v-else class="series-list">
             <div v-for="series in seriesList" :key="series.id" class="series-item">
               <div class="series-header">
                 <h4>{{ series.title }}</h4>
@@ -86,9 +94,11 @@
         </section>
       </div>
 
-      <div class="actions">
-        <button class="btn btn-primary" @click="saveMediaMeta">保存图片设置</button>
-      </div>
+          <div class="actions">
+            <button class="btn btn-primary" :disabled="saving" @click="saveMediaMeta">
+              {{ saving ? '保存中...' : '保存图片设置' }}
+            </button>
+          </div>
     </div>
 
     <!-- 焦点编辑器弹窗 -->
@@ -120,36 +130,38 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useDesignApi } from '../composables/useDesignApi'
+import { useToast } from '../composables/useToast'
+import type { Series, FocalPoint } from '../types/api'
 
-interface Series {
-  id: string
-  title: string
-  coverPhoto: string | null
-  photoCount: number
-  focalPoint?: { x: number; y: number }
-}
+const api = useDesignApi()
+const toast = useToast()
 
 const seriesList = ref<Series[]>([])
 const qualityWarnings = ref<string[]>([])
+const loading = ref(false)
+const saving = ref(false)
+
 const focalPointEditor = ref({
   visible: false,
   series: null as Series | null,
-  point: null as { x: number; y: number } | null
+  point: null as FocalPoint | null
 })
 const focalImage = ref<HTMLImageElement | null>(null)
 
 function getImageUrl(fileName: string): string {
+  // TODO: 从环境配置获取 COS 域名
   return `https://example.cos.ap-guangzhou.myqcloud.com/portfolio/${fileName}`
 }
 
-function getFocalPointStyle(point: { x: number; y: number }) {
+function getFocalPointStyle(point: FocalPoint) {
   return {
     left: `${point.x * 100}%`,
     top: `${point.y * 100}%`
   }
 }
 
-function getFocalMarkerStyle(point: { x: number; y: number }) {
+function getFocalMarkerStyle(point: FocalPoint) {
   return {
     left: `${point.x * 100}%`,
     top: `${point.y * 100}%`
@@ -174,16 +186,21 @@ function closeFocalPointEditor() {
 
 function setFocalPoint(event: MouseEvent) {
   const img = focalImage.value
-  if (!img) return
+
+  // 确保图片已加载完成
+  if (!img || !img.complete || img.naturalWidth === 0) {
+    toast.warning('请等待图片加载完成')
+    return
+  }
 
   const rect = img.getBoundingClientRect()
-  const x = (event.clientX - rect.left) / rect.width
-  const y = (event.clientY - rect.top) / rect.height
+  const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
+  const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
 
   focalPointEditor.value.point = { x, y }
 }
 
-function saveFocalPoint() {
+async function saveFocalPoint() {
   const { series, point } = focalPointEditor.value
   if (!series || !point) return
 
@@ -193,18 +210,21 @@ function saveFocalPoint() {
   }
 
   closeFocalPointEditor()
-  saveMediaMeta()
+  await saveMediaMeta()
 }
 
 function changeCover(series: Series) {
-  alert(`更换系列"${series.title}"的封面（功能需连接作品选择器）`)
+  toast.info('功能开发中', `更换系列"${series.title}"的封面需要连接作品选择器`)
 }
 
 function setCover(series: Series) {
-  alert(`选择系列"${series.title}"的封面（功能需连接作品选择器）`)
+  toast.info('功能开发中', `选择系列"${series.title}"的封面需要连接作品选择器`)
 }
 
 async function saveMediaMeta() {
+  if (saving.value) return
+
+  saving.value = true
   try {
     const mediaMeta = seriesList.value.reduce((acc, series) => {
       if (series.focalPoint) {
@@ -213,41 +233,79 @@ async function saveMediaMeta() {
         }
       }
       return acc
-    }, {} as Record<string, any>)
+    }, {} as Record<string, { focalPoint: FocalPoint }>)
 
-    await fetch('/api/design/draft', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mediaMeta })
-    })
-    alert('图片设置已保存')
+    await api.updateDraft({ mediaMeta: mediaMeta as any })
   } catch (error) {
-    console.error('保存失败:', error)
-    alert('保存失败，请重试')
+    console.error('保存图片元数据失败:', error)
+  } finally {
+    saving.value = false
   }
 }
 
-async function loadSeriesList() {
-  try {
-    const response = await fetch('/api/config')
-    const data = await response.json()
+/**
+ * 检查图片比例是否适合横幅展示
+ * 横幅需要至少 2.0 的宽高比（接近 21:9）
+ */
+async function checkImageQuality(series: Series[]): Promise<string[]> {
+  const warnings: string[] = []
+  const MIN_BANNER_RATIO = 2.0
 
-    seriesList.value = (data.themes || []).flatMap((theme: any) =>
-      (theme.series || []).map((series: any) => ({
+  for (const s of series) {
+    if (!s.coverPhoto) continue
+
+    try {
+      // 创建临时图片对象获取尺寸
+      const img = new Image()
+      await new Promise((resolve, reject) => {
+        img.onload = resolve
+        img.onerror = reject
+        img.src = getImageUrl(s.coverPhoto!)
+      })
+
+      const ratio = img.width / img.height
+
+      if (ratio < MIN_BANNER_RATIO) {
+        warnings.push(s.id)
+      }
+    } catch (error) {
+      console.warn(`无法检查图片 ${s.coverPhoto}:`, error)
+    }
+  }
+
+  return warnings
+}
+
+async function loadSeriesList() {
+  if (loading.value) return
+
+  loading.value = true
+  try {
+    const data = await api.getConfig()
+
+    if (!data.themes || !Array.isArray(data.themes)) {
+      throw new Error('配置数据格式错误')
+    }
+
+    seriesList.value = data.themes.flatMap(theme =>
+      (theme.series || []).map(series => ({
         id: series.id,
         title: series.title || series.id,
         coverPhoto: series.coverPhoto || (series.photos && series.photos[0]) || null,
         photoCount: (series.photos || []).length,
-        focalPoint: series.focalPoint || null
+        focalPoint: series.focalPoint || undefined
       }))
     )
 
-    // 模拟质量检查
-    qualityWarnings.value = seriesList.value
-      .filter(s => Math.random() > 0.8)
-      .map(s => s.id)
+    // 异步检查图片质量（不阻塞界面）
+    checkImageQuality(seriesList.value).then(warnings => {
+      qualityWarnings.value = warnings
+    })
   } catch (error) {
     console.error('加载系列列表失败:', error)
+    seriesList.value = []
+  } finally {
+    loading.value = false
   }
 }
 
@@ -289,6 +347,13 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+}
+
+.loading-state,
+.empty-state {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-muted);
 }
 
 .series-item {

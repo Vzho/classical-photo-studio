@@ -18,6 +18,20 @@
               <span class="info-label">最后更新</span>
               <span class="info-value">{{ formatDate(draftInfo.updatedAt) }}</span>
             </div>
+            <div class="info-row">
+              <span class="info-label">线上状态</span>
+              <span class="info-value">
+                <span v-if="!publishedInfo" class="state-tag state-tag--draft">未发布 · 线上为旧版</span>
+                <span v-else-if="hasUnpublishedChanges" class="state-tag state-tag--changed">有未发布的改动</span>
+                <span v-else class="state-tag state-tag--synced">与线上一致</span>
+              </span>
+            </div>
+            <div v-if="publishedInfo" class="info-row">
+              <span class="info-label">线上版本</span>
+              <span class="info-value">
+                {{ publishedInfo.templateId }} · {{ formatDate(publishedInfo.updatedAt) }}
+              </span>
+            </div>
           </div>
 
           <div v-else class="no-draft">
@@ -47,11 +61,11 @@
             <div v-else class="validation-errors">
               <div class="error-summary">
                 <span class="status-icon">✗</span>
-                <strong>发现 {{ validationResult.errors.length }} 个问题</strong>
+                <strong>发现 {{ validationResult.issues.errors.length }} 个问题</strong>
               </div>
 
               <div class="error-list">
-                <div v-for="(error, index) in validationResult.errors" :key="index" class="error-item">
+                <div v-for="(error, index) in validationResult.issues.errors" :key="index" class="error-item">
                   <span :class="['error-level', error.level]">{{ error.level }}</span>
                   <p>{{ error.message }}</p>
                 </div>
@@ -68,6 +82,7 @@
 
           <div class="publish-warning">
             <p>⚠️ 发布后，装修配置将立即生效到小程序线上环境</p>
+            <p class="text-muted">发布前建议先到「草稿预览」确认效果 —— 只有点了发布，用户访问才会改变。</p>
           </div>
 
           <div class="publish-actions">
@@ -95,23 +110,23 @@
           <h3>发布历史</h3>
 
           <div v-if="releases.length > 0" class="releases-list">
-            <div v-for="release in releases" :key="release.id" class="release-item">
+            <div v-for="release in releases" :key="release.releaseId" class="release-item">
               <div class="release-header">
                 <div>
-                  <strong>版本 {{ release.id }}</strong>
-                  <span class="release-date text-muted">{{ formatDate(release.createdAt) }}</span>
+                  <strong>版本 {{ release.releaseId }}</strong>
+                  <span class="release-date text-muted">{{ formatDate(release.timestamp) }}</span>
                 </div>
-                <span v-if="release.current" class="current-badge">当前版本</span>
+                <span v-if="release.isCurrent" class="current-badge">当前版本</span>
               </div>
 
               <div class="release-meta">
-                <span class="meta-item">模板: {{ release.templateId }}</span>
-                <span class="meta-item">{{ release.pageCount }} 个页面</span>
+                <span class="meta-item">模板: {{ release.design.templateId || 'N/A' }}</span>
+                <span class="meta-item">{{ Object.keys(release.design.pages || {}).length }} 个页面</span>
               </div>
 
               <div class="release-actions">
                 <button
-                  v-if="!release.current"
+                  v-if="!release.isCurrent"
                   class="btn btn-secondary btn-small"
                   @click="rollbackTo(release)"
                 >
@@ -132,34 +147,29 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useDesignApi } from '../composables/useDesignApi'
+import { useToast } from '../composables/useToast'
+import type { ValidationResponse, Release } from '../types/api'
+
+const api = useDesignApi()
+const toast = useToast()
 
 interface DraftInfo {
   templateId: string
   updatedAt: string
 }
 
-interface ValidationResult {
-  valid: boolean
-  errors: Array<{ level: string; message: string }>
-}
-
-interface Release {
-  id: string
-  templateId: string
-  pageCount: number
-  createdAt: string
-  current: boolean
-}
-
 const draftInfo = ref<DraftInfo | null>(null)
-const validationResult = ref<ValidationResult | null>(null)
+const publishedInfo = ref<{ templateId: string; updatedAt: string } | null>(null)
+const hasUnpublishedChanges = ref(false)
+const validationResult = ref<ValidationResponse | null>(null)
 const validating = ref(false)
 const publishing = ref(false)
-const publishResult = ref<any>(null)
+const publishResult = ref<{ success: boolean; releaseId?: string; error?: string } | null>(null)
 const releases = ref<Release[]>([])
 
 const canPublish = computed(() => {
-  return validationResult.value?.valid && draftInfo.value
+  return validationResult.value?.valid && draftInfo.value && !publishing.value
 })
 
 function formatDate(date: string): string {
@@ -168,16 +178,26 @@ function formatDate(date: string): string {
 
 async function loadDraft() {
   try {
-    const response = await fetch('/api/design/draft')
-    const data = await response.json()
+    const data = await api.getDraft()
     if (data.draft) {
       draftInfo.value = {
-        templateId: data.draft.templateId,
-        updatedAt: data.draft.updatedAt
+        templateId: data.draft.templateId || '',
+        updatedAt: data.draft.updatedAt || new Date().toISOString()
       }
     }
   } catch (error) {
     console.error('加载草稿失败:', error)
+    draftInfo.value = null
+  }
+
+  // 草稿与线上发布稿的差异：预览接口会同时返回两者关系（只读，不触达线上）。
+  try {
+    const preview = await api.getPreview()
+    publishedInfo.value = preview.published
+    hasUnpublishedChanges.value = Boolean(preview.hasUnpublishedChanges)
+  } catch {
+    publishedInfo.value = null
+    hasUnpublishedChanges.value = false
   }
 }
 
@@ -186,44 +206,43 @@ async function validateDesign() {
   validationResult.value = null
 
   try {
-    const response = await fetch('/api/design/validate', {
-      method: 'POST'
-    })
-    const data = await response.json()
+    const data = await api.validateDesign()
     validationResult.value = data
   } catch (error) {
     console.error('校验失败:', error)
-    alert('校验失败，请重试')
   } finally {
     validating.value = false
   }
 }
 
 async function publishDesign() {
-  if (!confirm('确定要发布装修配置到线上吗？')) return
+  if (!confirm('确定要发布装修配置到线上吗？此操作将立即生效。')) return
 
   publishing.value = true
   publishResult.value = null
 
   try {
-    const response = await fetch('/api/design/publish', {
-      method: 'POST'
-    })
+    const data = await api.publishDesign()
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || '发布失败')
+    if (data.success) {
+      publishResult.value = {
+        success: true,
+        releaseId: data.release?.releaseId
+      }
+
+      // 刷新发布历史
+      await loadReleases()
+    } else {
+      publishResult.value = {
+        success: false,
+        error: '发布失败，请重试'
+      }
     }
-
-    const data = await response.json()
-    publishResult.value = { success: true, releaseId: data.releaseId }
-
-    // 刷新发布历史
-    await loadReleases()
-    alert('发布成功！')
   } catch (error: any) {
-    publishResult.value = { success: false, error: error.message }
-    alert(`发布失败: ${error.message}`)
+    publishResult.value = {
+      success: false,
+      error: error.message || '发布失败'
+    }
   } finally {
     publishing.value = false
   }
@@ -231,31 +250,22 @@ async function publishDesign() {
 
 async function loadReleases() {
   try {
-    const response = await fetch('/api/releases')
-    const data = await response.json()
-    releases.value = data.releases || []
+    const data = await api.getReleases()
+    releases.value = data || []
   } catch (error) {
     console.error('加载发布历史失败:', error)
+    releases.value = []
   }
 }
 
 async function rollbackTo(release: Release) {
-  if (!confirm(`确定要回滚到版本 ${release.id} 吗？这将替换当前线上的装修配置。`)) return
+  if (!confirm(`确定要回滚到版本 ${release.releaseId} 吗？这将替换当前线上的装修配置。`)) return
 
   try {
-    const response = await fetch(`/api/releases/${release.id}/rollback`, {
-      method: 'POST'
-    })
-
-    if (!response.ok) {
-      throw new Error('回滚失败')
-    }
-
-    alert('回滚成功！')
+    await api.rollbackRelease(release.releaseId)
     await loadReleases()
   } catch (error) {
     console.error('回滚失败:', error)
-    alert('回滚失败，请重试')
   }
 }
 
@@ -304,6 +314,35 @@ onMounted(() => {
 .info-label {
   font-weight: 500;
   color: var(--color-text-muted);
+}
+
+/* 草稿 / 线上状态标签 */
+.state-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.state-tag--draft {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+.state-tag--changed {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.state-tag--synced {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
 }
 
 .no-draft {
